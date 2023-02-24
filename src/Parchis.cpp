@@ -282,7 +282,9 @@ void Parchis::movePiece(color player, int piece, int dice_number){
             //Comprobar si se ha obtenido objeto especial
             for (int i = 0; i < board.getSpecialItems().size(); i++){
                 if (final_box == board.getSpecialItems()[i].box){
+                    // Se borra del tablero y se añade a los dados especiales del jugador.
                     board.deleteSpecialItem(i);
+                    dice.addSpecialDice(player, board.getSpecialItems()[i].type + 100);
                 }
             }
 

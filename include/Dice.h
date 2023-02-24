@@ -5,6 +5,8 @@
 # include <map>
 # include "Attributes.h"
 
+# define STAR 101
+
 using namespace std;
 
 class Dice{
@@ -14,6 +16,11 @@ class Dice{
          * La primera capa contiene los dados clásicos del 1-6.
          * Se pueden añadir nuevas capas para forzar valores especiales,
          * como mover 10 o 20.
+         * 
+         * 22/23
+         * - Capa 1: Dados clásicos del 1-6.
+         * - Capa 2: Dados especiales adquiridos por el jugador.
+         * - Capa 3: Dados forzados (mover 10 o 20)
          * 
          */
         map <color, vector<vector <int>> > dice;        
@@ -39,6 +46,14 @@ class Dice{
          * @return const vector<int>& 
          */
         const vector<int> & getDice (color player) const;
+
+        /**
+         * @brief Devuelve los dados especiales para un cierto jugador "player".
+         *
+         * @param player
+         * @return const vector<int>&
+         */
+        const vector<int> & getSpecialDice(color player) const;
 
         /**
          * @brief Devuelve los dados de todas las capas de un jugador.
@@ -95,6 +110,12 @@ class Dice{
          * @return int 
          */
         void forceNumber(color player, int n);
+
+        /**
+         * @brief Función que añade un dado especial al jugador "player".
+         * 
+         */
+        void addSpecialDice(color player, int n);
 };
 
 #endif

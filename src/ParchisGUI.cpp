@@ -146,10 +146,14 @@ const IntRect ParchisGUI::turns_arrow_rect = IntRect(0, 280, 112, 112);
 
 const map<color, int> ParchisGUI::color2turns_arrow_pos = 
 {
+    //{yellow, 50},
+    //{blue, 130},
+    //{red, 210},
+    //{green, 290}
     {yellow, 50},
-    {blue, 130},
-    {red, 210},
-    {green, 290}
+    {blue, 210},
+    {red, 50},
+    {green, 210}
 };
 
 const string ParchisGUI::sound_move_file = "data/music/teleport";
@@ -281,13 +285,7 @@ ParchisGUI::ParchisGUI(Parchis &model)
         special_10_20_dice[dice_colors[i]].push_back(DiceSprite(tDices, -1, dice_colors[i]));
         special_10_20_dice[dice_colors[i]][0].setPosition(ini_pos.x + offset.x*6, ini_pos.y + offset.y*2*i);
     }
-    for (int i = 0; i < dice_colors.size(); i++){
-        for (int j = 1; j <= 6; j++){
-            special_dices[dice_colors[i]].push_back(DiceSprite(tDices, 100+1, dice_colors[i]));
-            Vector2i pos = ini_pos + Vector2i((j-1)*offset.x, (2*i+1)*offset.y);
-            special_dices[dice_colors[i]][j-1].setPosition(pos.x, pos.y);
-        }
-    }
+    
 
     for (int i = 0; i < dice_colors.size(); i++){
         for (int j = 1; j <= 6; j++){
@@ -419,12 +417,6 @@ void ParchisGUI::collectSprites(){
             dice_drawable_sprites.push_back(&dices[col][j]);
             dice_clickable_sprites.push_back(&dices[col][j]);
         }
-        for(int j = 0; j < special_dices[col].size(); j++){
-            all_drawable_sprites.push_back(&special_dices[col][j]);
-            all_clickable_sprites.push_back(&special_dices[col][j]);
-            dice_drawable_sprites.push_back(&special_dices[col][j]);
-            dice_clickable_sprites.push_back(&special_dices[col][j]);
-        }
 
         // Añadir dados especiales como dibujables y clickables.
         all_drawable_sprites.push_back(&special_10_20_dice[col][0]);
@@ -454,6 +446,31 @@ void ParchisGUI::dynamicallyCollectSprites(){
     for(int j= 0; j < this->model->getBoard().getSpecialItems().size(); j++){
         special_items.push_back(SpecialItemSprite(tSpecialItems, this->model->getBoard().getSpecialItems()[j].type));
         special_items[j].setPosition(box2position.at(this->model->getBoard().getSpecialItems()[j].box).at(0).x, box2position.at(this->model->getBoard().getSpecialItems()[j].box).at(0).y);
+    }
+
+    vector<color> dice_colors = {yellow, blue};
+    // Creación de los dados
+    Vector2i ini_pos(900, 50);
+    Vector2i offset(70, 80);
+    for (int i = 0; i < dice_colors.size(); i++)
+    {
+        vector<int> special_dice_model = model->getDice().getSpecialDice(dice_colors[i]);
+        for (int j = 1; j <= special_dice_model.size(); j++)
+        {
+            special_dices[dice_colors[i]].clear();
+            special_dices[dice_colors[i]].push_back(DiceSprite(tDices, special_dice_model.at(j - 1), dice_colors[i]));
+            Vector2i pos = ini_pos + Vector2i((j - 1) * offset.x, (2 * i + 1) * offset.y);
+            special_dices[dice_colors[i]][j - 1].setPosition(pos.x, pos.y);
+        }
+
+        color col = dice_colors[i];
+        for (int j = 0; j < special_dices[col].size(); j++)
+        {
+            all_drawable_sprites.push_back(&special_dices[col][j]);
+            all_clickable_sprites.push_back(&special_dices[col][j]);
+            dice_drawable_sprites.push_back(&special_dices[col][j]);
+            dice_clickable_sprites.push_back(&special_dices[col][j]);
+        }
     }
 
     all_dynamic_drawable_sprites.clear();
