@@ -1,5 +1,6 @@
-# include "GUIPlayer.h"
 # include "Parchis.h"
+# include "GUIPlayer.h"
+
 
 GUIPlayer::GUIPlayer(const string & name) : AIPlayer(name){
     this->gui = NULL;
@@ -61,10 +62,11 @@ GUIPlayer::GUIPlayer(const string & name, int id, ParchisGUI & gui) : AIPlayer(n
 
 void GUIPlayer::perceive(Parchis &p){
     AIPlayer::perceive(p);
-    
-    //if(actual->gameOver()) return;
-    //cout << gui << endl;
-    //cout << actual << endl;
+
+    cout<<"guiturn" << endl;
+    cout << gui->gui_turn<<endl;
+    cout <<"actual"  << endl;
+    cout << actual->getTurn() << endl;
     if(gui->gui_turn >= actual->getTurn()){
         cout << "Old move received. Already up to date." << endl;
     }
@@ -112,16 +114,6 @@ void GUIPlayer::perceive(Parchis &p){
             if(callfront != NULL) (gui->*callfront)();
             gui->queueMove(col, id, origin, dest, callback);
         }
-
-        /*
-        while (gui->animationsRunning())
-        {
-            sleep(milliseconds(10));
-        }
-        
-        gui->animationLock(false);
-        */
-
     }
 
     
@@ -156,20 +148,10 @@ bool GUIPlayer::move(){
         AIPlayer::move();
     }
 
-    
 
 
     return true;
-    /*
-    cout << "auto_think: " << auto_think << endl;
-    if(auto_think){
-        return AIPlayer::move();
-    }
-    else{
-        cout << "Elige el próximo movimiento" << endl;
-        return false;
-    }
-    */
+
 }
 
 void GUIPlayer::setNextMoveColor(color c){

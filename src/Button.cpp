@@ -66,29 +66,6 @@ void MoveHeuristicButton::onClickAction(Window &container){
     {
         GUIPlayer *current = static_cast<GUIPlayer*>(&gui->model->getCurrentPlayer());
         current->thinkNextMove();
-
-        
-        /*
-        AIPlayer *current = static_cast<AIPlayer*>(&gui->model->getCurrentPlayer());
-        current->AIPlayer::move();
-
-        cout << "Jugador actual: " << gui->model->getCurrentPlayerId() << endl;
-        cout << "Color actual: " << str(gui->model->getCurrentColor()) << endl;
-
-        vector<tuple<color, int, Box, Box>> last_moves = gui->model->getLastMoves();
-
-        for (int i = 0; i < last_moves.size(); i++)
-        {
-            color col = get<0>(last_moves[i]);
-            int id = get<1>(last_moves[i]);
-            Box origin = get<2>(last_moves[i]);
-            Box dest = get<3>(last_moves[i]);
-
-            gui->queueMove(col, id, origin, dest);
-        }
-
-        gui->startGameLoop();
-        */
     }
     else if(clicked && (locked || !enabled)){
         gui->playForbiddenSound();
@@ -111,28 +88,6 @@ void AutoHeuristicButton::onClickAction(Window &container){
             }
         }
 
-        /*
-        current = dynamic_cast<GUIPlayer*>(&gui->model->getCurrentPlayer());
-        if(current != NULL && current->isAutoThinking()){
-            current->AIPlayer::move();
-
-            cout << "Jugador actual: " << gui->model->getCurrentPlayerId() << endl;
-            cout << "Color actual: " << str(gui->model->getCurrentColor()) << endl;
-
-            vector<tuple<color, int, Box, Box>> last_moves = gui->model->getLastMoves();
-
-            for (int i = 0; i < last_moves.size(); i++)
-            {
-                color col = get<0>(last_moves[i]);
-                int id = get<1>(last_moves[i]);
-                Box origin = get<2>(last_moves[i]);
-                Box dest = get<3>(last_moves[i]);
-
-                gui->queueMove(col, id, origin, dest);
-            }
-
-            gui->startGameLoop();
-        }*/
     }
     else if(clicked && (locked || !enabled)){
         gui->playForbiddenSound();

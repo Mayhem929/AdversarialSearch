@@ -14,7 +14,7 @@ class AIPlayer: public Player{
          * 
          * @param name Nombre del jugador
          */
-        inline AIPlayer(const string & name):Player(name), id(0){};
+        inline AIPlayer(const string & name):Player(name), id(1){};
         
         /**
          * @brief Constructor de un objeto AIPlayer 

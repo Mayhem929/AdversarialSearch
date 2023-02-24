@@ -19,6 +19,8 @@ class Player{
 
         inline string getName() const{return name;}
 
+        inline int getJugador() const{return jugador;}
+
         /**
          * @brief Función abstracta que define el movimiento devuelto por el jugador.
          * 

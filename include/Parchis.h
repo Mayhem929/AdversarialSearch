@@ -51,7 +51,6 @@ class Parchis{
 
         //Booleanos para recordar movimientos especiales
         bool eating_move;
-        pair <color, int> eaten_piece;
         bool goal_move;
         bool goal_bounce;
         bool remember_6;
@@ -231,7 +230,7 @@ class Parchis{
          * @brief Función que devuelve el valor del atributo goal_bounce
          * 
          * @return true 
-         * @return false 
+         * @return false
          */
         inline const bool goalBounce() const{
             return goal_bounce;
@@ -314,7 +313,7 @@ class Parchis{
          * @param dice_number 
          * @return const vector<int>& 
          */
-        const vector<int> getAvailablePieces (color player, int dice_number) const;
+        const vector<tuple<color,int>> getAvailablePieces (color player, int dice_number) const;
 
         /**
          * @brief Obtener los números del dado disponibles para el jugador de color player.
@@ -476,13 +475,6 @@ class Parchis{
         int piecesAtGoal(color player) const;
 
         /**
-        * @brief Devuelve el número de fichas de un color que estan en casa.
-        *
-        * @return int
-        */
-        int piecesAtHome(color player) const;
-
-        /**
          * @brief Función que devuelve la distancia a la meta del color "player" desde
          * la casilla "box". 
          * 
@@ -597,13 +589,6 @@ class Parchis{
          * @return false 
          */
         bool isSafePiece(const color & player, const int & piece) const;
-
-        /**
-         * @brief Función que devuelve qué ficha ha sido comida, en caso de haberse producido una comida.
-         *  En caso de no haberse comido una ficha en el último turno, devuelve {none, 0}
-         * 
-         */
-        pair<color, int> eatenPiece() const;
 
         /**
          * @brief Función que devuelve el color de la barrera (en caso de haberla) en la casilla "b".

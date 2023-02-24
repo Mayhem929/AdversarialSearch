@@ -12,6 +12,7 @@
 #include "Parchis.h"
 #include "DiceSprite.h"
 #include "PieceSprite.h"
+#include "SpecialItemSprite.h"
 #include "BoardSprite.h"
 //#include "RectangularButton.h"
 #include "Button.h"
@@ -42,6 +43,7 @@ private:
     Texture tBackground;
     Texture tBoard;
     Texture tPieces;
+    Texture tSpecialItems;
     Texture tDices;
     Texture tSkipBt;
     Texture tButtons;
@@ -49,7 +51,9 @@ private:
     //Sprites' definitions
     Sprite background;
     map <color, vector<PieceSprite>> pieces;
+    vector <SpecialItemSprite> special_items;
     map <color, vector<DiceSprite>> dices;
+    map <color, vector<DiceSprite>> special_dices;
     map <color, vector<DiceSprite>> special_10_20_dice;
     // vector<BoardSprite> boards;
     BoardSprite board;
@@ -69,12 +73,14 @@ private:
 
     //Sprites utilities to reduce the code.
     vector<Drawable*> all_drawable_sprites;
+    vector<Drawable*> all_dynamic_drawable_sprites;
     vector<ClickableSprite*> all_clickable_sprites;
 
     //Sprites lists separated by views.
     vector<Sprite*> general_drawable_sprites;
 
     vector<Sprite*> board_drawable_sprites;
+    vector<Sprite*> board_dynamic_drawable_sprites;
     vector<Sprite*> dice_drawable_sprites;
     vector<Sprite*> bt_panel_drawable_sprites;
 
@@ -214,6 +220,8 @@ private:
      * 
      */
     void collectSprites();
+
+    void dynamicallyCollectSprites();
 
     /**
      * @brief Acción a ejecutar por defecto cuando el ratón no está colocado sobre ningún otro elemento de la ventana.

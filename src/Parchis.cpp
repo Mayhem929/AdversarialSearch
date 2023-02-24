@@ -33,14 +33,15 @@ void Parchis::nextTurn(){
                 this->current_color = blue;
                 break;
             case blue:
-                this->current_color = red;
+                this->current_color = yellow;
                 break;
+            /*
             case red:
                 this->current_color = green;
                 break;
             case green:
                 this->current_color = yellow;
-                break;
+                break;*/
         }
     }
 }
@@ -157,7 +158,7 @@ const vector<tuple<color, int, Box, Box>> & Parchis::getLastMoves() const{
 }
 
 vector<color> Parchis::getPlayerColors(int player) const{
-    if (player == 0){
+    if (player == 1){
         return {yellow, red};
     }
     else{
@@ -172,18 +173,27 @@ bool Parchis::operator==(const Parchis & parchis) const{
     return this->board == parchis.board && this->turn == parchis.turn;
 }
 
-const vector<int> Parchis::getAvailablePieces(color player, int dice_number) const{
+const vector<tuple<color,int>> Parchis::getAvailablePieces(color player, int dice_number) const{
     vector<Box> player_pieces = board.getPieces(player);
-    vector<int> available_pieces;
+    vector<Box> partner_color_pieces = board.getPieces(partner_color(player));
+    vector<tuple<color,int>> available_pieces;
 
     //Para cada ficha del jugador
     for(int i = 0; i < player_pieces.size(); i++){
         //Compruebo si el movimiento es legal
         if(isLegalMove(player, player_pieces[i], dice_number)){
-            available_pieces.push_back(i);
+            available_pieces.push_back({player,i});
         }
     }
 
+    for(int i = 0; i < partner_color_pieces.size(); i++){
+        //Compruebo si el movimiento es legal
+        if(isLegalMove(partner_color(player), partner_color_pieces[i], dice_number)){
+            available_pieces.push_back({partner_color(player),i});
+        }
+    }
+
+    cout << available_pieces.size() << endl;
     return available_pieces;
 
 }
@@ -233,9 +243,8 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 //Comprobar que la casilla no es segura
                 vector<int>::const_iterator ci; 
                 if (final_box.type == normal && count(safe_boxes.begin(), safe_boxes.end(), final_box.num) == 0){
-                    //Ficha comida
+                    //Movemos la ficha
                     eating_move = true;
-                    eaten_piece = box_states.at(0);
                     
                 }   
             }
@@ -270,6 +279,12 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 goal_move = true;
             }
 
+            //Comprobar si se ha obtenido objeto especial
+            for (int i = 0; i < board.getSpecialItems().size(); i++){
+                if (final_box == board.getSpecialItems()[i].box){
+                    board.deleteSpecialItem(i);
+                }
+            }
 
             this->dice.removeNumber(player, dice_number);
 
@@ -298,7 +313,7 @@ bool Parchis::isLegalMove(color player, const Box & box, int dice_number) const{
     if(gameOver())
         return false;
     // Controlar si intento mover una ficha que no es del color del jugador actual.
-    if(player != current_color)
+    if(player != current_color and player != partner_color(current_color))
         return false;
     // Controlar si intento mover un número que no está disponible en mis dados.
     if(!dice.isAvailable(player, dice_number))
@@ -348,7 +363,7 @@ bool Parchis::isLegalMove(color player, const Box & box, int dice_number) const{
 }
 
 bool Parchis::canSkipTurn(color player, int dice_number) const{
-    return dice.isAvailable(player, dice_number) and getAvailablePieces(player, dice_number).size() == 0;
+    return dice.isAvailable(player, dice_number) and getAvailablePieces(player, dice_number).size() == 0 and getAvailablePieces(partner_color(player), dice_number).size() == 0;
 }
 
 const vector<pair <color, int>> Parchis::boxState(const Box & box) const{
@@ -500,12 +515,12 @@ void Parchis::gameLoop(){
 bool Parchis::gameStep(){
     cout << "----------------" << endl;
     cout << "Turno: " << turn << endl;
-    cout << "Jugador actual: " << this->current_player << " (" << this->players.at(current_player)->getName() << ")" << endl;
-    cout << "Color actual: " << str(this->current_color) << endl;
+    cout << "Jugador actual: " << this->current_player+1 << " (" << this->players.at(current_player)->getName() << ")" << endl;
+    //cout << "Color actual: " << str(this->current_color) << endl;
     cout << "----------------" << endl;
 
     // El jugador actual hace su movimiento.
-    bool move = players.at(current_player)->move();
+    bool move = players.at(this->current_player)->move();
 
     // Se notifica el movimiento a todos los jugadores.
     for (int i = 0; i < players.size(); i++)
@@ -612,11 +627,6 @@ int Parchis::piecesAtGoal(color col) const{
     return boxState(goal).size();
 }
 
-int Parchis::piecesAtHome(color col) const{
-    Box home(0, box_type::home, col);
-    return boxState(home).size();
-}
-
 int Parchis::distanceToGoal(color player, const Box & box) const{
     //Calculo número de casillas hasta llegar a la meta
     switch(box.type){
@@ -701,11 +711,11 @@ int Parchis::distanceBoxtoBox(color player, const Box & box1, const Box & box2) 
     // En caso contrario, es alcanzable.
     // Si el destino está por encima, devuelvo la diferencia.
     if(ref_box2.num > ref_box1.num){
-        distance = ref_box2.num - ref_box1.num;
+        distance = ref_box2.num - ref_box2.num;
     }
     // Si el destino está por debajo, devuelvo la distancia al 68 más lo que me queda hasta el destino.
     else{
-        distance = 68 - ref_box1.num + ref_box2.num;
+        distance = 68 - box1.num + box2.num;
     }
 
     // Añadimos los "extras".
@@ -749,7 +759,7 @@ Parchis Parchis::generateNextMove(color & c_piece,  int & id_piece, int & dice) 
     c_piece = this->getCurrentColor();
     bool change_dice = false;
     vector<int> current_dices;
-    vector<int> current_pieces;
+    vector<tuple<color,int>> current_pieces;
 
     //Si dice tiene valor por defecto, cojo el primero.
     if (dice == -1){
@@ -759,21 +769,28 @@ Parchis Parchis::generateNextMove(color & c_piece,  int & id_piece, int & dice) 
     do{
         //Compruebo si quedan movimientos legales con dice
         current_pieces = this->getAvailablePieces(c_piece, dice);
+        //partner_current_pieces = this->getAvailablePieces(partner_color(c_piece), dice);
+
+        //Unimos las fichas disponibles con cada uno de los 2 colores
+        // current_pieces.insert(current_pieces.end(), partner_current_pieces.begin(), partner_current_pieces.end());
+
         if (current_pieces.size() > 0){
             //Si id_piece tiene valor por defecto, cojo el primero.
             if(id_piece == -1){
-                id_piece = current_pieces.at(0);
+                id_piece = get<1>(current_pieces.at(0));
+                c_piece = get<0>(current_pieces.at(0));
                 change_dice = false;
             }
             else{
                 //Siguiente pieza a id_piece
                 for(int i = 0; i < current_pieces.size(); i++){
                     //Compruebo si hay más piezas disponibles
-                    if(current_pieces.at(i) == id_piece){
+                    if(get<1>(current_pieces.at(i)) == id_piece){
                         //Si no los hay
                         if (i == current_pieces.size() - 1){
                             //Compruebo si puedo pasar de turno
-                            if(this->canSkipTurn(c_piece, dice) && id_piece != SKIP_TURN){
+                            c_piece = get<0>(current_pieces.at(i));
+                            if(this->canSkipTurn(this->getCurrentColor(), dice) && id_piece != SKIP_TURN){
                                 id_piece = SKIP_TURN;
                                 change_dice = false;
                             }
@@ -784,15 +801,17 @@ Parchis Parchis::generateNextMove(color & c_piece,  int & id_piece, int & dice) 
                         }
                         // Si sí las hay, cojo la siguiente
                         else{
-                            id_piece = current_pieces.at(i+1);
+                            id_piece = get<1>(current_pieces.at(i+1));
+                            c_piece = get<0>(current_pieces.at(i+1));
                             change_dice = false;
                         }
                         break;
                     }
                 }
+
             }
         // Si no, compruebo si puedo pasar turno con ese dado.
-        }else if(this->canSkipTurn(c_piece, dice) && id_piece != SKIP_TURN){
+        }else if(this->canSkipTurn(this->getCurrentColor(), dice) && id_piece != SKIP_TURN){
             id_piece = SKIP_TURN;
             change_dice = false;
         }
@@ -805,7 +824,7 @@ Parchis Parchis::generateNextMove(color & c_piece,  int & id_piece, int & dice) 
         //Si tengo que cambiar de dado
         if(change_dice){
             //Compruebo los disponibles
-            current_dices = this->getAvailableDices(c_piece);
+            current_dices = this->getAvailableDices(this->getCurrentColor());
             //Los recorro en orden ASCENDENTE
             for(int j = 0; j < current_dices.size(); j++){
                 if(current_dices.at(j) == dice){
@@ -829,6 +848,11 @@ Parchis Parchis::generateNextMove(color & c_piece,  int & id_piece, int & dice) 
 
 }
 
+Parchis Parchis::generateNextMoveDescending(color & c_piece,  int & id_piece, int & dice) const{
+    return generateNextMove(c_piece, id_piece, dice);
+}
+
+/*
 Parchis Parchis::generateNextMoveDescending(color & c_piece,  int & id_piece, int & dice) const{
     c_piece = this->getCurrentColor();
     bool change_dice = false;
@@ -911,7 +935,7 @@ Parchis Parchis::generateNextMoveDescending(color & c_piece,  int & id_piece, in
     Parchis next_move(*this);
     next_move.movePiece(c_piece, id_piece, dice);
     return next_move;
-}
+}*/
 
 bool Parchis::isSafeBox(const Box & box) const{
     return (box.type == normal && find(safe_boxes.begin(), safe_boxes.end(), box.num) != safe_boxes.end());
@@ -919,14 +943,6 @@ bool Parchis::isSafeBox(const Box & box) const{
 
 bool Parchis::isSafePiece(const color & player, const int & piece) const{
     return isSafeBox(this->board.getPiece(player, piece));
-}
-
-pair<color, int>  Parchis::eatenPiece() const{
-    if(eating_move){
-        return eaten_piece;
-    }else{
-        return {none, 0};
-    }
 }
 
 

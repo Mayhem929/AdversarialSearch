@@ -25,6 +25,14 @@ const vector<Box> & Board::getPieces(const color c) const{
     return pieces.at(c);
 }
 
+const vector<SpecialItem> & Board::getSpecialItems() const{
+    return special_items;
+}
+
+void Board::deleteSpecialItem(const int pos){
+    special_items.erase(special_items.begin() + pos);
+}
+
 void Board::movePiece(const color c, const int idx, const Box & final_box){
     pieces[c][idx] = final_box;
 }
@@ -47,6 +55,10 @@ void Board::setFromConfig(const BoardConfig & config){
                 {color::red, {{0, box_type::home, color::red}, {38, box_type::normal, color::none}, {47, box_type::normal, color::none}, {51, box_type::normal, color::none}}},
                 {color::blue, {{0, box_type::home, color::blue}, {21, box_type::normal, color::none}, {30, box_type::normal, color::none}, {34, box_type::normal, color::none}}},
                 {color::yellow, {{0, box_type::home, color::yellow}, {4, box_type::normal, color::none}, {13, box_type::normal, color::none}, {17, box_type::normal, color::none}}}};
+            this->special_items = vector<SpecialItem>{
+                {star, {22, box_type::normal, color::none}},
+                {star, {59, box_type::normal, color::none}}
+            };
             break;
 
         case ALTERNED:

@@ -26,6 +26,7 @@ class Board{
         //Se usa como identificador el color, y después un vector con las casillas en las que 
         //está cada una de las 4 piezas.
         map<color, vector<Box> > pieces;
+        vector<SpecialItem> special_items;
 
     public:
         /**
@@ -73,6 +74,11 @@ class Board{
          * @return Box 
          */
         const vector<Box> & getPieces(const color c) const;
+
+        const vector<SpecialItem> & getSpecialItems() const;
+
+        //Elimina el special item con posicion "pos" en el vector
+        void deleteSpecialItem(const int pos);
 
         /**
          * @brief Función que mueve la ficha de la posición "idx" del vector 
