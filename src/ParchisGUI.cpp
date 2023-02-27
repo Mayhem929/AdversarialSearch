@@ -452,6 +452,15 @@ void ParchisGUI::dynamicallyCollectSprites(){
     // Creación de los dados
     Vector2i ini_pos(900, 50);
     Vector2i offset(70, 80);
+
+    all_dynamic_drawable_sprites.clear();
+    board_dynamic_drawable_sprites.clear();
+    dice_dynamic_drawable_sprites.clear();
+
+    all_dynamic_clickable_sprites.clear();
+    dice_dynamic_clickable_sprites.clear();
+
+
     for (int i = 0; i < dice_colors.size(); i++)
     {
         vector<int> special_dice_model = model->getDice().getSpecialDice(dice_colors[i]);
@@ -466,15 +475,14 @@ void ParchisGUI::dynamicallyCollectSprites(){
         color col = dice_colors[i];
         for (int j = 0; j < special_dices[col].size(); j++)
         {
-            all_drawable_sprites.push_back(&special_dices[col][j]);
-            all_clickable_sprites.push_back(&special_dices[col][j]);
-            dice_drawable_sprites.push_back(&special_dices[col][j]);
-            dice_clickable_sprites.push_back(&special_dices[col][j]);
+            all_dynamic_drawable_sprites.push_back(&special_dices[col][j]);
+            all_dynamic_clickable_sprites.push_back(&special_dices[col][j]);
+            dice_dynamic_drawable_sprites.push_back(&special_dices[col][j]);
+            dice_dynamic_clickable_sprites.push_back(&special_dices[col][j]);
         }
     }
 
-    all_dynamic_drawable_sprites.clear();
-    board_dynamic_drawable_sprites.clear();
+    
 
     for (int i = 0; i < special_items.size(); i++){
         all_dynamic_drawable_sprites.push_back(&special_items[i]);
@@ -487,6 +495,8 @@ void ParchisGUI::mainLoop(){
     processMouse();
     processEvents();
     processAnimations();
+    // TODO: Esto no pyuede estar refrescándose siempre, si no no se puede clicar ni hacer nada.
+    // Se tendría que llamar solo cuando de verdad haya habido un cambio en estos elementos.
     dynamicallyCollectSprites();
     paint();
 
@@ -532,6 +542,20 @@ void ParchisGUI::processMouse(){
     for (int i = dice_clickable_sprites.size() - 1; i >= 0; i--)
     {
         ClickableSprite *current_sprite = dice_clickable_sprites[i];
+        if (current_sprite->getGlobalBounds().contains(world_pos) && !already_hovered)
+        {
+            current_sprite->setHovered(true, *this);
+            already_hovered = true;
+        }
+        else
+        {
+            current_sprite->setHovered(false, *this);
+        }
+    }
+
+    for (int i = dice_dynamic_clickable_sprites.size() - 1; i >= 0; i--)
+    {
+        ClickableSprite *current_sprite = dice_dynamic_clickable_sprites[i];
         if (current_sprite->getGlobalBounds().contains(world_pos) && !already_hovered)
         {
             current_sprite->setHovered(true, *this);
@@ -626,6 +650,19 @@ void ParchisGUI::processEvents(){
                     current_sprite->setClicked(true, *this);
                 }
                 else{
+                    current_sprite->setClicked(false, *this);
+                }
+            }
+
+            for (int i = dice_dynamic_clickable_sprites.size() - 1; i >= 0; i--)
+            {
+                ClickableSprite *current_sprite = dice_dynamic_clickable_sprites[i];
+                if (clicked && current_sprite->getGlobalBounds().contains(world_pos))
+                {
+                    current_sprite->setClicked(true, *this);
+                }
+                else
+                {
                     current_sprite->setClicked(false, *this);
                 }
             }
@@ -741,6 +778,11 @@ void ParchisGUI::paint(){
         this->draw(*dice_drawable_sprites[i]);
     }
 
+    for (int i = 0; i < dice_dynamic_drawable_sprites.size(); i++)
+    {
+        this->draw(*dice_dynamic_drawable_sprites[i]);
+    }
+
     // Dibujamos elementos de la vista de los botones
     this->setView(bt_panel_view);
     for (int i = 0; i < bt_panel_drawable_sprites.size(); i++)
@@ -799,6 +841,36 @@ void ParchisGUI::updateSprites(){
                 }
                 
                 else{
+                    current->setEnabled(dice.isAvailable(c, current->getNumber()), *this);
+                    current->setLocked(this->model->getCurrentColor() != c || def_lock, *this);
+                    current->setSelected(this->model->getCurrentColor() == c and last_dice == current->getNumber(), *this);
+                }
+            }
+        }
+
+        for (int j = 0; j < this->special_dices[c].size(); j++)
+        {
+            DiceSprite *current = &this->special_dices[c][j];
+            if (this->last_dice == 10 || this->last_dice == 20)
+            {
+                current->setLocked(true, *this);
+                current->setSelected(false, *this);
+                current->setEnabled(dice.isAvailable(c, current->getNumber()), *this);
+            }
+            else
+            {
+
+                if (animation_lock)
+                {
+                    current->setLocked(true, *this);
+                    color last_col = get<0>(model->getLastAction());
+                    int last_move_dice = get<2>(model->getLastAction());
+                    current->setEnabled((c == last_col && current->getNumber() == last_move_dice) || dice.isAvailable(c, current->getNumber()), *this);
+                    current->setSelected(c == last_col && current->getNumber() == last_move_dice, *this);
+                }
+
+                else
+                {
                     current->setEnabled(dice.isAvailable(c, current->getNumber()), *this);
                     current->setLocked(this->model->getCurrentColor() != c || def_lock, *this);
                     current->setSelected(this->model->getCurrentColor() == c and last_dice == current->getNumber(), *this);

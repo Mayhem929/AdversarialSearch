@@ -75,6 +75,7 @@ private:
     vector<Drawable*> all_drawable_sprites;
     vector<Drawable*> all_dynamic_drawable_sprites;
     vector<ClickableSprite*> all_clickable_sprites;
+    vector<ClickableSprite*> all_dynamic_clickable_sprites;
 
     //Sprites lists separated by views.
     vector<Sprite*> general_drawable_sprites;
@@ -82,11 +83,14 @@ private:
     vector<Sprite*> board_drawable_sprites;
     vector<Sprite*> board_dynamic_drawable_sprites;
     vector<Sprite*> dice_drawable_sprites;
+    vector<Sprite*> dice_dynamic_drawable_sprites;
     vector<Sprite*> bt_panel_drawable_sprites;
 
     vector<ClickableSprite*> board_clickable_sprites;
     vector<ClickableSprite*> dice_clickable_sprites;
     vector<ClickableSprite*> bt_panel_clickable_sprites;
+
+    vector<ClickableSprite*> dice_dynamic_clickable_sprites;
 
     // Views
     View general_view;
