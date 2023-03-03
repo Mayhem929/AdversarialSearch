@@ -448,17 +448,32 @@ void ParchisGUI::collectSprites(){
 }
 
 void ParchisGUI::dynamicallyCollectSprites(){
-    special_items.clear();
-    // Creación de los special items
-    for(int j= 0; j < this->model->getBoard().getSpecialItems().size(); j++){
-        special_items.push_back(SpecialItemSprite(tSpecialItems, this->model->getBoard().getSpecialItems()[j].type));
-        special_items[j].setPosition(box2position.at(this->model->getBoard().getSpecialItems()[j].box).at(0).x, box2position.at(this->model->getBoard().getSpecialItems()[j].box).at(0).y);
+    if(model->updateBoard()){
+        special_items.clear();
+        // Creación de los special items
+        for(int j= 0; j < this->model->getBoard().getSpecialItems().size(); j++){
+            special_items.push_back(SpecialItemSprite(tSpecialItems, this->model->getBoard().getSpecialItems()[j].type));
+            special_items[j].setPosition(box2position.at(this->model->getBoard().getSpecialItems()[j].box).at(0).x, box2position.at(this->model->getBoard().getSpecialItems()[j].box).at(0).y);
+        }
     }
 
     vector<color> dice_colors = {yellow, blue};
     // Creación de los dados
     Vector2i ini_pos(900, 50);
     Vector2i offset(70, 80);
+    if(model->updateDice()){
+        for (int i = 0; i < dice_colors.size(); i++)
+        {
+            vector<int> special_dice_model = model->getDice().getSpecialDice(dice_colors[i]);
+            for (int j = 1; j <= special_dice_model.size(); j++)
+            {
+                special_dices[dice_colors[i]].clear();
+                special_dices[dice_colors[i]].push_back(DiceSprite(tDices, special_dice_model.at(j - 1), dice_colors[i]));
+                Vector2i pos = ini_pos + Vector2i((j - 1) * offset.x, (2 * i + 1) * offset.y);
+                special_dices[dice_colors[i]][j - 1].setPosition(pos.x, pos.y);
+            }
+        }
+    }
 
     all_dynamic_drawable_sprites.clear();
     board_dynamic_drawable_sprites.clear();
@@ -467,18 +482,14 @@ void ParchisGUI::dynamicallyCollectSprites(){
     all_dynamic_clickable_sprites.clear();
     dice_dynamic_clickable_sprites.clear();
 
+    for (int i = 0; i < special_items.size(); i++)
+    {
+        all_dynamic_drawable_sprites.push_back(&special_items[i]);
+        board_dynamic_drawable_sprites.push_back(&special_items[i]);
+    }
 
     for (int i = 0; i < dice_colors.size(); i++)
     {
-        vector<int> special_dice_model = model->getDice().getSpecialDice(dice_colors[i]);
-        for (int j = 1; j <= special_dice_model.size(); j++)
-        {
-            special_dices[dice_colors[i]].clear();
-            special_dices[dice_colors[i]].push_back(DiceSprite(tDices, special_dice_model.at(j - 1), dice_colors[i]));
-            Vector2i pos = ini_pos + Vector2i((j - 1) * offset.x, (2 * i + 1) * offset.y);
-            special_dices[dice_colors[i]][j - 1].setPosition(pos.x, pos.y);
-        }
-
         color col = dice_colors[i];
         for (int j = 0; j < special_dices[col].size(); j++)
         {
@@ -489,12 +500,9 @@ void ParchisGUI::dynamicallyCollectSprites(){
         }
     }
 
-    
+    model->sendUpdatedSignal();
 
-    for (int i = 0; i < special_items.size(); i++){
-        all_dynamic_drawable_sprites.push_back(&special_items[i]);
-        board_dynamic_drawable_sprites.push_back(&special_items[i]);
-    }
+    
 }
 
 void ParchisGUI::mainLoop(){
@@ -769,12 +777,12 @@ void ParchisGUI::paint(){
     for(int i = 0; i < general_drawable_sprites.size(); i++){
         this->draw(*general_drawable_sprites[i]);
     }
-    //Dibujamos elementos de la vista del tablero.
     star_shader.setUniform("u_resolution", sf::Glsl::Vec2{this->getSize()});
     star_shader.setUniform("u_mouse", sf::Glsl::Vec2{sf::Vector2f{}});
     star_shader.setUniform("u_time", global_clock.getElapsedTime().asSeconds());
     star_shader.setUniform("texture", sf::Shader::CurrentTexture);
 
+    //Dibujamos elementos de la vista del tablero.
     this->setView(board_view);
     for(int i = 0; i < board_drawable_sprites.size(); i++){
         if(i == 0)  // PROVISIONAL (TODO: HACER BIEN)

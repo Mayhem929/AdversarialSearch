@@ -71,6 +71,9 @@ void Parchis::initGame(){
         {green, 0}
     };
     this->overbounce_player = -1;
+
+    this->update_board = true;
+    this->update_dice = true;
 }
 
 Parchis::Parchis()
@@ -285,6 +288,8 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     // Se borra del tablero y se añade a los dados especiales del jugador.
                     board.deleteSpecialItem(i);
                     dice.addSpecialDice(player, board.getSpecialItems()[i].type + 100);
+                    this->update_board = true;
+                    this->update_dice = true;
                 }
             }
 

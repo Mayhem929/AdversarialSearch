@@ -73,9 +73,13 @@ class Parchis{
         static const map<color, int> final_boxes;
         static const map<color, int> init_boxes;
 
-        // Contro de rebotes (para evitar partidas infinitas)
+        // Control de rebotes (para evitar partidas infinitas)
         map<color, int> bounces;
         int overbounce_player;
+
+        // Variables de control para sincronización con GUI.
+        bool update_board;
+        bool update_dice;
 
         /**
          * @brief Método que gestiona el cambio de turno modificando las variables
@@ -465,6 +469,18 @@ class Parchis{
             return bounces.at(player);
         }
 
+
+        inline const bool updateBoard(){
+            return this->update_board;
+        }
+
+        inline const bool updateDice(){
+            return this->update_dice;
+        }
+
+        inline void sendUpdatedSignal(){
+            this->update_board = this->update_dice = false;
+        }
         /**************************** MÉTODOS PARA LA HEURÍSTICA *********************/
 
         /**
