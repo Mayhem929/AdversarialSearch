@@ -331,6 +331,10 @@ private:
     float current_time;
     long total_frames;
     Clock game_clock;
+    Clock global_clock;
+
+    // Shaders.
+    Shader star_shader;
 
 public:
     ParchisGUI(Parchis & model);

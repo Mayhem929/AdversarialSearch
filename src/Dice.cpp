@@ -78,6 +78,11 @@ void Dice::removeNumber (color player, int n){
    // Si la tercera capa existe se elimina el elemento de ahí.
     if (dice[player].size() == 3){
         dice[player][dice[player].size() - 1].erase(remove(dice[player][dice[player].size() - 1].begin(), dice[player][dice[player].size() - 1].end(), n), dice[player][dice[player].size() - 1].end());
+        // Si la capa se  vacía (se va a vaciar siempre) se elimina.
+        if (dice[player][dice[player].size() - 1].empty())
+        {
+            dice[player].pop_back();
+        }
     }
     // Si solo hay dos capas se revisa n.
     // Si n >= 100, se elimina de la segunda capa.

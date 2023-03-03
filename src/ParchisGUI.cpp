@@ -375,6 +375,13 @@ ParchisGUI::ParchisGUI(Parchis &model)
     // Inicialización de la hebra.
     // this->call_thread_start = false;
 
+    // Inicialización de shaders.
+    // Estrella
+    if (!this->star_shader.loadFromFile("data/shaders/star_shader.frag", Shader::Fragment))
+    {
+        cout << "Error loading star shader." << endl;
+    }
+
     this->startGameLoop();
 
 
@@ -763,9 +770,19 @@ void ParchisGUI::paint(){
         this->draw(*general_drawable_sprites[i]);
     }
     //Dibujamos elementos de la vista del tablero.
+    star_shader.setUniform("u_resolution", sf::Glsl::Vec2{this->getSize()});
+    star_shader.setUniform("u_mouse", sf::Glsl::Vec2{sf::Vector2f{}});
+    star_shader.setUniform("u_time", global_clock.getElapsedTime().asSeconds());
+    star_shader.setUniform("texture", sf::Shader::CurrentTexture);
+
     this->setView(board_view);
     for(int i = 0; i < board_drawable_sprites.size(); i++){
-        this->draw(*board_drawable_sprites[i]);
+        if(i == 0)  // PROVISIONAL (TODO: HACER BIEN)
+            this->draw(*board_drawable_sprites[i]);
+        else{
+            star_shader.setUniform("sfmlColor", sf::Glsl::Vec4(board_drawable_sprites[i]->getColor().r / 255.f, board_drawable_sprites[i]->getColor().g / 255.f, board_drawable_sprites[i]->getColor().b / 255.f, board_drawable_sprites[i]->getColor().a / 255.f));
+            this->draw(*board_drawable_sprites[i], &star_shader);
+        }
     }
     for(int i = 0; i < board_dynamic_drawable_sprites.size(); i++){
         this->draw(*board_dynamic_drawable_sprites[i]);
