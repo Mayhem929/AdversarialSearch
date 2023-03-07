@@ -144,7 +144,7 @@ const string ParchisGUI::icon_file = "data/textures/icon_parchis.png";
 
 const IntRect ParchisGUI::turns_arrow_rect = IntRect(0, 280, 112, 112);
 
-const map<color, int> ParchisGUI::color2turns_arrow_pos = 
+const map<color, int> ParchisGUI::color2turns_arrow_pos =
 {
     //{yellow, 50},
     //{blue, 130},
@@ -261,8 +261,8 @@ ParchisGUI::ParchisGUI(Parchis &model)
     for(int i = 0; i < colors.size(); i++){
         color col = colors[i];
         vector<PieceSprite> col_pieces_sprites;
-        for(int j = 0; j < model.getBoard().getPieces(color::red).size(); j++){
-            col_pieces_sprites.push_back(PieceSprite(tPieces, j, col));
+        for(int j = 0; j < model.getBoard().getPieces(col).size(); j++){
+            col_pieces_sprites.push_back(PieceSprite(tPieces, j, model.getBoard().getPiece(col, j)));
             col_pieces_sprites[j].setPosition(box3position(col, j, 0));
         }
         pieces.insert({col, col_pieces_sprites});
@@ -285,21 +285,21 @@ ParchisGUI::ParchisGUI(Parchis &model)
         special_10_20_dice[dice_colors[i]].push_back(DiceSprite(tDices, -1, dice_colors[i]));
         special_10_20_dice[dice_colors[i]][0].setPosition(ini_pos.x + offset.x*6, ini_pos.y + offset.y*2*i);
     }
-    
+
 
     for (int i = 0; i < dice_colors.size(); i++){
         for (int j = 1; j <= 6; j++){
             dices[dice_colors[i]].push_back(DiceSprite(tDices, j, dice_colors[i]));
             Vector2i pos = ini_pos + Vector2i((j-1)*offset.x, 2*i*offset.y);
             dices[dice_colors[i]][j-1].setPosition(pos.x, pos.y);
-        } 
+        }
         //special_10_20_dice[colors[i]].setNumber(20);
         //special_10_20_dice[colors[i]].setModelColor(colors[i]);
         special_10_20_dice[dice_colors[i]].push_back(DiceSprite(tDices, -1, dice_colors[i]));
         special_10_20_dice[dice_colors[i]][0].setPosition(ini_pos.x + offset.x*6, ini_pos.y + offset.y*2*i);
     }
 
-    
+
 
     // Creación de los botones
     this->skip_turn_button = SkipTurnButton(tSkipBt);
@@ -382,6 +382,12 @@ ParchisGUI::ParchisGUI(Parchis &model)
         cout << "Error loading star shader." << endl;
     }
 
+    // Boo
+    if (!this->boo_shader.loadFromFile("data/shaders/boo_shader.frag", Shader::Fragment))
+    {
+        cout << "Error loading boo shader." << endl;
+    }
+
     this->startGameLoop();
 
 
@@ -455,6 +461,7 @@ void ParchisGUI::dynamicallyCollectSprites(){
             special_items.push_back(SpecialItemSprite(tSpecialItems, this->model->getBoard().getSpecialItems()[j].type));
             special_items[j].setPosition(box2position.at(this->model->getBoard().getSpecialItems()[j].box).at(0).x, box2position.at(this->model->getBoard().getSpecialItems()[j].box).at(0).y);
         }
+        model->sendUpdatedBoardSignal();
     }
 
     vector<color> dice_colors = {yellow, blue};
@@ -464,15 +471,16 @@ void ParchisGUI::dynamicallyCollectSprites(){
     if(model->updateDice()){
         for (int i = 0; i < dice_colors.size(); i++)
         {
+            special_dices[dice_colors[i]].clear();
             vector<int> special_dice_model = model->getDice().getSpecialDice(dice_colors[i]);
-            for (int j = 1; j <= special_dice_model.size(); j++)
+            for (int j = 0; j < special_dice_model.size(); j++)
             {
-                special_dices[dice_colors[i]].clear();
-                special_dices[dice_colors[i]].push_back(DiceSprite(tDices, special_dice_model.at(j - 1), dice_colors[i]));
-                Vector2i pos = ini_pos + Vector2i((j - 1) * offset.x, (2 * i + 1) * offset.y);
-                special_dices[dice_colors[i]][j - 1].setPosition(pos.x, pos.y);
+                special_dices[dice_colors[i]].push_back(DiceSprite(tDices, special_dice_model.at(j), dice_colors[i]));
+                Vector2i pos = ini_pos + Vector2i(j * offset.x, (2 * i + 1) * offset.y);
+                special_dices[dice_colors[i]][j].setPosition(pos.x, pos.y);
             }
         }
+        model->sendUpdatedDiceSignal();
     }
 
     all_dynamic_drawable_sprites.clear();
@@ -500,9 +508,9 @@ void ParchisGUI::dynamicallyCollectSprites(){
         }
     }
 
-    model->sendUpdatedSignal();
 
-    
+
+
 }
 
 void ParchisGUI::mainLoop(){
@@ -651,7 +659,7 @@ void ParchisGUI::processEvents(){
                 else{
                     current_sprite->setClicked(false, *this);
                 }
-                
+
             }
 
 
@@ -695,7 +703,7 @@ void ParchisGUI::processEvents(){
                     current_sprite->setClicked(false, *this);
                 }
             }
-            
+
         }
 
         if(event.type == Event::Resized){
@@ -781,15 +789,30 @@ void ParchisGUI::paint(){
     star_shader.setUniform("u_mouse", sf::Glsl::Vec2{sf::Vector2f{}});
     star_shader.setUniform("u_time", global_clock.getElapsedTime().asSeconds());
     star_shader.setUniform("texture", sf::Shader::CurrentTexture);
+    boo_shader.setUniform("u_resolution", sf::Glsl::Vec2{this->getSize()});
+    boo_shader.setUniform("u_mouse", sf::Glsl::Vec2{sf::Vector2f{}});
+    boo_shader.setUniform("u_time", global_clock.getElapsedTime().asSeconds());
+    boo_shader.setUniform("texture", sf::Shader::CurrentTexture);
+
 
     //Dibujamos elementos de la vista del tablero.
     this->setView(board_view);
     for(int i = 0; i < board_drawable_sprites.size(); i++){
-        if(i == 0)  // PROVISIONAL (TODO: HACER BIEN)
+        PieceSprite *ps = dynamic_cast<PieceSprite*>(board_drawable_sprites[i]);
+        if(ps == NULL or ps->getPiece().get_type() == none_piece)
             this->draw(*board_drawable_sprites[i]);
         else{
-            star_shader.setUniform("sfmlColor", sf::Glsl::Vec4(board_drawable_sprites[i]->getColor().r / 255.f, board_drawable_sprites[i]->getColor().g / 255.f, board_drawable_sprites[i]->getColor().b / 255.f, board_drawable_sprites[i]->getColor().a / 255.f));
-            this->draw(*board_drawable_sprites[i], &star_shader);
+            switch(ps->getPiece().get_type()){
+                case star_piece:
+                    star_shader.setUniform("sfmlColor", sf::Glsl::Vec4(board_drawable_sprites[i]->getColor().r / 255.f, board_drawable_sprites[i]->getColor().g / 255.f, board_drawable_sprites[i]->getColor().b / 255.f, board_drawable_sprites[i]->getColor().a / 255.f));
+                    this->draw(*board_drawable_sprites[i], &star_shader);
+                break;
+                case boo_piece:
+                    boo_shader.setUniform("sfmlColor", sf::Glsl::Vec4(board_drawable_sprites[i]->getColor().r / 255.f, board_drawable_sprites[i]->getColor().g / 255.f, board_drawable_sprites[i]->getColor().b / 255.f, board_drawable_sprites[i]->getColor().a / 255.f));
+                    this->draw(*board_drawable_sprites[i], &boo_shader);
+                break;
+            }
+
         }
     }
     for(int i = 0; i < board_dynamic_drawable_sprites.size(); i++){
@@ -829,7 +852,7 @@ void ParchisGUI::updateSprites(){
         cout << "TOCA CONTARSE 10" << endl;
         this->last_dice = 10;
         checkHurryUp();
-        
+
     }
 
     cout << "last_dice: " << last_dice << endl;
@@ -840,7 +863,7 @@ void ParchisGUI::updateSprites(){
     else{
         this->notPlayableLock(true);
     }
-    
+
     bool def_lock = animation_lock || not_playable_lock;
 
     vector<color> dice_colors = {yellow, blue};
@@ -856,7 +879,7 @@ void ParchisGUI::updateSprites(){
                 current->setEnabled(dice.isAvailable(c, current->getNumber()), *this);
             }
             else{
-                
+
                 if(animation_lock){
                     current->setLocked(true, *this);
                     color last_col = get<0>(model->getLastAction());
@@ -864,7 +887,7 @@ void ParchisGUI::updateSprites(){
                     current->setEnabled((c == last_col && current->getNumber() == last_move_dice) || dice.isAvailable(c, current->getNumber()), *this);
                     current->setSelected(c == last_col && current->getNumber() == last_move_dice, *this);
                 }
-                
+
                 else{
                     current->setEnabled(dice.isAvailable(c, current->getNumber()), *this);
                     current->setLocked(this->model->getCurrentColor() != c || def_lock, *this);
@@ -926,17 +949,17 @@ void ParchisGUI::updateSprites(){
 
     for(int i = 0; i < colors.size(); i++){
         color c = colors[i];
-        vector<Box> player_pieces = model->getBoard().getPieces(c);
-        vector<Box> partner_pieces = model->getBoard().getPieces(partner_color(c));
+        vector<Piece> player_pieces = model->getBoard().getPieces(c);
+        vector<Piece> partner_pieces = model->getBoard().getPieces(partner_color(c));
         if(this->model->getCurrentColor() == c || this->model->getCurrentColor() == partner_color(c)){
             for(int j = 0; j < player_pieces.size(); j++){
-                this->pieces[c][j].setEnabled(model->isLegalMove(c, player_pieces[j], last_dice), *this);
-                this->pieces[c][j].setLocked(!model->isLegalMove(c, player_pieces[j], last_dice) || def_lock, *this);
+                this->pieces[c][j].setEnabled(model->isLegalMove(c, player_pieces[j].get_box(), last_dice), *this);
+                this->pieces[c][j].setLocked(!model->isLegalMove(c, player_pieces[j].get_box(), last_dice) || def_lock, *this);
             }
 
             for(int j = 0; j < partner_pieces.size(); j++){
-                this->pieces[partner_color(c)][j].setEnabled(model->isLegalMove(partner_color(c), partner_pieces[j], last_dice), *this);
-                this->pieces[partner_color(c)][j].setLocked(!model->isLegalMove(partner_color(c), partner_pieces[j], last_dice) || def_lock, *this);
+                this->pieces[partner_color(c)][j].setEnabled(model->isLegalMove(partner_color(c), partner_pieces[j].get_box(), last_dice), *this);
+                this->pieces[partner_color(c)][j].setLocked(!model->isLegalMove(partner_color(c), partner_pieces[j].get_box(), last_dice) || def_lock, *this);
             }
         }
         else{
@@ -946,8 +969,8 @@ void ParchisGUI::updateSprites(){
             }
 
             for(int j = 0; j < partner_pieces.size(); j++){
-                this->pieces[partner_color(c)][j].setEnabled(model->isLegalMove(partner_color(c), partner_pieces[j], last_dice), *this);
-                this->pieces[partner_color(c)][j].setLocked(!model->isLegalMove(partner_color(c), partner_pieces[j], last_dice) || def_lock, *this);
+                this->pieces[partner_color(c)][j].setEnabled(model->isLegalMove(partner_color(c), partner_pieces[j].get_box(), last_dice), *this);
+                this->pieces[partner_color(c)][j].setLocked(!model->isLegalMove(partner_color(c), partner_pieces[j].get_box(), last_dice) || def_lock, *this);
             }
         }
     }
@@ -959,7 +982,7 @@ void ParchisGUI::updateSprites(){
 }
 
 void ParchisGUI::updateSpritesLock(){
-    
+
     if (animation_lock || not_playable_lock)
     {
         //Por algún motivo la aplicación a veces se cuelga cuando se cambian estos cursores.
@@ -986,8 +1009,8 @@ void ParchisGUI::updateSpritesLock(){
         {
             color c = colors[i];
             color partner_c = partner_color(c);
-            vector<Box> player_pieces = model->getBoard().getPieces(c);
-            vector<Box> partner_pieces = model->getBoard().getPieces(partner_c);
+            vector<Piece> player_pieces = model->getBoard().getPieces(c);
+            vector<Piece> partner_pieces = model->getBoard().getPieces(partner_c);
             for (int j = 0; j < player_pieces.size(); j++)
             {
                 this->pieces[c][j].setLocked(true, *this);
@@ -1019,7 +1042,7 @@ void ParchisGUI::animationLock(bool lock){
     mutex.lock();
     if(lock != animation_lock){
         this->animation_lock = lock;
-        updateSpritesLock();    
+        updateSpritesLock();
     }
     mutex.unlock();
 }
@@ -1047,7 +1070,7 @@ void ParchisGUI::run(){
 
 
 Vector2f ParchisGUI::box3position(color c, int id, int pos){
-    Box piece = model->getBoard().getPiece(c, id);
+    Box piece = model->getBoard().getPiece(c, id).get_box();
     if (piece.type == home || piece.type == goal) {
         return (Vector2f)box2position.at(piece)[id];
     }else{
@@ -1268,7 +1291,7 @@ void ParchisGUI::switchBackgroundMusic(){
     if(music_on){
         current_background_theme->play();
     }
-    
+
 }
 
 void ParchisGUI::initializeSoundEffects(){

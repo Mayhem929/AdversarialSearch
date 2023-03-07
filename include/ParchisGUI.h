@@ -38,7 +38,7 @@ private:
 
     //RenderWindow game_window;
     Parchis *model;
-    
+
     //Textures' definitions
     Texture tBackground;
     Texture tBoard;
@@ -47,7 +47,7 @@ private:
     Texture tDices;
     Texture tSkipBt;
     Texture tButtons;
-        
+
     //Sprites' definitions
     Sprite background;
     map <color, vector<PieceSprite>> pieces;
@@ -124,7 +124,7 @@ private:
 
     // Para exclusión mutua
     Mutex mutex;
-    
+
     // Bool para indicar si hay que llamar a la hebra del juego en el bucle principal.
     bool call_thread_start;
 
@@ -179,49 +179,49 @@ private:
 
     /**
      * @brief Función que ejecuta el código interno del ciclo de juego del parchís.
-     * 
+     *
      */
     void gameLoop();
 
     /**
      * @brief Función que inicia el código interno del parchís.
-     * 
+     *
      */
     void startGameLoop();
 
     /**
      * @brief Función que procesa las colisiones del ratón con fichas, dados, etc.
-     * 
+     *
      */
     void processMouse();
 
     /**
      * @brief Función que procesa los eventos del ratón.
-     * 
+     *
      */
     void processEvents();
 
     /**
      * @brief Función que procesa las animaciones.
-     * 
+     *
      */
     void processAnimations();
 
     /**
      * @brief Función que procesa el resto de elementos de la interfaz (música, etc)
-     * 
+     *
      */
     void processSettings();
 
     /**
      * @brief Función que refresca la ventana principal.
-     * 
+     *
      */
     void paint();
 
     /**
      * @brief Agrupa todos los sprites en un vector común para facilitar dibujado y eventos.
-     * 
+     *
      */
     void collectSprites();
 
@@ -229,13 +229,13 @@ private:
 
     /**
      * @brief Acción a ejecutar por defecto cuando el ratón no está colocado sobre ningún otro elemento de la ventana.
-     * 
+     *
      */
     void defaultHover();
 
     /**
      * @brief Actualiza los sprites (habilitados, botones, posiciones, ...)..
-     * 
+     *
      */
     void updateSprites();
 
@@ -281,47 +281,47 @@ private:
 
     /**
      * @brief Encola un movimiento de ficha.
-     * 
+     *
      */
     void queueMove(color col, int id, Box start, Box end, void (ParchisGUI::*callback)(void) = NULL);
 
     /**
      * @brief Encola la animación de la flecha de turnos.
-     * 
+     *
      */
     void queueTurnsArrow(color col);
 
     /**
      * @brief Activa o desactiva la música de fondo.
-     * 
-     * @param on 
+     *
+     * @param on
      */
     void setBackgroundMusic(bool on);
 
     /**
-     * @brief 
-     * 
+     * @brief
+     *
      */
     void initializeBackgroundMusic();
 
     /**
-     * @brief 
-     * 
+     * @brief
+     *
      */
     void switchBackgroundMusic();
 
     /**
-     * @brief 
-     * 
+     * @brief
+     *
      */
     void checkHurryUp();
 
     /**
      * @brief Método privado que implementa el box2position evitando colisiones.
-     * 
-     * @param c 
-     * @param id 
-     * @return Vector2f 
+     *
+     * @param c
+     * @param id
+     * @return Vector2f
      */
     Vector2f box3position(color c, int id, int pos);
     Vector2f box3position(Box b, int id, int pos);
@@ -335,20 +335,21 @@ private:
 
     // Shaders.
     Shader star_shader;
+    Shader boo_shader;
 
 public:
     ParchisGUI(Parchis & model);
-    
-    
+
+
     /**
-     * @brief Bucle principal del juego. 
-     * 
+     * @brief Bucle principal del juego.
+     *
      */
     void mainLoop();
 
     /**
      * @brief Lanzar la ventana.
-     * 
+     *
      */
     void run();
 

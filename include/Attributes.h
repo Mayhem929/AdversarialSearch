@@ -42,6 +42,22 @@ inline color partner_color(color c){
     }
 }
 
+/**
+ * @brief identificación de los dados contrincantes
+ *
+ * @param c
+ * @return string
+ */
+inline color opponent_color(color c){
+    switch(c){
+        case yellow: return blue;
+        case red: return blue;
+        case blue: return yellow;
+        case green: return yellow;
+        default: return none;
+    }
+}
+
 //Enumerado con los diferentes tipos de casillas
 enum box_type {normal, home, final_queue, goal};
 
@@ -101,7 +117,8 @@ inline bool operator ==(const Box & a, const Box & b){
     return a.num == b.num && a.type == b.type && a.col == b.col;
 }
 
-enum item_type {bomb, star, shock, mushroom, red_shell, blue_shell, banana};
+
+enum item_type {star = 101, bomb, shock, mushroom, red_shell, blue_shell, banana, boo = 102};
 
 struct SpecialItem
 {

@@ -9,7 +9,7 @@ const int PROFUNDIDAD_ALFABETA = 6; // Umbral maximo de profundidad para la poda
 
 bool AIPlayer::move(){
     cout << "Realizo un movimiento automatico" << endl;
-    
+
     color c_piece;
     int id_piece;
     int dice;
@@ -24,10 +24,10 @@ bool AIPlayer::move(){
 void AIPlayer::think(color & c_piece, int & id_piece, int & dice) const{
     // IMPLEMENTACIÓN INICIAL DEL AGENTE
     // Esta implementación realiza un movimiento aleatorio.
-    // Se proporciona como ejemplo, pero se debe cambiar por una que realice un movimiento inteligente 
+    // Se proporciona como ejemplo, pero se debe cambiar por una que realice un movimiento inteligente
     //como lo que se muestran al final de la función.
-    
-    // OBJETIVO: Asignar a las variables c_piece, id_piece, dice (pasadas por referencia) los valores, 
+
+    // OBJETIVO: Asignar a las variables c_piece, id_piece, dice (pasadas por referencia) los valores,
     //respectivamente, de:
     // - color de ficha a mover
     // - identificador de la ficha que se va a mover
@@ -127,7 +127,7 @@ double AIPlayer::ValoracionTest(const Parchis &estado, int jugador)
                 {
                     puntuacion_jugador++;
                 }
-                else if (estado.getBoard().getPiece(c, j).type == goal)
+                else if (estado.getBoard().getPiece(c, j).get_box().type == goal)
                 {
                     puntuacion_jugador += 5;
                 }
@@ -148,7 +148,7 @@ double AIPlayer::ValoracionTest(const Parchis &estado, int jugador)
                     // Valoro negativamente que la ficha esté en casilla segura o meta.
                     puntuacion_oponente++;
                 }
-                else if (estado.getBoard().getPiece(c, j).type == goal)
+                else if (estado.getBoard().getPiece(c, j).get_box().type == goal)
                 {
                     puntuacion_oponente += 5;
                 }

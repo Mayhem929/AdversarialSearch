@@ -15,9 +15,17 @@ const map<color, vector<int>> PieceSprite::col2selectedrec = {
     {green, {30, 60, 30, 30}},
 };
 
+
 PieceSprite::PieceSprite(const Texture & t, int id, color c) : ClickableSprite(t){
     this->id = id;
     this->c = c;
+    this->setTextureRect(IntRect(col2textrec.at(c).at(0), col2textrec.at(c).at(1), col2textrec.at(c).at(2), col2textrec.at(c).at(3)));
+}
+
+PieceSprite::PieceSprite(const Texture & t, int id, const Piece & piece) : ClickableSprite(t){
+    this->piece = &piece;
+    this->c = piece.get_color();
+    this->id = id;
     this->setTextureRect(IntRect(col2textrec.at(c).at(0), col2textrec.at(c).at(1), col2textrec.at(c).at(2), col2textrec.at(c).at(3)));
 }
 
@@ -58,8 +66,8 @@ void PieceSprite::onClickAction(Window & container){
     else if(clicked && (locked || !enabled)){
         gui->playForbiddenSound();
     }
-    
-    
+
+
 }
 
 void PieceSprite::onEnableAction(Window & container){

@@ -2,7 +2,8 @@
 # include "ParchisGUI.h"
 
 const map<item_type, vector<int>> SpecialItemSprite::item2textrec = {
-    {star, {0, 0, 30, 30}}
+    {star, {0, 0, 30, 30}},
+    {boo, {150, 0, 30, 30}},
 };
 
 

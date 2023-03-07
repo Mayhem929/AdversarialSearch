@@ -72,7 +72,7 @@ void Dice::removeNumber (color player, int n){
             resetDice(player);
         else
             dice[player].pop_back();
-        
+
     }
     */
    // Si la tercera capa existe se elimina el elemento de ahí.
@@ -89,13 +89,17 @@ void Dice::removeNumber (color player, int n){
     // En caso contrario, se elimina de la primera.
     else{
         if (n >= 100){
-            dice[player][dice[player].size() - 1].erase(remove(dice[player][dice[player].size() - 1].begin(), dice[player][dice[player].size() - 1].end(), n), dice[player][dice[player].size() - 1].end());
+            //dice[player][dice[player].size() - 1].erase(remove(dice[player][dice[player].size() - 1].begin(), dice[player][dice[player].size() - 1].end(), n), dice[player][dice[player].size() - 1].end());
+            auto it = std::find(dice[player][dice[player].size() - 1].begin(), dice[player][dice[player].size() - 1].end(), n);
+            if (it != dice[player][dice[player].size() - 1].end()) {
+                dice[player][dice[player].size() - 1].erase(it);
+            }
         }else{
             dice[player][0].erase(remove(dice[player][0].begin(), dice[player][0].end(), n), dice[player][0].end());
             // Si se han gastado todos los números, se regenera de nuevo el dado.
             if (dice[player][0].empty())
             {
-                resetDice(player);    
+                resetDice(player);
             }
         }
     }

@@ -11,8 +11,8 @@ const map<int, vector<int>> DiceSprite::num2textrec = {
     {10, {700, 118, 116, 116}},
     {20, {815, 118, 116, 116}},
     {-1, {700, 0, 116, 116}},
-    {101, {930,118,116, 116}}
-};
+    {star, {930,118,116, 116}},
+    {boo, {1507, 118, 116, 116}}};
 
 const map<int, vector<int>> DiceSprite::num2selectedrec = {
     {1, {6, 236, 116, 116}},
@@ -24,7 +24,8 @@ const map<int, vector<int>> DiceSprite::num2selectedrec = {
     {10, {700, 236, 116, 116}},
     {20, {815, 236, 116, 116}},
     {-1, {700, 0, 116, 116}},
-    {101, {930, 236, 116, 116}}};
+    {star, {930, 236, 116, 116}},
+    {boo, {1507, 236, 116, 116}}};
 
 const map<color, Color> DiceSprite::color2Color = {
     {red, Color(204, 102, 102)},
