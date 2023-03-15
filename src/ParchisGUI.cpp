@@ -953,13 +953,14 @@ void ParchisGUI::updateSprites(){
         vector<Piece> partner_pieces = model->getBoard().getPieces(partner_color(c));
         if(this->model->getCurrentColor() == c || this->model->getCurrentColor() == partner_color(c)){
             for(int j = 0; j < player_pieces.size(); j++){
-                this->pieces[c][j].setEnabled(model->isLegalMove(c, player_pieces[j].get_box(), last_dice), *this);
-                this->pieces[c][j].setLocked(!model->isLegalMove(c, player_pieces[j].get_box(), last_dice) || def_lock, *this);
+
+                this->pieces[c][j].setEnabled(model->isLegalMove(player_pieces[j], last_dice), *this);
+                this->pieces[c][j].setLocked(!model->isLegalMove(player_pieces[j], last_dice) || def_lock, *this);
             }
 
             for(int j = 0; j < partner_pieces.size(); j++){
-                this->pieces[partner_color(c)][j].setEnabled(model->isLegalMove(partner_color(c), partner_pieces[j].get_box(), last_dice), *this);
-                this->pieces[partner_color(c)][j].setLocked(!model->isLegalMove(partner_color(c), partner_pieces[j].get_box(), last_dice) || def_lock, *this);
+                this->pieces[partner_color(c)][j].setEnabled(model->isLegalMove(partner_pieces[j], last_dice), *this);
+                this->pieces[partner_color(c)][j].setLocked(!model->isLegalMove(partner_pieces[j], last_dice) || def_lock, *this);
             }
         }
         else{
@@ -969,8 +970,8 @@ void ParchisGUI::updateSprites(){
             }
 
             for(int j = 0; j < partner_pieces.size(); j++){
-                this->pieces[partner_color(c)][j].setEnabled(model->isLegalMove(partner_color(c), partner_pieces[j].get_box(), last_dice), *this);
-                this->pieces[partner_color(c)][j].setLocked(!model->isLegalMove(partner_color(c), partner_pieces[j].get_box(), last_dice) || def_lock, *this);
+                this->pieces[partner_color(c)][j].setEnabled(model->isLegalMove(partner_pieces[j], last_dice), *this);
+                this->pieces[partner_color(c)][j].setLocked(!model->isLegalMove(partner_pieces[j], last_dice) || def_lock, *this);
             }
         }
     }

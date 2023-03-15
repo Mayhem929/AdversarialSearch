@@ -29,10 +29,10 @@ using namespace std;
 /**
  * @brief Función auxiliar que lee las máquinas disponibles para ser masters.
  * Definidas en el fichero de configuración MASTER_ADDRESSES_FILE.
- * 
- * @param file_name 
- * @param ips 
- * @param ports 
+ *
+ * @param file_name
+ * @param ips
+ * @param ports
  */
 void readAllowedMasters(string file_name, vector<string> &ips, vector<int> &ports)
 {
@@ -56,10 +56,10 @@ void readAllowedMasters(string file_name, vector<string> &ips, vector<int> &port
 /**
  * @brief Toma de contacto entre el cliente y los masters.
  * Se especifica la ip y el puerto de la máquina máster y los argumentos de la partida.
- * 
- * @param ip_addr 
- * @param port 
- * @param args 
+ *
+ * @param ip_addr
+ * @param port
+ * @param args
  */
 void clientMasterHandshake(string & ip_addr, int & port, const vector<string> & args){
     vector<string> ips;
@@ -67,7 +67,7 @@ void clientMasterHandshake(string & ip_addr, int & port, const vector<string> & 
     //Se obtienen los masters disponhibles
     readAllowedMasters(MASTER_ADDRESSES_FILE, ips, ports);
     int i;
-    //Se recorren las ips 
+    //Se recorren las ips
     for(i = 0; i < ips.size(); i++){
         //Se prueba a establecer conexión
         try{
@@ -115,9 +115,9 @@ void clientMasterHandshake(string & ip_addr, int & port, const vector<string> & 
 /**
  * @brief Función auxiliar que lee los ninjas disponibles para ser ninjas.
  * Devuelve las ips de los ninjas.
- * 
- * @param file_name 
- * @return vector<string> 
+ *
+ * @param file_name
+ * @return vector<string>
  */
 vector<string> readAllowedNinjas(string file_name){
     // Leer el fichero. Cada línea contiene un string con la dirección ip. Se añade cada línea al vector devuelto.
@@ -141,9 +141,9 @@ int main(int argc, char const *argv[]){
     // Definimos los valors por defecto:
     // Tipos de los jugadores
     string type_j1 = "GUI", type_j2 = "GUI";
-    // IDs de los jugadores 
+    // IDs de los jugadores
     int id_j1 = 0, id_j2 = 0;
-    // Puerto 
+    // Puerto
     int port = 8888;
     // IP localhost
     string ip = "localhost";
@@ -159,7 +159,7 @@ int main(int argc, char const *argv[]){
     bool privateroom = false;
 
     // Configuración inicial del juego
-    BoardConfig config = BoardConfig::GROUPED;
+    BoardConfig config = BoardConfig::TEST_BOO;
 
     /* Parse the command line arguments in the following way:
      * --p1 <type=GUI|AI|Remote|Ninja> (id=0) (name=J1)
@@ -174,7 +174,7 @@ int main(int argc, char const *argv[]){
      * --private <room_name> <type=GUI|AI> (id=0) (name=myName)
      *
      * Default parameters:
-     * --p1 GUI 0 J1 --p2 GUI 0 J2 
+     * --p1 GUI 0 J1 --p2 GUI 0 J2
      */
     for(int i = 1; i < argc; i++){
         // Capturo el tipo, id y nombre del jugador 1
@@ -332,7 +332,7 @@ int main(int argc, char const *argv[]){
                 cout << COUT_RED_BOLD << "No se pudo contactar con el master en " << ips[i] << ":" << ports[i] << COUT_NOCOLOR << endl;
             }
         }
-        
+
     }
     // Si soy servidor
     else if(server){
@@ -365,7 +365,7 @@ int main(int argc, char const *argv[]){
         // Si player == 0, el J1 es remoto
         if (player == 0){
             //J1 remoto.
-            p1 = make_shared<RemotePlayer>(name, server); 
+            p1 = make_shared<RemotePlayer>(name, server);
             server->sendOKStartGame(p1->getName());
 
             // Inicializo p2 según los parámetros elegidos por mi
@@ -374,7 +374,7 @@ int main(int argc, char const *argv[]){
             }
             else if(type_j1 == "AI"){
                 p2 = make_shared<AIPlayer>(name_j1, id_j1);
-            }        
+            }
         }
         // Si player == 1, el J2 es remoto
         else{
@@ -542,7 +542,7 @@ int main(int argc, char const *argv[]){
 
     // Una vez creados los jugadores, se crea el objeto parchís con la configuración incial establecida.
     Parchis parchis(config, p1, p2);
-    
+
     // Si jugamos con interfaz...
     if(gui){
         // Se crea la interfaz y se le asigna al jugador que sea GUI
@@ -557,9 +557,9 @@ int main(int argc, char const *argv[]){
         }
         // Si ninguno de los 2 es GUI, se crea un viewer al cual se le asigna la interfaz.
         if(type_j1 != "GUI" && type_j2 != "GUI"){
-            shared_ptr<GUIPlayer> viewer = make_shared<GUIPlayer>("Viewer");  
+            shared_ptr<GUIPlayer> viewer = make_shared<GUIPlayer>("Viewer");
             viewer->setGUI(parchis_gui);
-            parchis.addViewer(viewer); 
+            parchis.addViewer(viewer);
         }
         // Se inicia
         parchis_gui.run();
@@ -573,5 +573,5 @@ int main(int argc, char const *argv[]){
 
     return 0;
 
-   
+
 }

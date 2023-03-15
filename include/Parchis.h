@@ -350,7 +350,7 @@ class Parchis{
          * @return true
          * @return false
          */
-        bool isLegalMove(color player, const Box & box, int dice_number) const;
+        bool isLegalMove(const Piece & piece, int dice_number) const;
 
         /**
          * @brief Comprobar si el jugador puede pasar turno con el dado seleccionado (si no tiene fichas para mover).

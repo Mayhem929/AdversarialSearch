@@ -203,19 +203,18 @@ const vector<tuple<color,int>> Parchis::getAvailablePieces(color player, int dic
     //Para cada ficha del jugador
     for(int i = 0; i < player_pieces.size(); i++){
         //Compruebo si el movimiento es legal
-        if(isLegalMove(player, player_pieces[i].get_box(), dice_number)){
+        if(isLegalMove(this->board.getPiece(player, i), dice_number)){
             available_pieces.push_back({player,i});
         }
     }
 
     for(int i = 0; i < partner_color_pieces.size(); i++){
         //Compruebo si el movimiento es legal
-        if(isLegalMove(partner_color(player), partner_color_pieces[i].get_box(), dice_number)){
+        if(isLegalMove(this->board.getPiece(partner_color(player), i), dice_number)){
             available_pieces.push_back({partner_color(player),i});
         }
     }
 
-    cout << available_pieces.size() << endl;
     return available_pieces;
 
 }
@@ -247,7 +246,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
         }
         // Switch por colores
         Box piece_box = board.getPiece(player, piece).get_box();
-        if(isLegalMove(player, piece_box, dice_number)){
+        if(isLegalMove(board.getPiece(player, piece), dice_number)){
             if(dice_number < 100){
                 goal_bounce = false;
                 Box final_box = computeMove(player, piece_box, dice_number, &goal_bounce);
@@ -265,7 +264,10 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 if (!box_states.empty() && box_states[0].first != player){
                     //Comprobar que la casilla no es segura
                     vector<int>::const_iterator ci;
-                    if (final_box.type == normal && count(safe_boxes.begin(), safe_boxes.end(), final_box.num) == 0){
+                    Piece piece_to_eat = board.getPiece(box_states[0].first, box_states[0].second);
+                    Piece eater_piece = board.getPiece(player, piece);
+                    if (final_box.type == normal && count(safe_boxes.begin(), safe_boxes.end(), final_box.num) == 0 &&
+                            piece_to_eat.get_type() != boo_piece && eater_piece.get_type() != boo_piece){
                         //Movemos la ficha
                         eating_move = true;
 
@@ -360,7 +362,11 @@ void Parchis::movePiece(color player, int piece, int dice_number){
     }
 }
 
-bool Parchis::isLegalMove(color player, const Box & box, int dice_number) const{
+bool Parchis::isLegalMove(const Piece & piece, int dice_number) const{
+    color player = piece.get_color();
+    Box box = piece.get_box();
+    special_type type = piece.get_type();
+
     if(gameOver())
         return false;
     // Controlar si intento mover una ficha que no es del color del jugador actual.
@@ -380,19 +386,16 @@ bool Parchis::isLegalMove(color player, const Box & box, int dice_number) const{
     // Control de movimientos
     Box final_box = computeMove(player, box, dice_number);
     // Controlar si barreras, si está en la casa el movimiento solo sería legal si dice_number == 5, ...
-    if (box.type == home && dice_number != 5){
+    if (box.type == home && dice_number != 5)
         return false;
     //Controlar que ya estés en la meta
-    }else if(box.type == goal){
+    else if(box.type == goal)
         return false;
     // Comprobar que no haya ya dos fichas en la casilla (a menos que la casilla de destino sea home, meta o la misma que la de partida).
-    }
     else if (final_box.type != goal && final_box.type != home && !(final_box == box) && boxState(final_box).size() == 2)
-    {
         return false;
-    //Controlar los muros
-    }
-    else{
+    //Controlar los muros si la pieza no es boo
+    else if(type != boo_piece){
         // Comprobar que en el camino del movimiento no hay barreras
         vector<color> walls = anyWall(box, final_box);
         for (int i = 0; i < walls.size(); i++){
@@ -411,6 +414,7 @@ bool Parchis::isLegalMove(color player, const Box & box, int dice_number) const{
                 return false;
             }
         }
+
     } // TODO: falta (al menos) un caso: que salga un 6, haya alguna barrera de ese color y se elija una ficha fuera de la barrera.
     return true;
 }
@@ -1004,7 +1008,14 @@ const color Parchis::isWall(const Box & b) const{
 
     const vector<pair <color, int>> occupation = boxState(b);
     if (occupation.size() == 2 && occupation.at(0).first == occupation.at(1).first){
-        return  occupation.at(0).first;
+        Piece p1 = this->board.getPiece(occupation.at(0).first, occupation.at(0).second);
+        Piece p2 = this->board.getPiece(occupation.at(1).first, occupation.at(1).second);
+
+        if (p1.get_type() != boo_piece and p2.get_type() != boo_piece){
+            return occupation.at(0).first;
+        }else{
+            return none;
+        }
     }else{
         return none;
     }

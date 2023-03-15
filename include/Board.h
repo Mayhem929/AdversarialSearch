@@ -18,6 +18,7 @@ enum BoardConfig{
     ALTERNED,    // Una ficha de cada color comienza en la casa, el resto se van colocando en los seguros alternando los colores.
     ALMOST_GOAL, // Todas las fichas comienzan en el pasillo de la meta (sin utilidad real, solo para facilitar depuración).
     DEBUG,       // Para depurar determinadas situaciones (ir mofdificando según necesidad)v
+    TEST_BOO,   // Depurar boo
 };
 
 

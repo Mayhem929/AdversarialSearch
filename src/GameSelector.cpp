@@ -126,7 +126,7 @@ void TextBox::processKeys(){
         vector<char> numpad_symbol_keys_char = {'+', '-', '*', '/'};
         vector<char> shift_numpad_symbol_keys_char = {'\"', '^', '~', '\\'};
         vector<Keyboard::Key> special_keys = {Keyboard::BackSpace, Keyboard::Return, Keyboard::Space};
-        
+
         vector<vector<Keyboard::Key> > keys;
         vector<vector<char> > keys_char;
         if(only_numeric){
@@ -163,7 +163,7 @@ void TextBox::processKeys(){
                     }
                 }
             }
-        
+
             if (!only_numeric && Keyboard::isKeyPressed(Keyboard::Space))
             {
                 if (last_press != Keyboard::Space && clock.getElapsedTime().asMilliseconds() - last_press_time.asMilliseconds() > 50 || clock.getElapsedTime().asMilliseconds() - last_press_time.asMilliseconds() > wait_press_time)
@@ -189,7 +189,7 @@ void TextBox::processKeys(){
                 last_press = Keyboard::Backspace;
             }
         }
-        
+
     }
 }
 
@@ -308,7 +308,7 @@ void GameSelector::TwoPlayerButton::onSelectionAction(Window & container){
         gs->port_box.setEnabled(false, container);
 
     }
-    
+
     updateButton();
 }
 
@@ -461,7 +461,7 @@ void GameSelector::Ninja3Button::onSelectionAction(Window &container)
         if (gs->player_id_button.isSelected())
         {
             gs->game_parameters.type_j1 = "GUI";
-            gs->game_parameters.type_j2 = "Ninja";  
+            gs->game_parameters.type_j2 = "Ninja";
             gs->ai2_id.setText("3");
             gs->ai2_id.setEnabled(false, container);
             gs->ai2_id_incbt.setEnabled(false, container);
@@ -562,7 +562,7 @@ void GameSelector::HeuristicVSNinjaButton::onSelectionAction(Window &container)
         gs->ip_text.setString(L"Dirección IP / Nombre de dominio");
         gs->port_box.setEnabled(false, container);
     }
-    
+
     updateButton();
 }
 
@@ -598,7 +598,7 @@ void GameSelector::NinjaVSHeuristicButton::onSelectionAction(Window &container)
         gs->ip_text.setString(L"Dirección IP / Nombre de dominio");
         gs->port_box.setEnabled(false, container);
     }
-    
+
     updateButton();
 }
 
@@ -644,7 +644,7 @@ void GameSelector::OnlineClientButton::onSelectionAction(Window &container)
         gs->ip_text.setString(L"Dirección IP / Nombre de dominio");
         gs->port_box.setEnabled(true, container);
     }
-    
+
     updateButton();
 }
 
@@ -746,7 +746,7 @@ void GameSelector::UseGUIButton::onSelectionAction(Window &container)
 
 void GameSelector::PlayerIDButton::onSelectionAction(Window &container)
 {
-    
+
     if((selected && id == 2) || (!selected && id == 1)){
         GameSelector *gs = static_cast<GameSelector*>(&container);
         // Swap the type_j1 and type_j2 variables in game_parameters
@@ -783,7 +783,7 @@ void GameSelector::PlayerIDButton::onSelectionAction(Window &container)
 
     if(selected) id = 1;
     else id = 2;
-    
+
     updateButton();
 }
 
@@ -1085,7 +1085,7 @@ void GameSelector::processEvents(){
                 else{
                     current_sprite->setClicked(false, *this);
                 }
-                
+
             }
 
             for(int i = other_buttons.size() - 1; i >= 0; i--){
@@ -1266,7 +1266,7 @@ void GameSelector::StartGameButton::onClickAction(Window & container){
             gs->game_parameters.port = -1;
         }
 
-        gs->game_parameters.config = GROUPED;
+        gs->game_parameters.config = TEST_BOO;
         gs->game_parameters.name_j1 = gs->p1_name.getText();
         gs->game_parameters.name_j2 = gs->p2_name.getText();
         gs->game_parameters.ninja_server = false;
