@@ -10,7 +10,7 @@ Piece::Piece(color c, Box b, special_type t, int t_l){
 Piece::Piece(color c, Box b){
     this->c = c;
     box = b;
-    type = none_piece;
+    type = normal_piece;
     turns_left = 0;
 }
 

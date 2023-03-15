@@ -1,7 +1,7 @@
 #ifdef GL_ES
 precision mediump float;
 #endif
- 
+
 uniform vec2 u_resolution;
 uniform vec3 u_mouse;
 uniform float u_time;
@@ -18,9 +18,9 @@ vec3 hsb2rgb( in vec3 c ){
     rgb = rgb*rgb*(3.0-2.0*rgb);
     return c.z * mix(vec3(1.0), rgb, c.y);
 }
- 
+
 void main() {
-    //vec2 st = gl_FragCoord.st/u_resolution;
+    vec2 st = gl_FragCoord.st/u_resolution;
     vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
     float intensity = (pixel.r + pixel.g + pixel.b) / 3.0;
     vec4 rpixel = vec4(intensity, intensity, intensity, pixel.a);
@@ -28,5 +28,13 @@ void main() {
     float hue = fract(u_time * 1.0) ;
     //float hue = 0.5 + 0.5 * cos(u_time * 2.0);
     vec3 color = hsb2rgb(vec3(hue,1.0,1.0));
-    gl_FragColor = vec4(color,1.0) * rpixel * sfmlColor;
-} 
+
+    // Determine the distance from the center of the sprite
+    float dist = distance(st, vec2(0.5));
+    // If the distance is less than 0.5 (i.e., the center of the sprite), use the original color
+    if (dist > 0.5) {
+        gl_FragColor = pixel * sfmlColor;
+    } else {
+        gl_FragColor = vec4(color,1.0) * rpixel; //* sfmlColor;
+    }
+}

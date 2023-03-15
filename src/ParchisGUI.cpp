@@ -799,7 +799,7 @@ void ParchisGUI::paint(){
     this->setView(board_view);
     for(int i = 0; i < board_drawable_sprites.size(); i++){
         PieceSprite *ps = dynamic_cast<PieceSprite*>(board_drawable_sprites[i]);
-        if(ps == NULL or ps->getPiece().get_type() == none_piece)
+        if(ps == NULL or ps->getPiece().get_type() == normal_piece)
             this->draw(*board_drawable_sprites[i]);
         else{
             switch(ps->getPiece().get_type()){
@@ -1174,7 +1174,7 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
     else{
         // Buscamos colisiones.
         vector<pair<color, int>> occupation = this->model->boxState(dest);
-        if(occupation.size() == 1){
+        if(occupation.size() < 2){
             // Si no había fichas en destino se mueve la ficha al sitio central.
             Vector2f animate_pos = (Vector2f)box2position.at(dest)[0];
 
@@ -1182,7 +1182,7 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
             SpriteAnimator animator = SpriteAnimator(*animate_sprite, animate_pos, animation_time);
             animations_ch1.push(animator);
         }
-        else{
+        else if(occupation.size() == 2){
             // Si hay dos fichas en destino mandamos cada una a un lateral.
             int main_move = (occupation[0].first == col && occupation[0].second == id)?0:1;
             int collateral_move = (main_move == 0)?1:0;

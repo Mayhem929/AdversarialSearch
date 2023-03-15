@@ -118,7 +118,16 @@ inline bool operator ==(const Box & a, const Box & b){
 }
 
 
-enum item_type {star = 101, bomb, shock, mushroom, red_shell, blue_shell, banana, boo = 102};
+enum item_type {star = 101,
+                boo = 102,
+                bullet = 103,
+                red_shell = 104,
+                blue_shell = 105,
+                bomb,
+                shock,
+                mushroom,
+
+                banana};
 
 struct SpecialItem
 {

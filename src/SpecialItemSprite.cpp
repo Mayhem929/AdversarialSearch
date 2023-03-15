@@ -4,6 +4,9 @@
 const map<item_type, vector<int>> SpecialItemSprite::item2textrec = {
     {star, {0, 0, 30, 30}},
     {boo, {150, 0, 30, 30}},
+    {bullet, {210, 0, 30, 30}},
+    {blue_shell, {30, 0, 30, 30}},
+    {red_shell, {270, 0, 30, 30}}
 };
 
 

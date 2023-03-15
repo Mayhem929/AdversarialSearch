@@ -384,7 +384,7 @@ class Parchis{
          * @param dice_number
          * @return const Box
          */
-        const Box computeMove(color player, const Box & box, int dice_number, bool * goal_bounce = NULL) const;
+        const Box computeMove(const Piece & piece, int dice_number, bool * goal_bounce = NULL) const;
 
 
         /**
@@ -635,6 +635,9 @@ class Parchis{
          * @return const vector<color>
          */
         const vector<color> anyWall(const Box & b1, const Box & b2) const;
+
+
+        const vector<pair <color, int>> allPiecesBetween(const Box & b1, const Box & b2) const;
 
         /**
          * @brief Devuelve los colores asociados a cada jugador (amarillo y rojo para el 0 y verde y azul para el 1).

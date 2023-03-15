@@ -72,19 +72,23 @@ void Board::setFromConfig(const BoardConfig & config){
                 {color::yellow, {Piece(color::yellow, {0, box_type::home, color::yellow}), Piece(color::yellow, {4, box_type::normal, color::none}), Piece(color::yellow, {13, box_type::normal, color::none}), Piece(color::yellow, {17, box_type::normal, color::none})}}};
             this->special_items = vector<SpecialItem>{
                 {boo, {22, box_type::normal, color::none}},
-                {boo, {14, box_type::normal, color::none}}
+                {red_shell, {14, box_type::normal, color::none}},
+                {blue_shell, {16, box_type::normal, color::none}},
+                {red_shell, {24, box_type::normal, color::none}}
             };
             break;
 
         case TEST_BOO:
             this->pieces = map<color, vector<Piece>>{
-                {color::green, {Piece(color::green, {0, box_type::home, color::green}), Piece(color::green, {55, box_type::normal, color::none}), Piece(color::green, {64, box_type::normal, color::none}), Piece(color::green, {68, box_type::normal, color::none})}},
-                {color::red, {Piece(color::red, {0, box_type::home, color::red}), Piece(color::red, {38, box_type::normal, color::none}), Piece(color::red, {47, box_type::normal, color::none}), Piece(color::red, {51, box_type::normal, color::none})}},
-                {color::blue, {Piece(color::blue, {0, box_type::home, color::blue}), Piece(color::blue, {24, box_type::normal, color::none}),  Piece(color::blue, {21, box_type::normal, color::none}),  Piece(color::blue, {34, box_type::normal, color::none})}},
-                {color::yellow, {Piece(color::yellow, {0, box_type::home, color::yellow}), Piece(color::yellow, {4, box_type::normal, color::none}), Piece(color::yellow, {13, box_type::normal, color::none}), Piece(color::yellow, {17, box_type::normal, color::none})}}};
+                {color::green, {Piece(color::green, {0, box_type::home, color::green}), Piece(color::green, {16, box_type::normal, color::none}), Piece(color::green, {15, box_type::normal, color::none}), Piece(color::green, {68, box_type::normal, color::none})}},
+                {color::red, {Piece(color::red, {0, box_type::home, color::red}), Piece(color::red, {18, box_type::normal, color::none}), Piece(color::red, {47, box_type::normal, color::none}), Piece(color::red, {51, box_type::normal, color::none})}},
+                {color::blue, {Piece(color::blue, {0, box_type::home, color::blue}), Piece(color::blue, {19, box_type::normal, color::none}),  Piece(color::blue, {21, box_type::normal, color::none}),  Piece(color::blue, {34, box_type::normal, color::none})}},
+                {color::yellow, {Piece(color::yellow, {0, box_type::home, color::yellow}), Piece(color::yellow, {20, box_type::normal, color::none}), Piece(color::yellow, {13, box_type::normal, color::none}), Piece(color::yellow, {17, box_type::normal, color::none})}}};
             this->special_items = vector<SpecialItem>{
                 {boo, {22, box_type::normal, color::none}},
-                {boo, {14, box_type::normal, color::none}}
+                {red_shell, {14, box_type::normal, color::none}},
+                {blue_shell, {16, box_type::normal, color::none}},
+                {red_shell, {24, box_type::normal, color::none}}
             };
             break;
 

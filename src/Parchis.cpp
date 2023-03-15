@@ -31,13 +31,13 @@ void Parchis::nextTurn(){
     for(int i = 0; i < this->board.getPieces(this->current_color).size(); i++){
         this->board.decreasePieceTurnsLeft(this->current_color, i);
         if(this->board.getPiece(this->current_color, i).get_turns_left() == 0){
-            this->board.setPieceType(this->current_color, i, none_piece);
+            this->board.setPieceType(this->current_color, i, normal_piece);
         }
     }
     for(int i = 0; i < this->board.getPieces(partner).size(); i++){
         this->board.decreasePieceTurnsLeft(partner, i);
         if(this->board.getPiece(partner, i).get_turns_left() == 0){
-            this->board.setPieceType(partner, i, none_piece);
+            this->board.setPieceType(partner, i, normal_piece);
         }
     }
 
@@ -246,56 +246,99 @@ void Parchis::movePiece(color player, int piece, int dice_number){
         }
         // Switch por colores
         Box piece_box = board.getPiece(player, piece).get_box();
+        Piece current_piece = board.getPiece(player, piece);
+
+        this->last_dice = dice_number;
+        this->last_moves.clear();
+
         if(isLegalMove(board.getPiece(player, piece), dice_number)){
             if(dice_number < 100){
                 goal_bounce = false;
-                Box final_box = computeMove(player, piece_box, dice_number, &goal_bounce);
+                Box final_box = computeMove(current_piece, dice_number, &goal_bounce);
 
                 /* Gestión de las "comidas"*/
                 eating_move = false;
                 goal_move = false;
+                bool destroyed_by_star = false;
 
                 remember_6 = (dice_number==6 or (remember_6 and (dice_number == 10 or dice_number == 20)));
-
 
                 //Comprobar si hay una ficha de otro color en la casilla destino
                 vector<pair <color, int>> box_states = boxState(final_box);
 
-                if (!box_states.empty() && box_states[0].first != player){
-                    //Comprobar que la casilla no es segura
-                    vector<int>::const_iterator ci;
-                    Piece piece_to_eat = board.getPiece(box_states[0].first, box_states[0].second);
-                    Piece eater_piece = board.getPiece(player, piece);
-                    if (final_box.type == normal && count(safe_boxes.begin(), safe_boxes.end(), final_box.num) == 0 &&
-                            piece_to_eat.get_type() != boo_piece && eater_piece.get_type() != boo_piece){
-                        //Movemos la ficha
-                        eating_move = true;
-
+                //Comprobar si la ficha en movimiento es una estrella
+                if (current_piece.get_type() == star_piece){
+                    //Obtenemos todas las fichas en su camino
+                    vector <pair<color, int>> destroyed_pieces = allPiecesBetween(piece_box, final_box);
+                    Box origin = current_piece.get_box();
+                    for (int i = 0; i < destroyed_pieces.size(); i++){
+                        special_type destroyed_type = board.getPiece(destroyed_pieces[i].first, destroyed_pieces[i].second).get_type();
+                        //Comprobamos que no sean de su color o fantasmas
+                        if (destroyed_pieces[i].first != player and destroyed_type != boo_piece and destroyed_type != star_piece){
+                            this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, origin, board.getPiece(destroyed_pieces[i].first, destroyed_pieces[i].second).get_box()));
+                            origin = board.getPiece(destroyed_pieces[i].first, destroyed_pieces[i].second).get_box();
+                            board.movePiece(destroyed_pieces[i].first, destroyed_pieces[i].second, Box(0, home, destroyed_pieces[i].first));
+                            this->last_moves.push_back(tuple<color, int, Box, Box>(destroyed_pieces[i].first, destroyed_pieces[i].second, origin, Box(0, home,  destroyed_pieces[i].first)));
+                        }
                     }
+
+                    this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, origin, final_box));
+
+                    board.movePiece(player, piece, final_box);
                 }
 
-                board.movePiece(player, piece, final_box);
-
-                this->last_dice = dice_number;
-                this->last_moves.clear();
-
-                if(!goal_bounce)
-                    this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, final_box));
                 else{
-                    this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, Box(0, goal, player)));
-                    this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, Box(0, goal, player), final_box));
-                    bounces[player]++;
-                    if(bounces[player] > 30){
-                        overbounce_player = current_player;
+                    // Comprobar si hay estrellas en mi camino, si las hay muero (salvo que sea boo)
+                    bool destroyed_by_star = false;
+                    if (current_piece.get_type() != boo_piece){
+                        vector <pair<color, int>> all_pieces = allPiecesBetween(piece_box, final_box);
+                        Box origin = current_piece.get_box();
+                        for (int i = 0; i < all_pieces.size() and !destroyed_by_star; i++){
+                            if (all_pieces[i].first != player and board.getPiece(all_pieces[i].first, all_pieces[i].second).get_type() == star_piece){
+                                this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, origin, board.getPiece(all_pieces[i].first, all_pieces[i].second).get_box()));
+                                origin = board.getPiece(all_pieces[i].first, all_pieces[i].second).get_box();
+                                board.movePiece(player, piece, Box(0, home, player));
+                                this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, origin, Box(0, home, player)));
+                                destroyed_by_star = true;
+                                final_box = Box(0, home, player);
+                            }
+                        }
                     }
-                }
+                    if(!destroyed_by_star){
+                        if (!box_states.empty() && box_states[0].first != player){
+                            //Comprobar que la casilla no es segura
+                            vector<int>::const_iterator ci;
+                            Piece piece_to_eat = board.getPiece(box_states[0].first, box_states[0].second);
+                            Piece eater_piece = board.getPiece(player, piece);
+                            if (final_box.type == normal && count(safe_boxes.begin(), safe_boxes.end(), final_box.num) == 0 &&
+                                    piece_to_eat.get_type() != boo_piece && eater_piece.get_type() != boo_piece){
+                                //Movemos la ficha
+                                eating_move = true;
 
-                // Controlar si se come alguna ficha. En ese caso se actualiza también la ficha comida.
-                // La ficha comida se añadiría también al vector last_moves.
-                if(eating_move){
-                    Box origen_comida = board.getPiece(box_states[0].first, box_states[0].second).get_box();
-                    board.movePiece(box_states[0].first, box_states[0].second, Box(0, home, box_states[0].first));
-                    this->last_moves.push_back(tuple<color, int, Box, Box>(box_states[0].first, box_states[0].second, origen_comida, Box(0, home, box_states[0].first)));
+                            }
+                        }
+
+                        board.movePiece(player, piece, final_box);
+
+                        if(!goal_bounce)
+                            this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, final_box));
+                        else{
+                            this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, Box(0, goal, player)));
+                            this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, Box(0, goal, player), final_box));
+                            bounces[player]++;
+                            if(bounces[player] > 30){
+                                overbounce_player = current_player;
+                            }
+                        }
+
+                        // Controlar si se come alguna ficha. En ese caso se actualiza también la ficha comida.
+                        // La ficha comida se añadiría también al vector last_moves.
+                        if(eating_move){
+                            Box origen_comida = board.getPiece(box_states[0].first, box_states[0].second).get_box();
+                            board.movePiece(box_states[0].first, box_states[0].second, Box(0, home, box_states[0].first));
+                            this->last_moves.push_back(tuple<color, int, Box, Box>(box_states[0].first, box_states[0].second, origen_comida, Box(0, home, box_states[0].first)));
+                        }
+                    }
                 }
 
                 // Controlar si la ficha ha llegado a la meta. En ese caso el jugador se cuenta 10 con otra ficha (salvo que sea la última)
@@ -307,8 +350,9 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 for (int i = 0; i < board.getSpecialItems().size(); i++){
                     if (final_box == board.getSpecialItems()[i].box){
                         // Se borra del tablero y se añade a los dados especiales del jugador.
-                        board.deleteSpecialItem(i);
                         dice.addSpecialDice(player, board.getSpecialItems()[i].type);
+                        board.deleteSpecialItem(i);
+
                         this->update_board = true;
                         this->update_dice = true;
                     }
@@ -331,12 +375,14 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                 switch(dice_number){
                     case star:
-
+                    //Convertimos la ficha a especial
+                        board.setPieceType(player, piece, star_piece);
+                        board.setPieceTurnsLeft(player, piece, 3);
                     break;
                     case boo:
                         //Convertimos la ficha a especial
                         board.setPieceType(player, piece, boo_piece);
-                        board.setPieceTurnsLeft(player, piece, 3);
+                        board.setPieceTurnsLeft(player, piece, 5);
 
                         //Robamos el último dado especial conseguido por el adversario (siempre que haya)
                         if(!dice.getSpecialDice(opponent_color(player)).empty()){
@@ -344,8 +390,98 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                             dice.removeNumber(opponent_color(player), dice.getSpecialDice(opponent_color(player)).back());
                         }
                     break;
-                }
+                    case bullet:
+                    {
+                        board.setPieceType(player, piece, normal_piece);
+                        dice_number = 40;
+                        Box final_box = computeMove(current_piece, dice_number);
+                        while(this->boxState(final_box).size() > 0){
+                            dice_number ++;
+                            final_box = computeMove(current_piece, dice_number);
+                        }
+                        board.movePiece(player, piece, final_box);
 
+                        if(!goal_bounce)
+                            this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, final_box));
+                        else{
+                            this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, Box(0, goal, player)));
+                            this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, Box(0, goal, player), final_box));
+                            bounces[player]++;
+                            if(bounces[player] > 30){
+                                overbounce_player = current_player;
+                            }
+                        }
+                    }
+                    break;
+                    case blue_shell:
+                    {
+                        int min_dist = 1000;
+                        vector<pair<color,int>> deleted_pieces;
+                        for (int i = 0; i < game_colors.size(); i++){
+                            color c = game_colors[i];
+                            if (c != player){
+                                for (int j = 0; j < board.getPieces(c).size(); j++){
+                                    int dist = distanceToGoal(c, j);
+                                    Piece current_piece = board.getPiece(c, j);
+                                    if(current_piece.get_type() != boo_piece){
+                                        if(dist < min_dist and dist > 0){
+                                            min_dist = dist;
+                                            deleted_pieces.clear();
+                                            deleted_pieces.push_back(pair<color,int>(c,j));
+                                        }else if(dist == min_dist){
+                                            deleted_pieces.push_back(pair<color,int>(c,j));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        for (int i = 0; i < deleted_pieces.size(); i++){
+                            Piece current_piece = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second);
+                            if(current_piece.get_type() != star_piece){
+                                Box origin = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second).get_box();
+                                board.movePiece(deleted_pieces[i].first, deleted_pieces[i].second, Box(0, home, deleted_pieces[i].first));
+                                this->last_moves.push_back(tuple<color, int, Box, Box>(deleted_pieces[i].first, deleted_pieces[i].second, origin, Box(0, home, deleted_pieces[i].first)));
+                            }
+                        }
+                    }
+                    break;
+
+                    case red_shell:
+                    {
+                        int min_dist = 1000;
+                        vector<pair<color,int>> deleted_pieces;
+                        for (int i = 0; i < game_colors.size(); i++){
+                            color c = game_colors[i];
+                            if (c != player){
+                                for (int j = 0; j < board.getPieces(c).size(); j++){
+                                    int dist = distanceBoxtoBox(player, piece, c, j);
+                                    Piece current_piece = board.getPiece(c, j);
+                                    if(current_piece.get_type() != boo_piece){
+                                        if(dist < min_dist and dist > 0){
+                                            min_dist = dist;
+                                            deleted_pieces.clear();
+                                            deleted_pieces.push_back(pair<color,int>(c,j));
+                                        }else if(dist == min_dist){
+                                            deleted_pieces.push_back(pair<color,int>(c,j));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        for (int i = 0; i < deleted_pieces.size(); i++){
+                            Piece current_piece = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second);
+                            if(current_piece.get_type() != star_piece){
+                                Box origin = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second).get_box();
+                                board.movePiece(deleted_pieces[i].first, deleted_pieces[i].second, Box(0, home, deleted_pieces[i].first));
+                                this->last_moves.push_back(tuple<color, int, Box, Box>(deleted_pieces[i].first, deleted_pieces[i].second, origin, Box(0, home, deleted_pieces[i].first)));
+                            }
+                        }
+                    }
+                    break;
+
+                }
 
             }
 
@@ -384,7 +520,7 @@ bool Parchis::isLegalMove(const Piece & piece, int dice_number) const{
     if(dice_number > 100)
         return true;
     // Control de movimientos
-    Box final_box = computeMove(player, box, dice_number);
+    Box final_box = computeMove(piece, dice_number);
     // Controlar si barreras, si está en la casa el movimiento solo sería legal si dice_number == 5, ...
     if (box.type == home && dice_number != 5)
         return false;
@@ -438,8 +574,11 @@ const vector<pair <color, int>> Parchis::boxState(const Box & box) const{
     return occupation;
 }
 
-const Box Parchis::computeMove(color player, const Box & piece_box, int dice_number, bool * goal_bounce) const{
+const Box Parchis::computeMove(const Piece & piece, int dice_number, bool * goal_bounce) const{
     Box final_box;
+    color player = piece.get_color();
+    Box piece_box = piece.get_box();
+    special_type type = piece.get_type();
 
     if(goal_bounce != NULL) *goal_bounce = false;
 
@@ -454,6 +593,9 @@ const Box Parchis::computeMove(color player, const Box & piece_box, int dice_num
         if (pieces_out){
             dice_number = 7;
         }
+    }
+    if (type == star_piece){
+        dice_number += 2;
     }
     //Si sale de la casilla de home
     if (piece_box.type == home){
@@ -768,7 +910,7 @@ int Parchis::distanceBoxtoBox(color player, const Box & box1, const Box & box2) 
     // En caso contrario, es alcanzable.
     // Si el destino está por encima, devuelvo la diferencia.
     if(ref_box2.num > ref_box1.num){
-        distance = ref_box2.num - ref_box2.num;
+        distance = ref_box2.num - ref_box1.num;
     }
     // Si el destino está por debajo, devuelvo la distancia al 68 más lo que me queda hasta el destino.
     else{
@@ -808,8 +950,8 @@ int Parchis::distanceBoxtoBox(color player, const Box & box1, const Box & box2) 
     return distance;
 }
 
-int Parchis::distanceBoxtoBox(color player1, int id_p1, color player2, int p2) const{
-    return distanceBoxtoBox(player1, this->board.getPiece(player1, id_p1).get_box(), this->board.getPiece(player2, p2).get_box());
+int Parchis::distanceBoxtoBox(color player1, int id_p1, color player2, int id_p2) const{
+    return distanceBoxtoBox(player1, this->board.getPiece(player1, id_p1).get_box(), this->board.getPiece(player2, id_p2).get_box());
 }
 
 Parchis Parchis::generateNextMove(color & c_piece,  int & id_piece, int & dice) const{
@@ -1056,4 +1198,42 @@ const vector<color> Parchis::anyWall(const Box & b1, const Box & b2) const{
         }
     }
     return walls;
+}
+
+const vector<pair <color, int>> Parchis::allPiecesBetween(const Box & b1, const Box & b2) const{
+    Box final_box;
+    if (b2.type == final_queue || b2.type == goal){
+        //Si el casilla destino es meta o pasillo final, la cambiamos por la última casilla
+        //antes de entrar al pasillo final.
+        switch (b2.col){
+            case blue:
+                final_box = Box(final_blue_box, normal, none);
+            break;
+            case red:
+                final_box = Box(final_red_box, normal, none);
+            break;
+            case green:
+                final_box = Box(final_green_box, normal, none);
+            break;
+            case yellow:
+                final_box = Box(final_yellow_box, normal, none);
+            break;
+        }
+    }else{
+        final_box = b2;
+    }
+    vector<pair<color, int>> pieces;
+    bool reached_final_box = false;
+    if (b1.type == normal && final_box.num != b1.num){
+        for (int i = b1.num+1; !reached_final_box; i = i%68 + 1){ //Vamos recorriendo casillas intermedias
+            reached_final_box = (final_box.num == i);
+            //Si hay un muro, lo añadimos al vector de muros.
+            vector<pair <color, int>> occupation = boxState(Box(i, normal, none));
+
+            for (int j = 0; j < occupation.size(); j++){
+                pieces.push_back({occupation.at(j).first, occupation.at(j).second});
+            }
+        }
+    }
+    return pieces;
 }
