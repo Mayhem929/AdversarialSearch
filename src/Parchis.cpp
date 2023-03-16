@@ -373,6 +373,8 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 this->dice.removeNumber(player, dice_number);
                 this->update_dice = true;
 
+                remember_6 = false; // Si no, puedo sacar 6 y empezar a tirar dados especiales sin parar
+
                 switch(dice_number){
                     case star:
                     //Convertimos la ficha a especial
@@ -394,13 +396,29 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     {
                         board.setPieceType(player, piece, normal_piece);
                         dice_number = 40;
-                        Box final_box = computeMove(current_piece, dice_number);
-                        while(this->boxState(final_box).size() > 0){
-                            dice_number ++;
-                            final_box = computeMove(current_piece, dice_number);
+                        // Si la ficha está en su home se saca a su casilla inicial primero.
+                        if(current_piece.get_box().type == home){
+                            board.movePiece(player, piece, Box(init_boxes.at(player), normal, none));
+                            this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, Box(0, home, player), Box(init_boxes.at(player), normal, none)));
+                            current_piece = board.getPiece(player, piece);
                         }
+                        Box final_box;
+                        // Si la ficha está a menos de 40 casillas de su meta, del tirón.
+                        if(distanceToGoal(player, piece) <= dice_number){
+                            final_box = Box(0, goal, player);
+                        }
+                        else{
+                            final_box = computeMove(current_piece, dice_number);
+                            while (this->boxState(final_box).size() > 0)
+                            {
+                                dice_number++;
+                                final_box = computeMove(current_piece, dice_number);
+                            }
+                        }
+                        
                         board.movePiece(player, piece, final_box);
-
+                        this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, final_box));
+                        /* Si llega a la meta del tirón ya no hay que comprobar rebotes.
                         if(!goal_bounce)
                             this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, final_box));
                         else{
@@ -410,7 +428,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                             if(bounces[player] > 30){
                                 overbounce_player = current_player;
                             }
-                        }
+                        }*/
                     }
                     break;
                     case blue_shell:
@@ -530,8 +548,8 @@ bool Parchis::isLegalMove(const Piece & piece, int dice_number) const{
     // Comprobar que no haya ya dos fichas en la casilla (a menos que la casilla de destino sea home, meta o la misma que la de partida).
     else if (final_box.type != goal && final_box.type != home && !(final_box == box) && boxState(final_box).size() == 2)
         return false;
-    //Controlar los muros si la pieza no es boo
-    else if(type != boo_piece){
+    //Controlar los muros si la pieza no es boo ni estrella
+    else if(type != boo_piece and type != star_piece){
         // Comprobar que en el camino del movimiento no hay barreras
         vector<color> walls = anyWall(box, final_box);
         for (int i = 0; i < walls.size(); i++){
