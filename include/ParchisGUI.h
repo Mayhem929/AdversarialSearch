@@ -14,6 +14,7 @@
 #include "PieceSprite.h"
 #include "SpecialItemSprite.h"
 #include "BoardSprite.h"
+#include "ExplosionSprite.h"
 //#include "RectangularButton.h"
 #include "Button.h"
 #include "ClickableSprite.h"
@@ -48,6 +49,8 @@ private:
     Texture tSkipBt;
     Texture tButtons;
 
+    Texture tBOOM;
+
     //Sprites' definitions
     Sprite background;
     map <color, vector<PieceSprite>> pieces;
@@ -70,6 +73,13 @@ private:
     Text turns_arrow_text;
     static const IntRect turns_arrow_rect;
     static const map<color, int> color2turns_arrow_pos;
+
+    // Explosion sprites
+    static const int BOOM_SPRITE_LIMIT = 12;
+    ExplosionSprite red_boom[BOOM_SPRITE_LIMIT];
+    ExplosionSprite blue_boom[BOOM_SPRITE_LIMIT];
+    ExplosionSprite golden_boom[BOOM_SPRITE_LIMIT];
+    int current_boom_sprite;
 
     //Sprites utilities to reduce the code.
     vector<Drawable*> all_drawable_sprites;
@@ -112,12 +122,13 @@ private:
     //List of animations.
     //list<SpriteAnimator> animations;
     // Several channels for animations, so that several animations can be run in parallel but also animations can be chained.
-    queue<SpriteAnimator> animations_ch1; // Normal piece animations.
-    queue<SpriteAnimator> animations_ch2; // Piece animations with collisions.
-    queue<SpriteAnimator> animations_ch3; // Piece animations with anti-collisions.
-    queue<SpriteAnimator> animations_ch4; // Out-board animations (like turns arrow).
+    queue<shared_ptr<SpriteAnimator>> animations_ch1; // Normal piece animations.
+    queue<shared_ptr<SpriteAnimator>> animations_ch2; // Piece animations with collisions.
+    queue<shared_ptr<SpriteAnimator>> animations_ch3; // Piece animations with anti-collisions.
+    queue<shared_ptr<SpriteAnimator>> animations_ch4; // Out-board animations (like turns arrow).
+    queue<shared_ptr<SpriteAnimator>> animations_ch5; // Explosion animations
 
-    vector<queue<SpriteAnimator>*> all_animators; // All channels.
+    vector<queue<shared_ptr<SpriteAnimator>>*> all_animators; // All channels.
 
     // Hebra del juego (no puede desarrollarse en la misma hebra que la GUI porque entonces cada acción en el juego bloquearía la GUI)
     Thread game_thread;

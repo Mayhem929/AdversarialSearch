@@ -33,6 +33,9 @@ obj/PieceSprite.o: src/PieceSprite.cpp include/PieceSprite.h
 obj/SpecialItemSprite.o: src/SpecialItemSprite.cpp include/SpecialItemSprite.h
 	g++  -g -c src/SpecialItemSprite.cpp -o obj/SpecialItemSprite.o -I include/ -std=c++14
 
+obj/ExplosionSprite.o: src/ExplosionSprite.cpp include/ExplosionSprite.h
+	g++  -g -c src/ExplosionSprite.cpp -o obj/ExplosionSprite.o -I include/ -std=c++14
+
 obj/Player.o: src/Player.cpp include/Player.h
 	g++  -g -c src/Player.cpp -o obj/Player.o -I include/ -std=c++14
 
@@ -60,8 +63,8 @@ obj/Connection.o: src/Connection.cpp include/Connection.h
 obj/GameSelector.o: src/GameSelector.cpp include/GameSelector.h
 	g++  -g -c src/GameSelector.cpp -o obj/GameSelector.o -I include/ -std=c++14
 
-bin/Parchis: obj/main.o obj/ParchisGUI.o obj/Parchis.o obj/Board.o obj/Dice.o obj/Piece.o obj/SpriteAnimator.o obj/DiceSprite.o obj/PieceSprite.o obj/SpecialItemSprite.o obj/BoardSprite.o obj/Button.o obj/ClickableSprite.o obj/RemotePlayer.o obj/GUIPlayer.o obj/Ninja.o obj/AIPlayer.o obj/Player.o obj/Connection.o obj/GameSelector.o
-	g++  -g obj/main.o obj/ParchisGUI.o obj/Parchis.o obj/Board.o obj/Dice.o obj/Piece.o obj/DiceSprite.o obj/SpriteAnimator.o obj/PieceSprite.o obj/SpecialItemSprite.o obj/BoardSprite.o obj/Button.o obj/ClickableSprite.o obj/RemotePlayer.o obj/GUIPlayer.o obj/Ninja.o obj/AIPlayer.o obj/Player.o obj/Connection.o obj/GameSelector.o -o bin/Parchis -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lsfml-network -lpthread
+bin/Parchis: obj/main.o obj/ParchisGUI.o obj/Parchis.o obj/Board.o obj/Dice.o obj/Piece.o obj/SpriteAnimator.o obj/DiceSprite.o obj/PieceSprite.o obj/SpecialItemSprite.o obj/ExplosionSprite.o obj/BoardSprite.o obj/Button.o obj/ClickableSprite.o obj/RemotePlayer.o obj/GUIPlayer.o obj/Ninja.o obj/AIPlayer.o obj/Player.o obj/Connection.o obj/GameSelector.o
+	g++  -g obj/main.o obj/ParchisGUI.o obj/Parchis.o obj/Board.o obj/Dice.o obj/Piece.o obj/DiceSprite.o obj/SpriteAnimator.o obj/PieceSprite.o obj/SpecialItemSprite.o obj/ExplosionSprite.o obj/BoardSprite.o obj/Button.o obj/ClickableSprite.o obj/RemotePlayer.o obj/GUIPlayer.o obj/Ninja.o obj/AIPlayer.o obj/Player.o obj/Connection.o obj/GameSelector.o -o bin/Parchis -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lsfml-network -lpthread
 
 clean:
 	rm -rf ./obj/*.o ./bin/*

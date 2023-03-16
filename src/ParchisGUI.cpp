@@ -248,6 +248,9 @@ ParchisGUI::ParchisGUI(Parchis &model)
     this->tButtons.loadFromFile("data/textures/buttons.png");
     this->tButtons.setSmooth(true);
 
+    this->tBOOM.loadFromFile("data/textures/JustACircle.png");
+    this->tBOOM.setSmooth(true);
+
     //Definimos los sprites
     this->background = Sprite(tBackground);
     this->background.setPosition(1000, 1000);
@@ -325,11 +328,20 @@ ParchisGUI::ParchisGUI(Parchis &model)
     this->turns_arrow.setScale(Vector2f(0.5, 0.5));
     this->turns_arrow.setColor(Color::Yellow);
 
+    // Sprites de explosión.
+    for(int i = 0; i < BOOM_SPRITE_LIMIT; i++){
+        this->blue_boom[i] = ExplosionSprite(tBOOM, Color::Cyan);
+        this->red_boom[i] = ExplosionSprite(tBOOM, Color::Red);
+        this->golden_boom[i] = ExplosionSprite(tBOOM, Color(255, 215, 0));
+    }
+    this->current_boom_sprite = 0;
+
     // Agrupación de los canales de animación.
     this->all_animators.push_back(&this->animations_ch1);
     this->all_animators.push_back(&this->animations_ch2);
     this->all_animators.push_back(&this->animations_ch3);
     this->all_animators.push_back(&this->animations_ch4);
+    this->all_animators.push_back(&this->animations_ch5);
 
     //Creación de las vistas
     general_view = View(FloatRect(1000, 1000, 1600, 800));
@@ -406,6 +418,16 @@ void ParchisGUI::collectSprites(){
     // Vector de colores (ver cómo se podría obtener directamente del enumerado)
     vector<color> colors = {red, blue, green, yellow};
     vector<color> dice_colors = {yellow, blue};
+
+    // Explosiones como dibujables y no clickables. Por debajo de las fichas.
+    for(int i = 0; i < BOOM_SPRITE_LIMIT; i++){
+        all_drawable_sprites.push_back(&blue_boom[i]);
+        all_drawable_sprites.push_back(&red_boom[i]);
+        all_drawable_sprites.push_back(&golden_boom[i]);
+        board_drawable_sprites.push_back(&blue_boom[i]);
+        board_drawable_sprites.push_back(&red_boom[i]);
+        board_drawable_sprites.push_back(&golden_boom[i]);
+    }
 
     for (int i = 0; i < colors.size(); i++)
     {
@@ -737,15 +759,16 @@ void ParchisGUI::processEvents(){
 void ParchisGUI::processAnimations()
 {
    for(int i = 0; i < all_animators.size(); i++){
-        queue<SpriteAnimator>* animations_ch_i = all_animators[i];
+        queue<shared_ptr<SpriteAnimator>>* animations_ch_i = all_animators[i];
         if(!animations_ch_i->empty()){
-            SpriteAnimator sa_i = animations_ch_i->front();
-            sa_i.update();
-            if(sa_i.hasEnded()){
+            //SpriteAnimator sa_i = *animations_ch_i->front();
+            //sa_i.update();
+            animations_ch_i->front()->update();
+            if(animations_ch_i->front()->hasEnded()){
                 animations_ch_i->pop();
                 if(!animations_ch_i->empty()){
-                    animations_ch_i->front().setStartPosition();
-                    animations_ch_i->front().restart();
+                    animations_ch_i->front()->setStartPosition();
+                    animations_ch_i->front()->restart();
                 }
                 if (i == 0)
                 {
@@ -1168,8 +1191,29 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
         Vector2f animate_pos = (Vector2f)box2position.at(dest)[id];
 
         Sprite *animate_sprite = &pieces[col][id];
-        SpriteAnimator animator = SpriteAnimator(*animate_sprite, animate_pos, animation_time);
+        shared_ptr<SpriteAnimator> animator = make_shared<SpriteAnimator>(*animate_sprite, animate_pos, animation_time);
         animations_ch1.push(animator);
+
+        // Si el destino es casa y hay algún flag de red_shell/blue_shell/star move activo, se encola la explosión.
+        if(dest.type == home){
+            if(model->isRedShellMove() or model->isBlueShellMove() or model->isStarMove()){
+                Vector2f animate_pos = (Vector2f)box2position.at(dest)[id];
+                Sprite *animate_sprite;
+                if(model->isRedShellMove())
+                    animate_sprite = &red_boom[current_boom_sprite];
+                else if(model->isBlueShellMove())
+                    animate_sprite = &blue_boom[current_boom_sprite];
+                else if(model->isStarMove())
+                    animate_sprite = &golden_boom[current_boom_sprite];
+
+                current_boom_sprite = (current_boom_sprite + 1) % BOOM_SPRITE_LIMIT;
+                animate_pos = (Vector2f)box2position.at(origin)[0] + Vector2f(animate_sprite->getLocalBounds().width/2, animate_sprite->getLocalBounds().height/2);
+                animate_sprite->setPosition(animate_pos);
+                animate_sprite->setOrigin(animate_sprite->getLocalBounds().width/2, animate_sprite->getLocalBounds().height/2);
+                shared_ptr<ExplosionAnimator> animator = make_shared<ExplosionAnimator>(*animate_sprite, 1.f, 3.f, animation_time);
+                animations_ch5.push(animator);
+            }
+        }
     }
     else{
         // Buscamos colisiones.
@@ -1179,7 +1223,7 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
             Vector2f animate_pos = (Vector2f)box2position.at(dest)[0];
 
             Sprite *animate_sprite = &pieces[col][id];
-            SpriteAnimator animator = SpriteAnimator(*animate_sprite, animate_pos, animation_time);
+            shared_ptr<SpriteAnimator> animator = make_shared<SpriteAnimator>(*animate_sprite, animate_pos, animation_time);
             animations_ch1.push(animator);
         }
         else if(occupation.size() == 2){
@@ -1190,13 +1234,13 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
             // Ficha principal (la que realmente se mueve) por el canal 1 por si hay que encadenar animaciones.
             Vector2f animate_pos = (Vector2f)box2position.at(dest)[1];
             Sprite *animate_sprite = &pieces[occupation[main_move].first][occupation[main_move].second];
-            SpriteAnimator animator = SpriteAnimator(*animate_sprite, animate_pos, animation_time);
+            shared_ptr<SpriteAnimator> animator = make_shared<SpriteAnimator>(*animate_sprite, animate_pos, animation_time);
             animations_ch1.push(animator);
 
             // Ficha desplazada por el canal 2.
             Vector2f animate_pos2 = (Vector2f)box2position.at(dest)[2];
             Sprite *animate_sprite2 = &pieces[occupation[collateral_move].first][occupation[collateral_move].second];
-            SpriteAnimator animator2 = SpriteAnimator(*animate_sprite2, animate_pos2, animation_time);
+            shared_ptr<SpriteAnimator> animator2 = make_shared<SpriteAnimator>(*animate_sprite2, animate_pos2, animation_time);
             animations_ch2.push(animator2);
         }
     }
@@ -1208,7 +1252,7 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
             // (Siempre que el origen no sea ni casa ni meta).
             Vector2f animate_pos = (Vector2f)box2position.at(origin)[0];
             Sprite *animate_sprite = &pieces[origin_occupation.at(0).first][origin_occupation.at(0).second];
-            SpriteAnimator animator = SpriteAnimator(*animate_sprite, animate_pos, animation_time);
+            shared_ptr<SpriteAnimator> animator = make_shared<SpriteAnimator>(*animate_sprite, animate_pos, animation_time);
             animations_ch3.push(animator);
         }
     }
@@ -1220,7 +1264,7 @@ void ParchisGUI::queueTurnsArrow(color c){
     int new_turn_pos = color2turns_arrow_pos.at(c);
     if (new_turn_pos != turns_arrow.getPosition().y)
     {
-        SpriteAnimator s(turns_arrow, Vector2f(turns_arrow.getPosition().x, new_turn_pos), animation_time);
+        shared_ptr<SpriteAnimator> s = make_shared<SpriteAnimator>(turns_arrow, Vector2f(turns_arrow.getPosition().x, new_turn_pos), animation_time);
         animations_ch4.push(s);
     }
     Color turns_arrow_color = turns_arrow.getColor();

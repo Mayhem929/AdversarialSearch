@@ -7,21 +7,22 @@
 using namespace std;
 
 class SpriteAnimator{
-private:
+protected:
     // Reference to the sprite to be animated.
     Transformable *sprite;
-
-    // Starting position of the animation.
-    Vector2f start_pos;
-
-    // Ending position of the animation.
-    Vector2f end_pos;
 
     // Total time of the animation.
     int animation_time;
 
     // Internal clock of the animation (in miliseconds)
     Clock animation_clock;
+
+private:
+    // Starting position of the animation.
+    Vector2f start_pos;
+
+    // Ending position of the animation.
+    Vector2f end_pos;
 
     /**
      * @brief Construct a new Sprite Animator object
@@ -76,13 +77,13 @@ public :
      * @brief Restarts the animation.
      * 
      */
-    void restart();
+    virtual void restart();
 
     /**
      * @brief Updates the sprite according to the animation.
      * 
      */
-    void update();
+    virtual void update();
 
     /**
      * @brief Checks if the animation has been completed.
@@ -90,7 +91,7 @@ public :
      * @return true 
      * @return false 
      */
-    bool hasEnded();
+    virtual bool hasEnded();
 
     /**
      * @brief Set the Start Position object

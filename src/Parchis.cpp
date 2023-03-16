@@ -81,6 +81,11 @@ void Parchis::initGame(){
     this->goal_bounce = false;
     this->remember_6 = false;
 
+    this->red_shell_move = false;
+    this->blue_shell_move = false;
+    this->star_move = false;
+    this->bullet_move = false;
+
     this->turn = 1;
 
     bounces = {
@@ -261,6 +266,11 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 goal_move = false;
                 bool destroyed_by_star = false;
 
+                red_shell_move = false;
+                blue_shell_move = false;
+                star_move = false;
+                bullet_move = false;
+
                 remember_6 = (dice_number==6 or (remember_6 and (dice_number == 10 or dice_number == 20)));
 
                 //Comprobar si hay una ficha de otro color en la casilla destino
@@ -268,6 +278,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                 //Comprobar si la ficha en movimiento es una estrella
                 if (current_piece.get_type() == star_piece){
+                    star_move = true;
                     //Obtenemos todas las fichas en su camino
                     vector <pair<color, int>> destroyed_pieces = allPiecesBetween(piece_box, final_box);
                     Box origin = current_piece.get_box();
@@ -300,6 +311,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                                 board.movePiece(player, piece, Box(0, home, player));
                                 this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, origin, Box(0, home, player)));
                                 destroyed_by_star = true;
+                                star_move = true;
                                 final_box = Box(0, home, player);
                             }
                         }
@@ -373,6 +385,11 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 this->dice.removeNumber(player, dice_number);
                 this->update_dice = true;
 
+                this->red_shell_move = false;
+                this->blue_shell_move = false;
+                this->star_move = false;
+                this->bullet_move = false;
+
                 remember_6 = false; // Si no, puedo sacar 6 y empezar a tirar dados especiales sin parar
 
                 switch(dice_number){
@@ -394,6 +411,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     break;
                     case bullet:
                     {
+                        this->bullet_move = true;
                         board.setPieceType(player, piece, normal_piece);
                         dice_number = 40;
                         // Si la ficha está en su home se saca a su casilla inicial primero.
@@ -433,6 +451,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     break;
                     case blue_shell:
                     {
+                        this->blue_shell_move = true;
                         int min_dist = 1000;
                         vector<pair<color,int>> deleted_pieces;
                         for (int i = 0; i < game_colors.size(); i++){
@@ -467,6 +486,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                     case red_shell:
                     {
+                        this->red_shell_move = true;
                         int min_dist = 1000;
                         vector<pair<color,int>> deleted_pieces;
                         for (int i = 0; i < game_colors.size(); i++){
@@ -545,11 +565,20 @@ bool Parchis::isLegalMove(const Piece & piece, int dice_number) const{
     //Controlar que ya estés en la meta
     else if(box.type == goal)
         return false;
-    // Comprobar que no haya ya dos fichas en la casilla (a menos que la casilla de destino sea home, meta o la misma que la de partida).
-    else if (final_box.type != goal && final_box.type != home && !(final_box == box) && boxState(final_box).size() == 2)
-        return false;
+    // Comprobar que no haya ya dos fichas en la casilla (a menos que la casilla de destino sea home, meta o la misma que la de partida). Si voy en estrella me daría igual salvo que haya dos estrellas en el destino.
+    else if (final_box.type != goal && final_box.type != home && !(final_box == box) && boxState(final_box).size() == 2){
+        if(type != star_piece)
+            return false;
+        else{
+            vector<pair<color, int>> box_state = boxState(final_box);
+            Piece p1 = board.getPiece(box_state[0].first, box_state[0].second);
+            Piece p2 = board.getPiece(box_state[1].first, box_state[1].second);
+            if(p1.get_type() == star_piece and p2.get_type() == star_piece)
+                return false;
+        }
+    }
     //Controlar los muros si la pieza no es boo ni estrella
-    else if(type != boo_piece and type != star_piece){
+    if(type != boo_piece and type != star_piece){
         // Comprobar que en el camino del movimiento no hay barreras
         vector<color> walls = anyWall(box, final_box);
         for (int i = 0; i < walls.size(); i++){

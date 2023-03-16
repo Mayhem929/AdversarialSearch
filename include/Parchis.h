@@ -55,6 +55,11 @@ class Parchis{
         bool goal_bounce;
         bool remember_6;
 
+        bool red_shell_move;
+        bool blue_shell_move;
+        bool star_move;
+        bool bullet_move;
+
         //Definición de casillas especiales
         static const int final_red_box = 34;
         static const int final_blue_box = 17;
@@ -238,6 +243,46 @@ class Parchis{
          */
         inline const bool goalBounce() const{
             return goal_bounce;
+        }
+
+        /**
+         * @brief Función que devuelve el valor del atributo red_shell_move
+         *
+         * @return true
+         * @return false
+         */
+        inline const bool isRedShellMove() const{
+            return red_shell_move;
+        }
+
+        /**
+         * @brief Función que devuelve el valor del atributo blue_shell_move
+         *
+         * @return true
+         * @return false
+         */
+        inline const bool isBlueShellMove() const{
+            return blue_shell_move;
+        }
+
+        /**
+         * @brief Función que devuelve el valor del atributo star_move
+         *
+         * @return true
+         * @return false
+         */
+        inline const bool isStarMove() const{
+            return star_move;
+        }
+
+        /**
+         * @brief Función que devuelve el valor del atributo bullet_move
+         *
+         * @return true
+         * @return false
+         */
+        inline const bool isBulletMove() const{
+            return bullet_move;
         }
 
         /**
