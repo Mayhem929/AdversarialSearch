@@ -32,7 +32,7 @@ void main() {
     // Determine the distance from the center of the sprite
     float dist = distance(st, vec2(0.5));
     // If the distance is less than 0.5 (i.e., the center of the sprite), use the original color
-    if (dist > 0.5) {
+    if (false){  //(dist > 0.5) {
         gl_FragColor = pixel * sfmlColor;
     } else {
         gl_FragColor = vec4(color,1.0) * rpixel; //* sfmlColor;
