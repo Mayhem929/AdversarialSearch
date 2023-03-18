@@ -36,6 +36,13 @@ private:
 
 public :
     /**
+     * @brief Construct an empty Sprite Animator object.
+     * It will work as a non-animation time wait for the next animation.
+    */
+    SpriteAnimator(int animation_time = 1000);
+
+
+    /**
      * @brief Construct a new Sprite Animator object
      *
      * @param s Sprite to animate.

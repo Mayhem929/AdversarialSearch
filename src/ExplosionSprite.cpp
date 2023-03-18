@@ -5,12 +5,15 @@ ExplosionSprite::ExplosionSprite(const Texture & t, Color c) : Sprite(t), c(c){
     this->setColor(Color(0, 0, 0, 0));
 }
 
+ExplosionAnimator::ExplosionAnimator(float baseScale, float expansionScale, int animationTime) : SpriteAnimator(animationTime), baseScale(baseScale), expansionScale(expansionScale){
+}
+
 ExplosionAnimator::ExplosionAnimator(Transformable &s, float baseScale, float expansionScale, int animationTime) : SpriteAnimator(s, s.getPosition(), s.getPosition(), animationTime), baseScale(baseScale), expansionScale(expansionScale){
 }
 
 void ExplosionAnimator::restart(){
     this->animation_clock.restart();
-    this->sprite->setScale(1.f, 1.f);
+    if(sprite != NULL) this->sprite->setScale(1.f, 1.f);
 }
 
 void ExplosionAnimator::update(){
@@ -18,6 +21,7 @@ void ExplosionAnimator::update(){
     if(t > animation_time) t = animation_time;
     float fa_time = animation_time; 
     
+    if(sprite == NULL) return;
     // Scale grows linearly from 1 to expansionScale
     float scale = (1.f - t / fa_time) + (t / fa_time) * expansionScale;
 

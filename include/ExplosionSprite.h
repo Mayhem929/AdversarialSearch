@@ -22,6 +22,7 @@ class ExplosionAnimator: public SpriteAnimator{
         float baseScale;
 
     public:
+        ExplosionAnimator(float baseScale = 1.f, float expansionScale = 3.f, int animationTime = 1000);
         ExplosionAnimator(Transformable &s, float baseScale = 1.f, float expansionScale = 3.f, int animationTime = 1000);
         
         virtual void restart();

@@ -102,6 +102,10 @@ private:
 
     vector<ClickableSprite*> dice_dynamic_clickable_sprites;
 
+    // Intervals for shadable sprites.
+    int piece_sprite_start, piece_sprite_end;
+    int golden_boom_sprite_start, golden_boom_sprite_end;
+
     // Views
     View general_view;
     View board_view;
@@ -347,6 +351,8 @@ private:
     // Shaders.
     Shader star_shader;
     Shader boo_shader;
+
+    Shader star_boom_shader;
 
 public:
     ParchisGUI(Parchis & model);

@@ -332,7 +332,7 @@ ParchisGUI::ParchisGUI(Parchis &model)
     for(int i = 0; i < BOOM_SPRITE_LIMIT; i++){
         this->blue_boom[i] = ExplosionSprite(tBOOM, Color::Cyan);
         this->red_boom[i] = ExplosionSprite(tBOOM, Color::Red);
-        this->golden_boom[i] = ExplosionSprite(tBOOM, Color(255, 215, 0));
+        this->golden_boom[i] = ExplosionSprite(tBOOM, Color::White); //Color(255, 215, 0));
     }
     this->current_boom_sprite = 0;
 
@@ -400,6 +400,12 @@ ParchisGUI::ParchisGUI(Parchis &model)
         cout << "Error loading boo shader." << endl;
     }
 
+    // Explosión de estrella
+    if (!this->star_boom_shader.loadFromFile("data/shaders/star_boom_shader.frag", Shader::Fragment))
+    {
+        cout << "Error loading star boom shader." << endl;
+    }
+
     this->startGameLoop();
 
 
@@ -420,15 +426,21 @@ void ParchisGUI::collectSprites(){
     vector<color> dice_colors = {yellow, blue};
 
     // Explosiones como dibujables y no clickables. Por debajo de las fichas.
+    golden_boom_sprite_start = board_drawable_sprites.size();
+    for(int i = 0; i < BOOM_SPRITE_LIMIT; i++){
+        all_drawable_sprites.push_back(&golden_boom[i]);
+        board_drawable_sprites.push_back(&golden_boom[i]);
+    }
+    golden_boom_sprite_end = board_drawable_sprites.size();
+
     for(int i = 0; i < BOOM_SPRITE_LIMIT; i++){
         all_drawable_sprites.push_back(&blue_boom[i]);
         all_drawable_sprites.push_back(&red_boom[i]);
-        all_drawable_sprites.push_back(&golden_boom[i]);
         board_drawable_sprites.push_back(&blue_boom[i]);
         board_drawable_sprites.push_back(&red_boom[i]);
-        board_drawable_sprites.push_back(&golden_boom[i]);
     }
 
+    piece_sprite_start = board_drawable_sprites.size();
     for (int i = 0; i < colors.size(); i++)
     {
         color col = colors[i];
@@ -440,6 +452,7 @@ void ParchisGUI::collectSprites(){
             board_clickable_sprites.push_back(&pieces[col][j]);
         }
     }
+    piece_sprite_end = board_drawable_sprites.size();
 
 
     for  (int i = 0; i < dice_colors.size(); i++)
@@ -816,11 +829,40 @@ void ParchisGUI::paint(){
     boo_shader.setUniform("u_mouse", sf::Glsl::Vec2{sf::Vector2f{}});
     boo_shader.setUniform("u_time", global_clock.getElapsedTime().asSeconds());
     boo_shader.setUniform("texture", sf::Shader::CurrentTexture);
+    star_boom_shader.setUniform("u_resolution", sf::Glsl::Vec2{this->getSize()});
+    star_boom_shader.setUniform("u_mouse", sf::Glsl::Vec2{sf::Vector2f{}});
+    star_boom_shader.setUniform("u_time", global_clock.getElapsedTime().asSeconds());
+    star_boom_shader.setUniform("texture", sf::Shader::CurrentTexture);
 
 
     //Dibujamos elementos de la vista del tablero.
     this->setView(board_view);
     for(int i = 0; i < board_drawable_sprites.size(); i++){
+        if(piece_sprite_start <= i and i < piece_sprite_end){
+            PieceSprite *ps = static_cast<PieceSprite*>(board_drawable_sprites[i]);
+            switch(ps->getPiece().get_type()){
+                case star_piece:
+                    star_shader.setUniform("sfmlColor", sf::Glsl::Vec4(board_drawable_sprites[i]->getColor().r / 255.f, board_drawable_sprites[i]->getColor().g / 255.f, board_drawable_sprites[i]->getColor().b / 255.f, board_drawable_sprites[i]->getColor().a / 255.f));
+                    this->draw(*board_drawable_sprites[i], &star_shader);
+                break;
+                case boo_piece:
+                    boo_shader.setUniform("sfmlColor", sf::Glsl::Vec4(board_drawable_sprites[i]->getColor().r / 255.f, board_drawable_sprites[i]->getColor().g / 255.f, board_drawable_sprites[i]->getColor().b / 255.f, board_drawable_sprites[i]->getColor().a / 255.f));
+                    this->draw(*board_drawable_sprites[i], &boo_shader);
+                    break;
+                case normal_piece:
+                default:
+                    this->draw(*board_drawable_sprites[i]);
+                break;
+            }
+        }
+        else if(golden_boom_sprite_start <= i and i < golden_boom_sprite_end){
+            star_boom_shader.setUniform("sfmlColor", sf::Glsl::Vec4(board_drawable_sprites[i]->getColor().r / 255.f, board_drawable_sprites[i]->getColor().g / 255.f, board_drawable_sprites[i]->getColor().b / 255.f, board_drawable_sprites[i]->getColor().a / 255.f));
+            this->draw(*board_drawable_sprites[i], &star_boom_shader);
+        }
+        else{
+            this->draw(*board_drawable_sprites[i]);
+        }
+        /*
         PieceSprite *ps = dynamic_cast<PieceSprite*>(board_drawable_sprites[i]);
         if(ps == NULL or ps->getPiece().get_type() == normal_piece)
             this->draw(*board_drawable_sprites[i]);
@@ -836,7 +878,7 @@ void ParchisGUI::paint(){
                 break;
             }
 
-        }
+        }*/
     }
     for(int i = 0; i < board_dynamic_drawable_sprites.size(); i++){
         this->draw(*board_dynamic_drawable_sprites[i]);
@@ -1215,6 +1257,7 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
             }
         }
     }
+    
     else{
         // Buscamos colisiones.
         vector<pair<color, int>> occupation = this->model->boxState(dest);
@@ -1247,7 +1290,7 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
 
     if(origin.type != goal && origin.type != home){
         vector<pair<color, int>> origin_occupation = this->model->boxState(origin);
-        if(origin_occupation.size() == 1){
+        if(origin_occupation.size() == 1 && !model->isStarMove()){
             // Si queda una ficha en el origen del movimiento tras haber hecho el movimiento, la devolvemos al centro (canal 3).
             // (Siempre que el origen no sea ni casa ni meta).
             Vector2f animate_pos = (Vector2f)box2position.at(origin)[0];
@@ -1255,6 +1298,12 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
             shared_ptr<SpriteAnimator> animator = make_shared<SpriteAnimator>(*animate_sprite, animate_pos, animation_time);
             animations_ch3.push(animator);
         }
+    }
+
+    if(model->isStarMove() && dest.type != home){
+        // Si está activo el flag de star move pero no se manda una ficha a casa, se encola una animación vacía por el canal de explosiones.
+        shared_ptr<ExplosionAnimator> animator = make_shared<ExplosionAnimator>(1.f, 3.f, animation_time);
+        animations_ch5.push(animator);
     }
 }
 
