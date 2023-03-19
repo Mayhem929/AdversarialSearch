@@ -1034,9 +1034,9 @@ void ParchisGUI::updateSprites(){
                 this->pieces[c][j].setLocked(true, *this);
             }
 
-            for(int j = 0; j < partner_pieces.size(); j++){
-                this->pieces[partner_color(c)][j].setEnabled(model->isLegalMove(partner_pieces[j], last_dice), *this);
-                this->pieces[partner_color(c)][j].setLocked(!model->isLegalMove(partner_pieces[j], last_dice) || def_lock, *this);
+            for (int j = 0; j < partner_pieces.size(); j++){
+                this->pieces[partner_color(c)][j].setEnabled(true, *this);
+                this->pieces[partner_color(c)][j].setLocked(true, *this);
             }
         }
     }
@@ -1140,7 +1140,22 @@ Vector2f ParchisGUI::box3position(color c, int id, int pos){
     if (piece.type == home || piece.type == goal) {
         return (Vector2f)box2position.at(piece)[id];
     }else{
-        return (Vector2f)box2position.at(piece)[pos];
+        if(model->boxState(piece).size() == 1)
+            return (Vector2f)box2position.at(piece)[pos];
+            // Realmente pos no haría falta para nada, se podría deprecar, pero paso por ahora xd
+        else{
+            vector <pair <color, int>> box_state = model->boxState(piece);
+            pair <color, int> piece0 = box_state[0];
+            pair <color, int> piece1 = box_state[1];
+            if(piece0.first == c && piece0.second == id)
+                return (Vector2f)box2position.at(piece)[1];
+            else if(piece1.first == c && piece1.second == id)
+                return (Vector2f)box2position.at(piece)[2];
+            else{
+                cout << "Posible error en box3position????" << endl;
+                return (Vector2f)box2position.at(piece)[pos];
+            }
+        }
     }
 }
 
