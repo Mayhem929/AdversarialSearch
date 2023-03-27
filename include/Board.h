@@ -20,6 +20,7 @@ enum BoardConfig{
     DEBUG,       // Para depurar determinadas situaciones (ir mofdificando según necesidad)v
     TEST_BOO,   // Depurar boo
     TEST_BOOM,  // BOOM
+    TEST_MUSHROOM // Mushroom
 };
 
 

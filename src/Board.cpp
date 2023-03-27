@@ -115,6 +115,26 @@ void Board::setFromConfig(const BoardConfig & config){
             this->special_items = vector<SpecialItem>{
                 {star, {17, box_type::normal, color::none}}};
 
+        case TEST_MUSHROOM:
+            this->pieces = map<color, vector<Piece>>{
+                {color::red, {Piece(color::red, {24, box_type::normal, color::none}), Piece(color::red, {24, box_type::normal, color::none}), Piece(color::red, {25, box_type::normal, color::none}), Piece(color::red, {25, box_type::normal, color::none})}},
+                {color::green, {Piece(color::green, {21, box_type::normal, color::none}), Piece(color::green, {21, box_type::normal, color::none}), Piece(color::green, {22, box_type::normal, color::none}), Piece(color::green, {23, box_type::normal, color::none})}},
+                {color::blue, {Piece(color::blue, {18, box_type::normal, color::none}), Piece(color::blue, {19, box_type::normal, color::none}),  Piece(color::blue, {20, box_type::normal, color::none}),  Piece(color::blue, {20, box_type::normal, color::none})}},
+                {color::yellow, {Piece(color::yellow, {0, box_type::home, color::yellow}), Piece(color::yellow, {4, box_type::normal, color::none}), Piece(color::yellow, {13, box_type::normal, color::none}), Piece(color::yellow, {16, box_type::normal, color::none})}}};
+            this->special_items = vector<SpecialItem>{
+                {mushroom, {6, box_type::normal, color::none}},
+                {blue_shell, {8, box_type::normal, color::none}},
+                {boo, {10, box_type::normal, color::none}},
+                {star, {12, box_type::normal, color::none}},
+                {bullet, {14, box_type::normal, color::none}},
+                {red_shell, {16, box_type::normal, color::none}},
+                {blue_shell, {18, box_type::normal, color::none}},
+                {boo, {20, box_type::normal, color::none}},
+                {star, {22, box_type::normal, color::none}},
+                {bullet, {24, box_type::normal, color::none}},
+                {red_shell, {26, box_type::normal, color::none}},
+                {blue_shell, {28, box_type::normal, color::none}}};
+
             /*
             case ALTERNED:
                 this->pieces = map<color, vector<Box>>{

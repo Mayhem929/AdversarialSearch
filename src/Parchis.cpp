@@ -398,6 +398,39 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                         board.setPieceType(player, piece, star_piece);
                         board.setPieceTurnsLeft(player, piece, 3);
                     break;
+                    case mushroom:
+                    {
+                        dice_number = 8;
+                        Box final_box;
+                        // Si la ficha está a menos de 40 casillas de su meta, del tirón.
+                        if(distanceToGoal(player, piece) <= dice_number){
+                            final_box = Box(0, goal, player);
+                        }
+                        else{
+                            final_box = computeMove(current_piece, dice_number);
+                            while (this->boxState(final_box).size() > 0)
+                            {
+                                dice_number++;
+                                final_box = computeMove(current_piece, dice_number);
+                            }
+                        }
+                        cout << dice_number << endl;
+                        board.movePiece(player, piece, final_box);
+                        this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, final_box));
+
+                        for (int i = 0; i < board.getSpecialItems().size(); i++){
+                            if (final_box == board.getSpecialItems()[i].box){
+                                // Se borra del tablero y se añade a los dados especiales del jugador.
+                                dice.addSpecialDice(player, board.getSpecialItems()[i].type);
+                                board.deleteSpecialItem(i);
+
+                                this->update_board = true;
+                                this->update_dice = true;
+                            }
+                        }
+
+                    }
+                    break;
                     case boo:
                         //Convertimos la ficha a especial
                         board.setPieceType(player, piece, boo_piece);
@@ -433,7 +466,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                                 final_box = computeMove(current_piece, dice_number);
                             }
                         }
-                        
+
                         board.movePiece(player, piece, final_box);
                         this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, final_box));
                         /* Si llega a la meta del tirón ya no hay que comprobar rebotes.
@@ -447,6 +480,17 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                                 overbounce_player = current_player;
                             }
                         }*/
+
+                        for (int i = 0; i < board.getSpecialItems().size(); i++){
+                            if (final_box == board.getSpecialItems()[i].box){
+                                // Se borra del tablero y se añade a los dados especiales del jugador.
+                                dice.addSpecialDice(player, board.getSpecialItems()[i].type);
+                                board.deleteSpecialItem(i);
+
+                                this->update_board = true;
+                                this->update_dice = true;
+                            }
+                        }
                     }
                     break;
                     case blue_shell:
