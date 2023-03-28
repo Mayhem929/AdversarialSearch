@@ -431,6 +431,15 @@ class Parchis{
          */
         const Box computeMove(const Piece & piece, int dice_number, bool * goal_bounce = NULL) const;
 
+        /**
+         * @brief Función auxiliar que devuelve la siguiente casilla para una ficha concreta.
+         * 
+         * @param Piece
+        */
+        inline const Box nextBox(const Piece & piece) const{
+            return computeMove(piece, 1);
+        }
+
 
         /**
          * @brief Método que gestiona el bucle principal del juego, mientras este no haya terminado,

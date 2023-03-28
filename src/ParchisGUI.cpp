@@ -266,7 +266,24 @@ ParchisGUI::ParchisGUI(Parchis &model)
         vector<PieceSprite> col_pieces_sprites;
         for(int j = 0; j < model.getBoard().getPieces(col).size(); j++){
             col_pieces_sprites.push_back(PieceSprite(tPieces, j, model.getBoard().getPiece(col, j)));
-            col_pieces_sprites[j].setPosition(box3position(col, j, 0));
+            setPieceAttributesOnBoard(col_pieces_sprites[j], j, 0);
+            Vector2f pos = getPiecePositionOnBoard(col_pieces_sprites[j], j, 0);
+            col_pieces_sprites[j].setPosition(pos.x, pos.y);
+            //col_pieces_sprites[j].setPosition(box3position(col, j, 0));
+
+            /*
+            Vector2f middle_point;
+            middle_point = (box3position(col, j, 0) + box3position(col, j % 68, 0)) / 2.f;
+            //col_pieces_sprites[j].setPosition(middle_point);
+            col_pieces_sprites[j].setOrigin(15, 15);
+            col_pieces_sprites[j].setScale(2.0, 2.0);
+            */
+
+            /*    
+            col_pieces_sprites[j].setPosition(box3position(col, j, 0) + Vector2f(15, 15));
+            col_pieces_sprites[j].setOrigin(15, 15);
+            col_pieces_sprites[j].setScale(0.5, 0.5);
+            */
         }
         pieces.insert({col, col_pieces_sprites});
     }
@@ -793,7 +810,6 @@ void ParchisGUI::processAnimations()
             }
         }
     }
-
 }
 
 void ParchisGUI::processSettings(){
@@ -1041,6 +1057,22 @@ void ParchisGUI::updateSprites(){
         }
     }
 
+    if (!this->animation_lock)
+    {
+        vector<color> colors = {yellow, blue, red, green};
+        // Actualizar estado de las fichas que pierden su efecto especial.
+        for (int i = 0; i < colors.size(); i++)
+        {
+            color col = colors[i];
+            for (int j = 0; j < pieces.at(col).size(); j++)
+            {
+                setPieceAttributesOnBoard(pieces[col][j], j, 0);
+                Vector2f pos = getPiecePositionOnBoard(pieces[col][j], j, 0);
+                pieces[col][j].setPosition(pos.x, pos.y);
+            }
+        }
+    }
+
     // Actualizar color y disponibilidad del botón de pasar turno.
     this->skip_turn_button.setModelColor(model->getCurrentColor());
     this->skip_turn_button.setEnabled(model->canSkipTurn(model->getCurrentColor(), last_dice), *this);
@@ -1167,6 +1199,104 @@ Vector2f ParchisGUI::box3position(Box piece, int id, int pos){
     }
 }
 
+Vector2f ParchisGUI::getPiecePositionOnBoard(const PieceSprite & ps, int id, int pos){
+    Piece p = ps.getPiece();
+    color col = p.get_color();
+    if(p.get_type() == small_piece){
+        return box3position(col, id, 0) + Vector2f(15, 15);
+    }
+    else if(p.get_type() == mega_piece){
+        Vector2f pos1 = box3position(col, id, 0);
+        Box next_box = this->model->nextBox(p);
+        Vector2f pos2 = box3position(next_box, id, 0);
+        Vector2f middle_origin = (pos1 + pos2) / 2.f;
+        return middle_origin + Vector2f(15, 15);
+    }
+    else{
+        return box3position(col, id, pos) + Vector2f(15, 15);
+    }
+
+    /*
+    Vector2f middle_point;
+    middle_point = (box3position(col, j, 0) + box3position(col, j % 68, 0)) / 2.f;
+    //col_pieces_sprites[j].setPosition(middle_point);
+    col_pieces_sprites[j].setOrigin(15, 15);
+    col_pieces_sprites[j].setScale(2.0, 2.0);
+    */
+
+    /*
+    col_pieces_sprites[j].setPosition(box3position(col, j, 0) + Vector2f(15, 15));
+    col_pieces_sprites[j].setOrigin(15, 15);
+    col_pieces_sprites[j].setScale(0.5, 0.5);
+    */
+}
+
+Vector2f ParchisGUI::getPiecePositionOnBoard(const PieceSprite &ps, const Box & box, int pos)
+{
+    Piece p = ps.getPiece();
+    color col = p.get_color();
+    if (p.get_type() == small_piece)
+    {
+        return (Vector2f)box2position.at(box).at(pos) + Vector2f(15, 15);
+    }
+    else if (p.get_type() == mega_piece)
+    {
+        Vector2f pos1 = (Vector2f) box2position.at(box).at(0);
+        Box next_box = this->model->nextBox(p);
+        Vector2f pos2 = (Vector2f)box2position.at(next_box).at(0);
+        Vector2f middle_origin = (pos1 + pos2) / 2.f;
+        return middle_origin + Vector2f(15, 15);
+    }
+    else
+    {
+        return (Vector2f)box2position.at(box).at(pos) + Vector2f(15, 15);
+    }
+}
+
+void ParchisGUI::setPieceAttributesOnBoard(PieceSprite &ps, int id, int pos, int anim_time, int max_time)
+{
+    float new_scale;
+    if(animation_time > 1000) anim_time = 1000;
+    Piece p = ps.getPiece();
+    color col = p.get_color();
+    if (p.get_type() == small_piece)
+    {
+        ps.setOrigin(15, 15);
+        new_scale = 0.5;
+    }
+    else if (p.get_type() == mega_piece)
+    {
+        ps.setOrigin(15, 15);
+        new_scale = 2.0;
+    }
+    else
+    {
+        ps.setOrigin(15, 15);
+        new_scale = 1.0;
+    }
+
+    ps.setScale(new_scale, new_scale);
+
+    // From current ps.getScale() to new_scale in anim_time from 0 to max_time
+    //if(new_scale != ps.getScale().x){
+    //    float curr_scale = (max_time - anim_time) * ps.getScale().x / max_time + anim_time * new_scale / max_time;
+    //    ps.setScale(new_scale, new_scale);
+    //}
+
+    /*
+    Vector2f middle_point;
+    middle_point = (box3position(col, j, 0) + box3position(col, j % 68, 0)) / 2.f;
+    //col_pieces_sprites[j].setPosition(middle_point);
+    col_pieces_sprites[j].setOrigin(15, 15);
+    col_pieces_sprites[j].setScale(2.0, 2.0);
+    */
+
+    /*
+    col_pieces_sprites[j].setPosition(box3position(col, j, 0) + Vector2f(15, 15));
+    col_pieces_sprites[j].setOrigin(15, 15);
+    col_pieces_sprites[j].setScale(0.5, 0.5);
+    */
+}
 
 //Cursores
 void ParchisGUI::setDefaultCursor()
@@ -1245,7 +1375,7 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
     animation_ch1_callbacks.push(callback);
     if(dest.type == home || dest.type == goal){
         // Si el destino es casa o meta cada ficha va a su puesto preasignado por id.
-        Vector2f animate_pos = (Vector2f)box2position.at(dest)[id];
+        Vector2f animate_pos = getPiecePositionOnBoard(pieces[col][id], dest, id);//(Vector2f)box2position.at(dest)[id];
 
         Sprite *animate_sprite = &pieces[col][id];
         shared_ptr<SpriteAnimator> animator = make_shared<SpriteAnimator>(*animate_sprite, animate_pos, animation_time);
@@ -1278,7 +1408,7 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
         vector<pair<color, int>> occupation = this->model->boxState(dest);
         if(occupation.size() < 2){
             // Si no había fichas en destino se mueve la ficha al sitio central.
-            Vector2f animate_pos = (Vector2f)box2position.at(dest)[0];
+            Vector2f animate_pos = getPiecePositionOnBoard(pieces[col][id], dest, 0); //(Vector2f)box2position.at(dest)[0];
 
             Sprite *animate_sprite = &pieces[col][id];
             shared_ptr<SpriteAnimator> animator = make_shared<SpriteAnimator>(*animate_sprite, animate_pos, animation_time);
@@ -1290,13 +1420,13 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
             int collateral_move = (main_move == 0)?1:0;
 
             // Ficha principal (la que realmente se mueve) por el canal 1 por si hay que encadenar animaciones.
-            Vector2f animate_pos = (Vector2f)box2position.at(dest)[1];
+            Vector2f animate_pos = getPiecePositionOnBoard(pieces[col][id], dest, 1); //(Vector2f)box2position.at(dest)[1];
             Sprite *animate_sprite = &pieces[occupation[main_move].first][occupation[main_move].second];
             shared_ptr<SpriteAnimator> animator = make_shared<SpriteAnimator>(*animate_sprite, animate_pos, animation_time);
             animations_ch1.push(animator);
 
             // Ficha desplazada por el canal 2.
-            Vector2f animate_pos2 = (Vector2f)box2position.at(dest)[2];
+            Vector2f animate_pos2 = getPiecePositionOnBoard(pieces[col][id], dest, 2); //(Vector2f)box2position.at(dest)[2];
             Sprite *animate_sprite2 = &pieces[occupation[collateral_move].first][occupation[collateral_move].second];
             shared_ptr<SpriteAnimator> animator2 = make_shared<SpriteAnimator>(*animate_sprite2, animate_pos2, animation_time);
             animations_ch2.push(animator2);
@@ -1308,7 +1438,7 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
         if(origin_occupation.size() == 1 && !model->isStarMove()){
             // Si queda una ficha en el origen del movimiento tras haber hecho el movimiento, la devolvemos al centro (canal 3).
             // (Siempre que el origen no sea ni casa ni meta).
-            Vector2f animate_pos = (Vector2f)box2position.at(origin)[0];
+            Vector2f animate_pos = getPiecePositionOnBoard(pieces[origin_occupation.at(0).first][origin_occupation.at(0).second], origin, 0); //(Vector2f)box2position.at(origin)[0];
             Sprite *animate_sprite = &pieces[origin_occupation.at(0).first][origin_occupation.at(0).second];
             shared_ptr<SpriteAnimator> animator = make_shared<SpriteAnimator>(*animate_sprite, animate_pos, animation_time);
             animations_ch3.push(animator);
@@ -1320,6 +1450,7 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
         shared_ptr<ExplosionAnimator> animator = make_shared<ExplosionAnimator>(1.f, 3.f, animation_time);
         animations_ch5.push(animator);
     }
+
 }
 
 void ParchisGUI::queueTurnsArrow(color c){

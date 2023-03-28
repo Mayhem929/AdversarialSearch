@@ -8,7 +8,7 @@
 using namespace std;
 
 
-enum special_type {star_piece, boo_piece, normal_piece};
+enum special_type {star_piece, boo_piece, mega_piece, small_piece, normal_piece};
 
 class Piece{
     private:

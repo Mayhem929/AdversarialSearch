@@ -341,12 +341,40 @@ private:
     Vector2f box3position(color c, int id, int pos);
     Vector2f box3position(Box b, int id, int pos);
 
+    /**
+     * @brief Determina las características de una ficha en el tablero teniendo en cuenta sus posibles estados.
+     * 
+     * @param c 
+     * @param id 
+     * @param pos 
+     */
+    void setPieceAttributesOnBoard(PieceSprite & ps, int id, int pos, int anim_time = 1000, int max_time = 1000);
+
+    /**
+     * @brief Determina la posición de una ficha en el tablero teniendo en cuenta sus posibles estados.
+     * 
+     * @param c 
+     * @param id 
+     * @param pos 
+     */
+    Vector2f getPiecePositionOnBoard(const PieceSprite & ps, int id, int pos);
+
+    /**
+     * @brief Determina la posición de una ficha en el tablero teniendo en cuenta sus posibles estados.
+     *
+     * @param c
+     * @param id
+     * @param pos
+     */
+    Vector2f getPiecePositionOnBoard(const PieceSprite &ps, const Box & box, int pos);
+
     // FPS
     float fps, avg_fps;
     float current_time;
     long total_frames;
     Clock game_clock;
     Clock global_clock;
+    Clock subanim_clock;
 
     // Shaders.
     Shader star_shader;
