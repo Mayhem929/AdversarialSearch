@@ -433,11 +433,15 @@ class Parchis{
 
         /**
          * @brief Función auxiliar que devuelve la siguiente casilla para una ficha concreta.
-         * 
+         *
          * @param Piece
         */
         inline const Box nextBox(const Piece & piece) const{
-            return computeMove(piece, 1);
+            return computeMove(piece , 1);
+        }
+
+        inline const Box nextBox(const color & c, const Box & box) const{
+            return computeMove(Piece(c, box) , 1);
         }
 
 
@@ -673,6 +677,8 @@ class Parchis{
          */
         const color isWall(const Box & b) const;
 
+        const color isMegaWall(const Box & b) const;
+
         /**
          * @brief Función que devuelve el vector de colores de las barreras (en caso de haberlas) del
          * camino entre b1 y b2.
@@ -689,6 +695,8 @@ class Parchis{
          * @return const vector<color>
          */
         const vector<color> anyWall(const Box & b1, const Box & b2) const;
+
+        const vector<color> anyMegaWall(const Box & b1, const Box & b2) const;
 
 
         const vector<pair <color, int>> allPiecesBetween(const Box & b1, const Box & b2) const;

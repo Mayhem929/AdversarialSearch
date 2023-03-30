@@ -8,6 +8,8 @@ const map<item_type, vector<int>> SpecialItemSprite::item2textrec = {
     {blue_shell, {30, 0, 30, 30}},
     {red_shell, {270, 0, 30, 30}},
     {mushroom, {180, 0, 30, 30}},
+    {mega_mushroom, {420, 0, 30, 30}},
+    {shock, {300, 0, 30, 30}}
 };
 
 

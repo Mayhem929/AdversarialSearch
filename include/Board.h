@@ -22,6 +22,7 @@ enum BoardConfig{
     TEST_BOOM,  // BOOM
     TEST_MUSHROOM, // Mushroom
     TEST_SIZES, // Test de tamaños
+    CHANGE_SIZE, //Test de cambio de tamaño
 };
 
 

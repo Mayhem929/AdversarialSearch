@@ -139,12 +139,33 @@ void Board::setFromConfig(const BoardConfig & config){
 
         case TEST_SIZES:
             this->pieces = map<color, vector<Piece>>{
-                {color::red, {Piece(color::red, {1, box_type::normal, color::none}, mega_piece, 3), Piece(color::red, {4, box_type::normal, color::none}, small_piece, 3), Piece(color::red, {4, box_type::normal, color::none}, small_piece, 3), Piece(color::red, {7, box_type::normal, color::none}, mega_piece, 3)}},
+                {color::red, {Piece(color::red, {1, box_type::normal, color::none}, normal_piece, 3), Piece(color::red, {4, box_type::normal, color::none}, small_piece, 3), Piece(color::red, {4, box_type::normal, color::none}, small_piece, 3), Piece(color::red, {7, box_type::normal, color::none}, mega_piece, 3)}},
                 {color::green, {Piece(color::green, {9, box_type::normal, color::none}, mega_piece, 3), Piece(color::green, {11, box_type::normal, color::none}, small_piece, 3), Piece(color::green, {13, box_type::normal, color::none}, small_piece, 3), Piece(color::green, {15, box_type::normal, color::none}, mega_piece, 3)}},
                 {color::blue, {Piece(color::blue, {17, box_type::normal, color::none}, mega_piece, 3), Piece(color::blue, {19, box_type::normal, color::none}, small_piece, 3), Piece(color::blue, {21, box_type::normal, color::none}, small_piece, 3), Piece(color::blue, {23, box_type::normal, color::none}, mega_piece, 3)}},
                 {color::yellow, {Piece(color::yellow, {25, box_type::normal, color::none}, mega_piece, 3), Piece(color::yellow, {27, box_type::normal, color::none}, small_piece, 3), Piece(color::yellow, {29, box_type::normal, color::none}, small_piece, 3), Piece(color::yellow, {31, box_type::normal, color::none}, mega_piece, 3)}}};
             this->special_items = vector<SpecialItem>{
                 {star, {17, box_type::normal, color::none}}};
+            break;
+
+        case CHANGE_SIZE:
+            this->pieces = map<color, vector<Piece>>{
+               {color::green, {Piece(color::green, {0, box_type::home, color::green}), Piece(color::green, {16, box_type::normal, color::none}), Piece(color::green, {15, box_type::normal, color::none}), Piece(color::green, {68, box_type::normal, color::none})}},
+                {color::red, {Piece(color::red, {0, box_type::home, color::red}), Piece(color::red, {18, box_type::normal, color::none}), Piece(color::red, {47, box_type::normal, color::none}), Piece(color::red, {51, box_type::normal, color::none})}},
+                {color::blue, {Piece(color::blue, {0, box_type::home, color::blue}), Piece(color::blue, {19, box_type::normal, color::none}),  Piece(color::blue, {21, box_type::normal, color::none}),  Piece(color::blue, {34, box_type::normal, color::none})}},
+                {color::yellow, {Piece(color::yellow, {0, box_type::home, color::yellow}), Piece(color::yellow, {20, box_type::normal, color::none}), Piece(color::yellow, {13, box_type::normal, color::none}), Piece(color::yellow, {17, box_type::normal, color::none})}}};
+            this->special_items = vector<SpecialItem>{
+                {shock, {6, box_type::normal, color::none}},
+                {mega_mushroom, {8, box_type::normal, color::none}},
+                {shock, {10, box_type::normal, color::none}},
+                {star, {12, box_type::normal, color::none}},
+                {mega_mushroom, {14, box_type::normal, color::none}},
+                {shock, {16, box_type::normal, color::none}},
+                {mega_mushroom, {18, box_type::normal, color::none}},
+                {boo, {20, box_type::normal, color::none}},
+                {boo, {22, box_type::normal, color::none}},
+                {star, {24, box_type::normal, color::none}},
+                {mega_mushroom, {26, box_type::normal, color::none}},
+                {shock, {28, box_type::normal, color::none}}};
             break;
 
             /*
