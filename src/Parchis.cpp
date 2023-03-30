@@ -301,6 +301,12 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 else if (current_piece.get_type() == mega_piece)
                 {
 
+                    // Si la siguiente casilla a la del mega champiñón es la meta, nos movemos ahí directamente.
+                    if(nextBox(player, final_box).type == goal){
+                        final_box = nextBox(player, final_box);
+                    }
+
+
                     if(!goal_bounce)
                         this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, final_box));
                     else{
@@ -338,7 +344,38 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                         }
                     }
 
+                    // Comprobar si se ha obtenido objeto especial. En el caso de la mega ficha, hay que mirar casilla actual y la siguiente.
+                    for (int i = 0; i < board.getSpecialItems().size(); i++)
+                    {
+                        if (final_box == board.getSpecialItems()[i].box)
+                        {
+                            // Se borra del tablero y se añade a los dados especiales del jugador.
+                            dice.addSpecialDice(player, board.getSpecialItems()[i].type);
+                            board.deleteSpecialItem(i);
 
+                            this->update_board = true;
+                            this->update_dice = true;
+                        }
+
+                        if(nextBox(player, final_box) == board.getSpecialItems()[i].box)
+                        {
+                            // Se borra del tablero y se añade a los dados especiales del jugador.
+                            dice.addSpecialDice(player, board.getSpecialItems()[i].type);
+                            board.deleteSpecialItem(i);
+
+                            this->update_board = true;
+                            this->update_dice = true;
+                        }
+                    }
+
+                    // Si la mega ficha llega a la meta en ese turno, se hace pequeña automáticamente.
+                    if(final_box.type == goal){
+                        board.setPieceType(player, piece, normal_piece);
+                    }
+                    // En caso contrario, si es el último turno de ficha grande, acabará el turno en la siguiente posición.
+                    else if(board.getPiece(player, piece).get_turns_left() == 1){
+                        final_box = nextBox(player, final_box);
+                    }
                     board.movePiece(player, piece, final_box);
 
 
@@ -371,7 +408,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                             Piece piece_to_eat = board.getPiece(box_states[0].first, box_states[0].second);
                             Piece eater_piece = board.getPiece(player, piece);
                             if (final_box.type == normal && count(safe_boxes.begin(), safe_boxes.end(), final_box.num) == 0 &&
-                                    piece_to_eat.get_type() != boo_piece && eater_piece.get_type() != boo_piece){
+                                    piece_to_eat.get_type() != boo_piece && eater_piece.get_type() != boo_piece && eater_piece.get_type() != small_piece){
                                 //Movemos la ficha
                                 eating_move = true;
 
@@ -567,7 +604,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                         for (int i = 0; i < deleted_pieces.size(); i++){
                             Piece current_piece = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second);
-                            if(current_piece.get_type() != star_piece){
+                            if(current_piece.get_type() != star_piece and current_piece.get_type() != boo_piece){
                                 Box origin = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second).get_box();
                                 board.movePiece(deleted_pieces[i].first, deleted_pieces[i].second, Box(0, home, deleted_pieces[i].first));
                                 this->last_moves.push_back(tuple<color, int, Box, Box>(deleted_pieces[i].first, deleted_pieces[i].second, origin, Box(0, home, deleted_pieces[i].first)));
@@ -602,7 +639,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                         for (int i = 0; i < deleted_pieces.size(); i++){
                             Piece current_piece = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second);
-                            if(current_piece.get_type() != star_piece){
+                            if(current_piece.get_type() != star_piece and current_piece.get_type() != mega_piece){
                                 Box origin = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second).get_box();
                                 board.movePiece(deleted_pieces[i].first, deleted_pieces[i].second, Box(0, home, deleted_pieces[i].first));
                                 this->last_moves.push_back(tuple<color, int, Box, Box>(deleted_pieces[i].first, deleted_pieces[i].second, origin, Box(0, home, deleted_pieces[i].first)));
@@ -711,8 +748,15 @@ bool Parchis::isLegalMove(const Piece & piece, int dice_number) const{
     // Control de movimientos
     Box final_box = computeMove(piece, dice_number);
     // Controlar si barreras, si está en la casa el movimiento solo sería legal si dice_number == 5, ...
-    if (box.type == home && dice_number != 5)
+    // La bala también permite sacar a la ficha de casa. Los caparazones también se pueden aplicar sobre fichas en casa.
+    if (box.type == home && dice_number != 5 && 
+        dice_number != bullet && dice_number != red_shell && dice_number != blue_shell &&
+        dice_number != shock)
         return false;
+
+    // Los objetos especiales con target global (rayo, caparazón azul, ...) solo se pueden usar sobre la ficha con id 0
+    // TODO
+
     //Controlar que ya estés en la meta
     else if(box.type == goal)
         return false;
@@ -728,8 +772,15 @@ bool Parchis::isLegalMove(const Piece & piece, int dice_number) const{
                 return false;
         }
     }
-    //Controlar los muros si la pieza no es boo ni estrella
-    if(type != boo_piece and type != star_piece){
+    // Comprobar que no haya una mega ficha en la casilla.
+    else if (final_box.type != goal && final_box.type != home && !(final_box == box) && boxState(final_box).size() == 1){
+        vector<pair<color, int>> box_state = boxState(final_box);
+        Piece p = board.getPiece(box_state[0].first, box_state[0].second);
+        if(p.get_type() == mega_piece)
+            return false;
+    }
+    //Controlar los muros si la pieza no es boo ni estrella ni mega
+    if(type != boo_piece and type != star_piece and type != mega_piece){
         // Comprobar que en el camino del movimiento no hay barreras
         vector<color> walls = anyWall(box, final_box);
         for (int i = 0; i < walls.size(); i++){
@@ -756,23 +807,41 @@ bool Parchis::isLegalMove(const Piece & piece, int dice_number) const{
             return false;
         }
 
-        //No puede compartir casilla con una ficha del mismo color ni con una estrella.
-        if (boxState(final_box).size() > 0){
-            for (int i = 0; i < boxState(final_box).size(); i++){
-                if ((boxState(final_box)[i].first == player) or board.getPiece(boxState(final_box)[i].first, boxState(final_box)[i].second).get_type() == star_piece){
-                    if (&board.getPiece(boxState(final_box)[i].first, boxState(final_box)[i].second) != &piece){
-                        return false;
-                    }
+
+        //Al hacerse grande no puede compartir casilla con una ficha del mismo color ni con una estrella.
+        //Si hay solo una ficha en mi casilla acrtual soy yo, así que no me afecta.
+        //Si hay dos fichas en mi casilla actual, solo puedo hacerme grande si la que no soy yo no es de mi color ni estrella.
+        //Problema: no puedo saber quién soy yo :)
+        if (dice_number == mega_mushroom and boxState(final_box).size() > 1){
+            // Si las dos fichas son de mi color, la ficha con la que comparto es de mi color y no puedo hacerme grande.
+            if (boxState(final_box)[0].first == player and boxState(final_box)[1].first == player){
+                return false;
+            }
+            // Si una de las fichas es de mi color y la otra no, la ficha que no es de mi color no puede ser estrella.
+            else if (boxState(final_box)[0].first == player){
+                if (board.getPiece(boxState(final_box)[1].first, boxState(final_box)[1].second).get_type() == star_piece){
+                    return false;
+                }
+            }
+            else if (boxState(final_box)[1].first == player){
+                if (board.getPiece(boxState(final_box)[0].first, boxState(final_box)[0].second).get_type() == star_piece){
+                    return false;
+                }
+            }
+        }
+        else if(dice_number < 100){
+            // Si se está moviendo, simplemente comprobar que en la casilla de llegada no haya de mi color ni estrella.
+            for(int i = 0; i < boxState(final_box).size(); i++){
+                if (boxState(final_box)[i].first == player or board.getPiece(boxState(final_box)[i].first, boxState(final_box)[i].second).get_type() == star_piece){
+                    return false;
                 }
             }
         }
 
         Box next_box = nextBox(player, final_box);
-        if (boxState(next_box).size() > 0){
-            for (int i = 0; i < boxState(next_box).size(); i++){
-                if (boxState(next_box)[i].first == player or board.getPiece(boxState(next_box)[i].first, boxState(next_box)[i].second).get_type() == star_piece){
-                    return false;
-                }
+        for (int i = 0; i < boxState(next_box).size(); i++){
+            if (boxState(next_box)[i].first == player or board.getPiece(boxState(next_box)[i].first, boxState(next_box)[i].second).get_type() == star_piece){
+                return false;
             }
         }
     }
@@ -1406,7 +1475,7 @@ const color Parchis::isWall(const Box & b) const{
         Piece p1 = this->board.getPiece(occupation.at(0).first, occupation.at(0).second);
         Piece p2 = this->board.getPiece(occupation.at(1).first, occupation.at(1).second);
 
-        if (p1.get_type() != boo_piece and p2.get_type() != boo_piece){
+        if (p1.get_type() != boo_piece and p2.get_type() != boo_piece and p1.get_type() != small_piece and p2.get_type() != small_piece){
             return occupation.at(0).first;
         }else{
             return none;
