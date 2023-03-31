@@ -17,7 +17,7 @@ class SpecialItemSprite: public Sprite{
 
         SpecialItemSprite(const Texture & t, item_type type);
 
-        inline int getType(){ return this->type;}
+        inline item_type getType(){ return this->type;}
 };
 
 #endif

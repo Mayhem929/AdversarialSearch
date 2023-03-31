@@ -126,8 +126,8 @@ enum item_type {star = 101,
                 mushroom = 106,
                 mega_mushroom = 107,
                 shock = 108,
-                bomb,
-                banana};
+                horn = 109,
+                banana = 110};
 
 struct SpecialItem
 {

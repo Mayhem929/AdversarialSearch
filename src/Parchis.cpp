@@ -43,7 +43,7 @@ void Parchis::nextTurn(){
 
 
 
-    if (last_dice != 6 && !eating_move && !goal_move && !remember_6){
+    if (last_dice != 6 && !eating_move && !goal_move && !remember_6 || bananed){
         this->current_player = (current_player+1)%2;
         switch(this->current_color){
             case yellow:
@@ -80,11 +80,13 @@ void Parchis::initGame(){
     this->eating_move = false;
     this->goal_bounce = false;
     this->remember_6 = false;
+    this->bananed = false;
 
     this->red_shell_move = false;
     this->blue_shell_move = false;
     this->star_move = false;
     this->bullet_move = false;
+    this->horn_move = false;
 
     this->turn = 1;
 
@@ -270,8 +272,26 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 blue_shell_move = false;
                 star_move = false;
                 bullet_move = false;
+                horn_move = false;
+                bananed = false;
 
                 remember_6 = (dice_number==6 or (remember_6 and (dice_number == 10 or dice_number == 20)));
+
+                //Gestion de trampas
+                if (current_piece.get_type() != star_piece and current_piece.get_type() != boo_piece and current_piece.get_type() != mega_piece){
+                    vector<BoardTrap> any_trap = anyTrap(current_piece.get_box(), final_box);
+
+                    if(any_trap.size() > 0){
+                        final_box = any_trap[0].getBox();
+                        remember_6 = false;
+                        bananed = true;
+                        board.deleteTrap(final_box);
+                        this->update_board = true;
+                        board.setPieceType(player, piece, bananed_piece);
+                        board.setPieceTurnsLeft(player, piece, 2);
+                    }
+                }
+
 
                 //Comprobar si hay una ficha de otro color en la casilla destino
                 vector<pair <color, int>> box_states = boxState(final_box);
@@ -408,7 +428,8 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                             Piece piece_to_eat = board.getPiece(box_states[0].first, box_states[0].second);
                             Piece eater_piece = board.getPiece(player, piece);
                             if (final_box.type == normal && count(safe_boxes.begin(), safe_boxes.end(), final_box.num) == 0 &&
-                                    piece_to_eat.get_type() != boo_piece && eater_piece.get_type() != boo_piece && eater_piece.get_type() != small_piece){
+                                    piece_to_eat.get_type() != boo_piece && eater_piece.get_type() != boo_piece && eater_piece.get_type() != small_piece &&
+                                    eater_piece.get_type() != bananed_piece){
                                 //Movemos la ficha
                                 eating_move = true;
 
@@ -474,6 +495,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 this->blue_shell_move = false;
                 this->star_move = false;
                 this->bullet_move = false;
+                this->horn_move = false;
 
                 remember_6 = false; // Si no, puedo sacar 6 y empezar a tirar dados especiales sin parar
 
@@ -604,7 +626,10 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                         for (int i = 0; i < deleted_pieces.size(); i++){
                             Piece current_piece = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second);
-                            if(current_piece.get_type() != star_piece and current_piece.get_type() != boo_piece){
+                            if (dice.isAvailable(deleted_pieces[i].first, horn)){
+                                dice.removeNumber(deleted_pieces[i].first, horn);
+                            }
+                            else if(current_piece.get_type() != star_piece and current_piece.get_type() != boo_piece){
                                 Box origin = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second).get_box();
                                 board.movePiece(deleted_pieces[i].first, deleted_pieces[i].second, Box(0, home, deleted_pieces[i].first));
                                 this->last_moves.push_back(tuple<color, int, Box, Box>(deleted_pieces[i].first, deleted_pieces[i].second, origin, Box(0, home, deleted_pieces[i].first)));
@@ -639,7 +664,10 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                         for (int i = 0; i < deleted_pieces.size(); i++){
                             Piece current_piece = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second);
-                            if(current_piece.get_type() != star_piece and current_piece.get_type() != mega_piece){
+                            if (dice.isAvailable(deleted_pieces[i].first, horn)){
+                                dice.removeNumber(deleted_pieces[i].first, horn);
+                            }
+                            else if(current_piece.get_type() != star_piece and current_piece.get_type() != mega_piece){
                                 Box origin = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second).get_box();
                                 board.movePiece(deleted_pieces[i].first, deleted_pieces[i].second, Box(0, home, deleted_pieces[i].first));
                                 this->last_moves.push_back(tuple<color, int, Box, Box>(deleted_pieces[i].first, deleted_pieces[i].second, origin, Box(0, home, deleted_pieces[i].first)));
@@ -678,6 +706,29 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                             }
                         }
 
+                        for (int i = 0; i < board.getSpecialItems().size(); i++)
+                        {
+                            if (current_piece.get_box() == board.getSpecialItems()[i].box)
+                            {
+                                // Se borra del tablero y se añade a los dados especiales del jugador.
+                                dice.addSpecialDice(player, board.getSpecialItems()[i].type);
+                                board.deleteSpecialItem(i);
+
+                                this->update_board = true;
+                                this->update_dice = true;
+                            }
+
+                            if(nextBox(player, current_piece.get_box()) == board.getSpecialItems()[i].box)
+                            {
+                                // Se borra del tablero y se añade a los dados especiales del jugador.
+                                dice.addSpecialDice(player, board.getSpecialItems()[i].type);
+                                board.deleteSpecialItem(i);
+
+                                this->update_board = true;
+                                this->update_dice = true;
+                            }
+                        }
+
                     }
                     break;
                     case shock:
@@ -707,6 +758,40 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     }
                     break;
 
+                    case horn:
+                    {
+                        this->horn_move = true;
+                        vector<pair<color,int>> deleted_pieces;
+                        for (int i = 0; i < game_colors.size(); i++){
+                            color c = game_colors[i];
+                            if (c != player){
+                                for (int j = 0; j < board.getPieces(c).size(); j++){
+                                    if(current_piece.get_type() != boo_piece and current_piece.get_type() != mega_piece and current_piece.get_type() != star_piece){
+                                        int dist_paforward = distanceBoxtoBox(player, piece, c, j);
+                                        int dist_paantes = distanceBoxtoBox(c, j, player, piece);
+                                        Piece current_piece = board.getPiece(c, j);
+                                        if (dist_paforward <= 2 and dist_paforward >= 0 or dist_paantes <= 2 and dist_paantes >= 0){
+                                            deleted_pieces.push_back(pair<color, int>(c, j));
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+
+                        for (int i = 0; i < deleted_pieces.size(); i++){
+                            Piece current_piece = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second);
+                            Box origin = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second).get_box();
+                            board.movePiece(deleted_pieces[i].first, deleted_pieces[i].second, Box(0, home, deleted_pieces[i].first));
+                            this->last_moves.push_back(tuple<color, int, Box, Box>(deleted_pieces[i].first, deleted_pieces[i].second, origin, Box(0, home, deleted_pieces[i].first)));
+                        }
+                    }
+
+                    case banana:
+                    {
+                        board.addTrap(banana_trap, current_piece.get_box());
+                        this->update_board = true;
+                    }
                 }
 
             }
@@ -743,13 +828,16 @@ bool Parchis::isLegalMove(const Piece & piece, int dice_number) const{
     // Controlar si intento contar un número distinto de 10 cuando he llevado una ficha a la meta.
     if(isGoalMove() && dice_number != 10)
         return false;
+    // No dejar trampas en meta o pasillo
+    if((box.type == goal || box.type == final_queue || box.type == home) and dice_number == banana)
+        return false;
     //if(dice_number > 100)
     //    return true;
     // Control de movimientos
     Box final_box = computeMove(piece, dice_number);
     // Controlar si barreras, si está en la casa el movimiento solo sería legal si dice_number == 5, ...
     // La bala también permite sacar a la ficha de casa. Los caparazones también se pueden aplicar sobre fichas en casa.
-    if (box.type == home && dice_number != 5 && 
+    if (box.type == home && dice_number != 5 &&
         dice_number != bullet && dice_number != red_shell && dice_number != blue_shell &&
         dice_number != shock)
         return false;
@@ -905,6 +993,9 @@ const Box Parchis::computeMove(const Piece & piece, int dice_number, bool * goal
         dice_number += 2;
     }else if (type == small_piece){
         dice_number = dice_number/2;
+    }
+    else if(type == bananed_piece){
+        dice_number = 0;
     }
     //Si sale de la casilla de home
     if (piece_box.type == home){
@@ -1558,6 +1649,45 @@ const vector<color> Parchis::anyWall(const Box & b1, const Box & b2) const{
     }
     return walls;
 }
+
+const vector<BoardTrap> Parchis::anyTrap(const Box & b1, const Box & b2) const{
+    Box final_box;
+    if (b2.type == final_queue || b2.type == goal){
+        //Si el casilla destino es meta o pasillo final, la cambiamos por la última casilla
+        //antes de entrar al pasillo final.
+        switch (b2.col){
+            case blue:
+                final_box = Box(final_blue_box, normal, none);
+            break;
+            case red:
+                final_box = Box(final_red_box, normal, none);
+            break;
+            case green:
+                final_box = Box(final_green_box, normal, none);
+            break;
+            case yellow:
+                final_box = Box(final_yellow_box, normal, none);
+            break;
+        }
+    }else{
+        final_box = b2;
+    }
+    vector<BoardTrap> traps;
+    bool reached_final_box = false;
+    if (b1.type == normal && final_box.num != b1.num){
+        for (int i = b1.num+1; !reached_final_box; i = i%68 + 1){ //Vamos recorriendo casillas intermedias
+            reached_final_box = (final_box.num == i);
+            //Si hay un muro, lo añadimos al vector de muros.
+            for (int j = 0; j < this->board.getTraps().size(); j++){
+                if (this->board.getTraps().at(j).getBox() == Box(i, normal, none)){
+                    traps.push_back(this->board.getTraps().at(j));
+                }
+            }
+        }
+    }
+    return traps;
+}
+
 
 const vector<pair <color, int>> Parchis::allPiecesBetween(const Box & b1, const Box & b2) const{
     Box final_box;

@@ -54,11 +54,13 @@ class Parchis{
         bool goal_move;
         bool goal_bounce;
         bool remember_6;
+        bool bananed;
 
         bool red_shell_move;
         bool blue_shell_move;
         bool star_move;
         bool bullet_move;
+        bool horn_move;
 
         //Definición de casillas especiales
         static const int final_red_box = 34;
@@ -253,6 +255,16 @@ class Parchis{
          */
         inline const bool isRedShellMove() const{
             return red_shell_move;
+        }
+
+        /**
+         * @brief Función que devuelve el valor del atributo horn_move
+         *
+         * @return true
+         * @return false
+         */
+        inline const bool isHornMove() const{
+            return horn_move;
         }
 
         /**
@@ -677,6 +689,8 @@ class Parchis{
          */
         const color isWall(const Box & b) const;
 
+
+
         const color isMegaWall(const Box & b) const;
 
         /**
@@ -695,6 +709,10 @@ class Parchis{
          * @return const vector<color>
          */
         const vector<color> anyWall(const Box & b1, const Box & b2) const;
+
+
+        const vector<BoardTrap> anyTrap(const Box & b1, const Box & b2) const;
+
 
         const vector<color> anyMegaWall(const Box & b1, const Box & b2) const;
 

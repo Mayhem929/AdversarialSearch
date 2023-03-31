@@ -19,6 +19,7 @@
 #include "Button.h"
 #include "ClickableSprite.h"
 #include "SpriteAnimator.h"
+#include "BoardTrapSprite.h"
 #include <list>
 #include <queue>
 //#include "GUIPlayer.h"
@@ -45,6 +46,7 @@ private:
     Texture tBoard;
     Texture tPieces;
     Texture tSpecialItems;
+    Texture tBoardTraps;
     Texture tDices;
     Texture tSkipBt;
     Texture tButtons;
@@ -55,6 +57,7 @@ private:
     Sprite background;
     map <color, vector<PieceSprite>> pieces;
     vector <SpecialItemSprite> special_items;
+    vector <BoardTrapSprite> board_traps;
     map <color, vector<DiceSprite>> dices;
     map <color, vector<DiceSprite>> special_dices;
     map <color, vector<DiceSprite>> special_10_20_dice;
@@ -343,19 +346,19 @@ private:
 
     /**
      * @brief Determina las características de una ficha en el tablero teniendo en cuenta sus posibles estados.
-     * 
-     * @param c 
-     * @param id 
-     * @param pos 
+     *
+     * @param c
+     * @param id
+     * @param pos
      */
     void setPieceAttributesOnBoard(PieceSprite & ps, int id, int pos, int anim_time = 1000, int max_time = 1000);
 
     /**
      * @brief Determina la posición de una ficha en el tablero teniendo en cuenta sus posibles estados.
-     * 
-     * @param c 
-     * @param id 
-     * @param pos 
+     *
+     * @param c
+     * @param id
+     * @param pos
      */
     Vector2f getPiecePositionOnBoard(const PieceSprite & ps, int id, int pos);
 

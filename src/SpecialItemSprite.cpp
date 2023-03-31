@@ -9,7 +9,9 @@ const map<item_type, vector<int>> SpecialItemSprite::item2textrec = {
     {red_shell, {270, 0, 30, 30}},
     {mushroom, {180, 0, 30, 30}},
     {mega_mushroom, {420, 0, 30, 30}},
-    {shock, {300, 0, 30, 30}}
+    {shock, {300, 0, 30, 30}},
+    {horn, {120, 0, 30, 30}},
+    {banana, {60, 0, 30, 30}},
 };
 
 

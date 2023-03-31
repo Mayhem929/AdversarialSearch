@@ -5,6 +5,7 @@
 # include <map>
 # include "Attributes.h"
 # include "Piece.h"
+# include "BoardTrap.h"
 
 using namespace std;
 
@@ -14,7 +15,8 @@ using namespace std;
  */
 enum BoardConfig{
     ALL_AT_HOME, // Todas las fichas comienzan en su casa.
-    GROUPED,     // Una ficha comienza en la casa, las otras tres ocupan los tres primeros seguros de su color.
+    GROUPED,
+    GROUPED_LEGACY,     // Una ficha comienza en la casa, las otras tres ocupan los tres primeros seguros de su color.
     ALTERNED,    // Una ficha de cada color comienza en la casa, el resto se van colocando en los seguros alternando los colores.
     ALMOST_GOAL, // Todas las fichas comienzan en el pasillo de la meta (sin utilidad real, solo para facilitar depuración).
     DEBUG,       // Para depurar determinadas situaciones (ir mofdificando según necesidad)v
@@ -33,6 +35,7 @@ class Board{
         //está cada una de las 4 piezas.
         map<color, vector<Piece> > pieces;
         vector<SpecialItem> special_items;
+        vector<BoardTrap> traps;
 
     public:
         /**
@@ -91,6 +94,13 @@ class Board{
 
         //Elimina el special item con posicion "pos" en el vector
         void deleteSpecialItem(const int pos);
+
+        const vector<BoardTrap> & getTraps() const;
+
+        //Elimina la trampa con posicion "pos" en el vector
+        void deleteTrap(const Box box);
+
+        void addTrap(trap_type type, Box box);
 
         /**
          * @brief Función que mueve la ficha de la posición "idx" del vector

@@ -239,6 +239,8 @@ ParchisGUI::ParchisGUI(Parchis &model)
     this->tPieces.setSmooth(true);
     this->tSpecialItems.loadFromFile("data/textures/prueba_itemboxes.png");
     this->tSpecialItems.setSmooth(true);
+    this->tBoardTraps.loadFromFile("data/textures/prueba_itemboxes.png"); //TODO: CAMBIAR EL PLATANO A ALGO DIFERENTE (Y EL NOMBRE DE LA TEXTURA)
+    this->tBoardTraps.setSmooth(true);
     this->tBoard.loadFromFile("data/textures/parchis_board_resized.png");
     this->tBoard.setSmooth(true);
     this->tDices.loadFromFile("data/textures/dice_extended.png");
@@ -279,7 +281,7 @@ ParchisGUI::ParchisGUI(Parchis &model)
             col_pieces_sprites[j].setScale(2.0, 2.0);
             */
 
-            /*    
+            /*
             col_pieces_sprites[j].setPosition(box3position(col, j, 0) + Vector2f(15, 15));
             col_pieces_sprites[j].setOrigin(15, 15);
             col_pieces_sprites[j].setScale(0.5, 0.5);
@@ -513,6 +515,15 @@ void ParchisGUI::dynamicallyCollectSprites(){
             special_items.push_back(SpecialItemSprite(tSpecialItems, this->model->getBoard().getSpecialItems()[j].type));
             special_items[j].setPosition(box2position.at(this->model->getBoard().getSpecialItems()[j].box).at(0).x, box2position.at(this->model->getBoard().getSpecialItems()[j].box).at(0).y);
         }
+
+        board_traps.clear();
+
+        for(int j= 0; j < this->model->getBoard().getTraps().size(); j++){
+            board_traps.push_back(BoardTrapSprite(tBoardTraps, this->model->getBoard().getTraps()[j].getType()));
+            board_traps[j].setPosition(box2position.at(this->model->getBoard().getTraps()[j].getBox()).at(0).x, box2position.at(this->model->getBoard().getTraps()[j].getBox()).at(0).y);
+            board_traps[j].setColor(Color::Red);
+        }
+
         model->sendUpdatedBoardSignal();
     }
 
@@ -546,6 +557,12 @@ void ParchisGUI::dynamicallyCollectSprites(){
     {
         all_dynamic_drawable_sprites.push_back(&special_items[i]);
         board_dynamic_drawable_sprites.push_back(&special_items[i]);
+    }
+
+    for (int i = 0; i < board_traps.size(); i++)
+    {
+        all_dynamic_drawable_sprites.push_back(&board_traps[i]);
+        board_dynamic_drawable_sprites.push_back(&board_traps[i]);
     }
 
     for (int i = 0; i < dice_colors.size(); i++)
@@ -853,11 +870,16 @@ void ParchisGUI::paint(){
 
     //Dibujamos elementos de la vista del tablero.
     this->setView(board_view);
-    for(int i = 0; i < board_drawable_sprites.size(); i++){
+    this->draw(*board_drawable_sprites[0]);
+    for(int i = 0; i < board_dynamic_drawable_sprites.size(); i++){
+        this->draw(*board_dynamic_drawable_sprites[i]);
+    }
+    for(int i = 1; i < board_drawable_sprites.size(); i++){
         if(piece_sprite_start <= i and i < piece_sprite_end){
             PieceSprite *ps = static_cast<PieceSprite*>(board_drawable_sprites[i]);
             switch(ps->getPiece().get_type()){
                 case star_piece:
+                case bananed_piece:
                     star_shader.setUniform("sfmlColor", sf::Glsl::Vec4(board_drawable_sprites[i]->getColor().r / 255.f, board_drawable_sprites[i]->getColor().g / 255.f, board_drawable_sprites[i]->getColor().b / 255.f, board_drawable_sprites[i]->getColor().a / 255.f));
                     this->draw(*board_drawable_sprites[i], &star_shader);
                 break;
@@ -896,9 +918,7 @@ void ParchisGUI::paint(){
 
         }*/
     }
-    for(int i = 0; i < board_dynamic_drawable_sprites.size(); i++){
-        this->draw(*board_dynamic_drawable_sprites[i]);
-    }
+
 
     // Dibujamos elementos de la vista de los dados.
     this->setView(dice_view);
@@ -1402,7 +1422,7 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
             }
         }
     }
-    
+
     else{
         // Buscamos colisiones.
         vector<pair<color, int>> occupation = this->model->boxState(dest);

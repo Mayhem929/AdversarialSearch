@@ -48,6 +48,27 @@ void Board::deleteSpecialItem(const int pos){
     special_items.erase(special_items.begin() + pos);
 }
 
+const vector<BoardTrap> & Board::getTraps() const{
+    return traps;
+}
+
+//Elimina la trampa con posicion "pos" en el vector
+void Board::deleteTrap(const Box box){
+    //Elimina la trampa de la box "box"
+    int pos = -1;
+    for(int i = 0; i < traps.size(); i++){
+        if(traps[i].getBox() == box){
+            pos = i;
+            break;
+        }
+    }
+    traps.erase(traps.begin() + pos);
+}
+
+void Board::addTrap(trap_type type, Box box){
+    traps.push_back(BoardTrap(type, box));
+}
+
 void Board::movePiece(const color c, const int idx, const Box & final_box){
     pieces[c][idx].set_box(final_box);
 }
@@ -63,13 +84,13 @@ void Board::setFromConfig(const BoardConfig & config){
                 {color::blue, {Piece(color::blue, {0, box_type::home, color::blue}), Piece(color::blue, {0, box_type::home, color::blue}), Piece(color::blue, {0, box_type::home, color::blue}), Piece(color::blue, {0, box_type::home, color::blue})}},
                 {color::yellow, {Piece(color::yellow, {0, box_type::home, color::yellow}), Piece(color::yellow, {0, box_type::home, color::yellow}), Piece(color::yellow, {0, box_type::home, color::yellow}), Piece(color::yellow, {0, box_type::home, color::yellow})}}};
             break;
-
         case GROUPED:
             this->pieces = map<color, vector<Piece>>{
                 {color::green, {Piece(color::green, {0, box_type::home, color::green}), Piece(color::green, {55, box_type::normal, color::none}), Piece(color::green, {64, box_type::normal, color::none}), Piece(color::green, {68, box_type::normal, color::none})}},
                 {color::red, {Piece(color::red, {0, box_type::home, color::red}), Piece(color::red, {38, box_type::normal, color::none}), Piece(color::red, {47, box_type::normal, color::none}), Piece(color::red, {51, box_type::normal, color::none})}},
                 {color::blue, {Piece(color::blue, {0, box_type::home, color::blue}), Piece(color::blue, {21, box_type::normal, color::none}),  Piece(color::blue, {30, box_type::normal, color::none}),  Piece(color::blue, {34, box_type::normal, color::none})}},
                 {color::yellow, {Piece(color::yellow, {0, box_type::home, color::yellow}), Piece(color::yellow, {4, box_type::normal, color::none}), Piece(color::yellow, {13, box_type::normal, color::none}), Piece(color::yellow, {17, box_type::normal, color::none})}}};
+
             this->special_items = vector<SpecialItem>{
                 {red_shell, {6, box_type::normal, color::none}},
                 {blue_shell, {8, box_type::normal, color::none}},
@@ -84,6 +105,14 @@ void Board::setFromConfig(const BoardConfig & config){
                 {red_shell, {26, box_type::normal, color::none}},
                 {blue_shell, {28, box_type::normal, color::none}}};
             break;
+        case GROUPED_LEGACY:
+            this->pieces = map<color, vector<Piece>>{
+                {color::green, {Piece(color::green, {0, box_type::home, color::green}), Piece(color::green, {55, box_type::normal, color::none}), Piece(color::green, {64, box_type::normal, color::none}), Piece(color::green, {68, box_type::normal, color::none})}},
+                {color::red, {Piece(color::red, {0, box_type::home, color::red}), Piece(color::red, {38, box_type::normal, color::none}), Piece(color::red, {47, box_type::normal, color::none}), Piece(color::red, {51, box_type::normal, color::none})}},
+                {color::blue, {Piece(color::blue, {0, box_type::home, color::blue}), Piece(color::blue, {21, box_type::normal, color::none}),  Piece(color::blue, {30, box_type::normal, color::none}),  Piece(color::blue, {34, box_type::normal, color::none})}},
+                {color::yellow, {Piece(color::yellow, {0, box_type::home, color::yellow}), Piece(color::yellow, {4, box_type::normal, color::none}), Piece(color::yellow, {13, box_type::normal, color::none}), Piece(color::yellow, {17, box_type::normal, color::none})}}};
+            break;
+
 
         case TEST_BOO:
             this->pieces = map<color, vector<Piece>>{
@@ -154,13 +183,13 @@ void Board::setFromConfig(const BoardConfig & config){
                 {color::blue, {Piece(color::blue, {0, box_type::home, color::blue}), Piece(color::blue, {19, box_type::normal, color::none}),  Piece(color::blue, {21, box_type::normal, color::none}),  Piece(color::blue, {34, box_type::normal, color::none})}},
                 {color::yellow, {Piece(color::yellow, {0, box_type::home, color::yellow}), Piece(color::yellow, {20, box_type::normal, color::none}), Piece(color::yellow, {13, box_type::normal, color::none}), Piece(color::yellow, {17, box_type::normal, color::none})}}};
             this->special_items = vector<SpecialItem>{
-                {shock, {6, box_type::normal, color::none}},
-                {mega_mushroom, {8, box_type::normal, color::none}},
-                {shock, {10, box_type::normal, color::none}},
+                {banana, {6, box_type::normal, color::none}},
+                {banana, {8, box_type::normal, color::none}},
+                {banana, {10, box_type::normal, color::none}},
                 {star, {12, box_type::normal, color::none}},
-                {mega_mushroom, {14, box_type::normal, color::none}},
+                {red_shell, {14, box_type::normal, color::none}},
                 {shock, {16, box_type::normal, color::none}},
-                {mega_mushroom, {18, box_type::normal, color::none}},
+                {blue_shell, {18, box_type::normal, color::none}},
                 {boo, {20, box_type::normal, color::none}},
                 {boo, {22, box_type::normal, color::none}},
                 {star, {24, box_type::normal, color::none}},
