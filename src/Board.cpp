@@ -92,18 +92,30 @@ void Board::setFromConfig(const BoardConfig & config){
                 {color::yellow, {Piece(color::yellow, {0, box_type::home, color::yellow}), Piece(color::yellow, {4, box_type::normal, color::none}), Piece(color::yellow, {13, box_type::normal, color::none}), Piece(color::yellow, {17, box_type::normal, color::none})}}};
 
             this->special_items = vector<SpecialItem>{
-                {red_shell, {6, box_type::normal, color::none}},
-                {blue_shell, {8, box_type::normal, color::none}},
-                {boo, {10, box_type::normal, color::none}},
-                {star, {12, box_type::normal, color::none}},
-                {bullet, {14, box_type::normal, color::none}},
-                {red_shell, {16, box_type::normal, color::none}},
-                {blue_shell, {18, box_type::normal, color::none}},
-                {boo, {20, box_type::normal, color::none}},
+                {star, {5, box_type::normal, color::none}},
+                {mega_mushroom, {6, box_type::normal, color::none}},
                 {star, {22, box_type::normal, color::none}},
-                {bullet, {24, box_type::normal, color::none}},
-                {red_shell, {26, box_type::normal, color::none}},
-                {blue_shell, {28, box_type::normal, color::none}}};
+                {mega_mushroom, {23, box_type::normal, color::none}},
+                {boo, {39, box_type::normal, color::none}},
+                {shock, {40, box_type::normal, color::none}},
+                {boo, {56, box_type::normal, color::none}},
+                {shock, {57, box_type::normal, color::none}},
+                {bullet, {14, box_type::normal, color::none}},
+                {blue_shell, {15, box_type::normal, color::none}},
+                {bullet, {31, box_type::normal, color::none}},
+                {blue_shell, {32, box_type::normal, color::none}},
+                {red_shell, {48, box_type::normal, color::none}},
+                {horn, {49, box_type::normal, color::none}},
+                {red_shell, {65, box_type::normal, color::none}},
+                {horn, {66, box_type::normal, color::none}},
+                {mushroom, {18, box_type::normal, color::none}},
+                {banana, {19, box_type::normal, color::none}},
+                {mushroom, {35, box_type::normal, color::none}},
+                {banana, {36, box_type::normal, color::none}},
+                {mushroom, {52, box_type::normal, color::none}},
+                {banana, {53, box_type::normal, color::none}},
+                {mushroom, {1, box_type::normal, color::none}},
+                {banana, {2, box_type::normal, color::none}}};
             break;
         case GROUPED_LEGACY:
             this->pieces = map<color, vector<Piece>>{
@@ -188,7 +200,7 @@ void Board::setFromConfig(const BoardConfig & config){
                 {banana, {10, box_type::normal, color::none}},
                 {star, {12, box_type::normal, color::none}},
                 {red_shell, {14, box_type::normal, color::none}},
-                {shock, {16, box_type::normal, color::none}},
+                {horn, {16, box_type::normal, color::none}},
                 {blue_shell, {18, box_type::normal, color::none}},
                 {boo, {20, box_type::normal, color::none}},
                 {boo, {22, box_type::normal, color::none}},

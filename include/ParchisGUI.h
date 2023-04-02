@@ -82,6 +82,7 @@ private:
     ExplosionSprite red_boom[BOOM_SPRITE_LIMIT];
     ExplosionSprite blue_boom[BOOM_SPRITE_LIMIT];
     ExplosionSprite golden_boom[BOOM_SPRITE_LIMIT];
+    ExplosionSprite horn_boom;
     int current_boom_sprite;
 
     //Sprites utilities to reduce the code.
@@ -108,6 +109,9 @@ private:
     // Intervals for shadable sprites.
     int piece_sprite_start, piece_sprite_end;
     int golden_boom_sprite_start, golden_boom_sprite_end;
+    int dice_sprite_start, dice_sprite_end;
+    int dynamic_dice_sprite_start, dynamic_dice_sprite_end;
+    int turns_arrow_sprite_pos;
 
     // Views
     View general_view;
@@ -384,6 +388,10 @@ private:
     Shader boo_shader;
 
     Shader star_boom_shader;
+
+    Shader bananed_shader;
+
+    Shader dice_shader;
 
 public:
     ParchisGUI(Parchis & model);

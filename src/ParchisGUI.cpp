@@ -355,6 +355,8 @@ ParchisGUI::ParchisGUI(Parchis &model)
     }
     this->current_boom_sprite = 0;
 
+    this->horn_boom = ExplosionSprite(tBOOM, Color(255, 140, 0));
+
     // Agrupación de los canales de animación.
     this->all_animators.push_back(&this->animations_ch1);
     this->all_animators.push_back(&this->animations_ch2);
@@ -425,6 +427,18 @@ ParchisGUI::ParchisGUI(Parchis &model)
         cout << "Error loading star boom shader." << endl;
     }
 
+    // Bananed
+    if (!this->bananed_shader.loadFromFile("data/shaders/bananed_shader.frag", Shader::Fragment))
+    {
+        cout << "Error loading bananed shader." << endl;
+    }
+
+    // Dice
+    if (!this->dice_shader.loadFromFile("data/shaders/dice_shader.frag", Shader::Fragment))
+    {
+        cout << "Error loading dice shader." << endl;
+    }
+
     this->startGameLoop();
 
 
@@ -459,6 +473,9 @@ void ParchisGUI::collectSprites(){
         board_drawable_sprites.push_back(&red_boom[i]);
     }
 
+    all_drawable_sprites.push_back(&horn_boom);
+    board_drawable_sprites.push_back(&horn_boom);
+
     piece_sprite_start = board_drawable_sprites.size();
     for (int i = 0; i < colors.size(); i++)
     {
@@ -473,7 +490,7 @@ void ParchisGUI::collectSprites(){
     }
     piece_sprite_end = board_drawable_sprites.size();
 
-
+    dice_sprite_start = dice_drawable_sprites.size();
     for  (int i = 0; i < dice_colors.size(); i++)
     {
         color col = dice_colors[i];
@@ -491,10 +508,13 @@ void ParchisGUI::collectSprites(){
         dice_drawable_sprites.push_back(&special_10_20_dice[col][0]);
         dice_clickable_sprites.push_back(&special_10_20_dice[col][0]);
     }
+    dice_sprite_end = dice_drawable_sprites.size();
 
     // Añadir flecha de turnos como dibujable.
     all_drawable_sprites.push_back(&turns_arrow);
     dice_drawable_sprites.push_back(&turns_arrow);
+    turns_arrow_sprite_pos = dice_drawable_sprites.size() - 1;
+
 
     // Añadir botones como dibujables y clickables.
     vector<ClickableSprite*> buttons = {&skip_turn_button, &move_heuristic_button, &auto_heuristic_button, &music_on_off_button, &sound_on_off_button};
@@ -565,6 +585,7 @@ void ParchisGUI::dynamicallyCollectSprites(){
         board_dynamic_drawable_sprites.push_back(&board_traps[i]);
     }
 
+    dynamic_dice_sprite_start = dice_dynamic_drawable_sprites.size();
     for (int i = 0; i < dice_colors.size(); i++)
     {
         color col = dice_colors[i];
@@ -576,6 +597,7 @@ void ParchisGUI::dynamicallyCollectSprites(){
             dice_dynamic_clickable_sprites.push_back(&special_dices[col][j]);
         }
     }
+    dynamic_dice_sprite_end = dice_dynamic_drawable_sprites.size();
 
 
 
@@ -866,7 +888,10 @@ void ParchisGUI::paint(){
     star_boom_shader.setUniform("u_mouse", sf::Glsl::Vec2{sf::Vector2f{}});
     star_boom_shader.setUniform("u_time", global_clock.getElapsedTime().asSeconds());
     star_boom_shader.setUniform("texture", sf::Shader::CurrentTexture);
-
+    bananed_shader.setUniform("u_time", global_clock.getElapsedTime().asSeconds());
+    bananed_shader.setUniform("u_resolution", sf::Glsl::Vec2{this->getSize()});
+    dice_shader.setUniform("u_time", global_clock.getElapsedTime().asSeconds());
+    dice_shader.setUniform("u_resolution", sf::Glsl::Vec2{this->getSize()});
 
     //Dibujamos elementos de la vista del tablero.
     this->setView(board_view);
@@ -879,13 +904,16 @@ void ParchisGUI::paint(){
             PieceSprite *ps = static_cast<PieceSprite*>(board_drawable_sprites[i]);
             switch(ps->getPiece().get_type()){
                 case star_piece:
-                case bananed_piece:
                     star_shader.setUniform("sfmlColor", sf::Glsl::Vec4(board_drawable_sprites[i]->getColor().r / 255.f, board_drawable_sprites[i]->getColor().g / 255.f, board_drawable_sprites[i]->getColor().b / 255.f, board_drawable_sprites[i]->getColor().a / 255.f));
                     this->draw(*board_drawable_sprites[i], &star_shader);
                 break;
                 case boo_piece:
                     boo_shader.setUniform("sfmlColor", sf::Glsl::Vec4(board_drawable_sprites[i]->getColor().r / 255.f, board_drawable_sprites[i]->getColor().g / 255.f, board_drawable_sprites[i]->getColor().b / 255.f, board_drawable_sprites[i]->getColor().a / 255.f));
                     this->draw(*board_drawable_sprites[i], &boo_shader);
+                    break;
+                case bananed_piece:
+                    bananed_shader.setUniform("sfmlColor", sf::Glsl::Vec4(board_drawable_sprites[i]->getColor().r / 255.f, board_drawable_sprites[i]->getColor().g / 255.f, board_drawable_sprites[i]->getColor().b / 255.f, board_drawable_sprites[i]->getColor().a / 255.f));
+                    this->draw(*board_drawable_sprites[i], &bananed_shader);
                     break;
                 case normal_piece:
                 default:
@@ -924,12 +952,31 @@ void ParchisGUI::paint(){
     this->setView(dice_view);
     for (int i = 0; i < dice_drawable_sprites.size(); i++)
     {
-        this->draw(*dice_drawable_sprites[i]);
+        if(dice_sprite_start <= i and i < dice_sprite_end){
+            DiceSprite *ds = static_cast<DiceSprite*>(dice_drawable_sprites[i]);
+            ds->setShaderColors(dice_shader);
+            this->draw(*dice_drawable_sprites[i], &dice_shader);
+        }
+        else if(i == turns_arrow_sprite_pos){
+            Color actual_colorA = DiceSprite::color2Color.at(model->getCurrentColor());
+            Color actual_colorB = DiceSprite::color2Color.at(partner_color(model->getCurrentColor()));
+            dice_shader.setUniform("colorA", sf::Glsl::Vec3(actual_colorA.r / 255.0, actual_colorA.g / 255.0, actual_colorA.b / 255.0));
+            dice_shader.setUniform("colorB", sf::Glsl::Vec3(actual_colorB.r / 255.0, actual_colorB.g / 255.0, actual_colorB.b / 255.0));
+            this->draw(*dice_drawable_sprites[i], &dice_shader);
+        }
+        else
+            this->draw(*dice_drawable_sprites[i]);
     }
 
     for (int i = 0; i < dice_dynamic_drawable_sprites.size(); i++)
     {
-        this->draw(*dice_dynamic_drawable_sprites[i]);
+        if(dynamic_dice_sprite_start <= i and i < dynamic_dice_sprite_end){
+            DiceSprite *ds = static_cast<DiceSprite*>(dice_dynamic_drawable_sprites[i]);
+            ds->setShaderColors(dice_shader);
+            this->draw(*dice_dynamic_drawable_sprites[i], &dice_shader);
+        }
+        else
+            this->draw(*dice_dynamic_drawable_sprites[i]);
     }
 
     // Dibujamos elementos de la vista de los botones
@@ -1417,12 +1464,20 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
                 animate_pos = (Vector2f)box2position.at(origin)[0] + Vector2f(animate_sprite->getLocalBounds().width/2, animate_sprite->getLocalBounds().height/2);
                 animate_sprite->setPosition(animate_pos);
                 animate_sprite->setOrigin(animate_sprite->getLocalBounds().width/2, animate_sprite->getLocalBounds().height/2);
-                shared_ptr<ExplosionAnimator> animator = make_shared<ExplosionAnimator>(*animate_sprite, 1.f, 3.f, animation_time);
+                shared_ptr<ExplosionAnimator> animator = make_shared<ExplosionAnimator>(*animate_sprite, 1.f, 7.f, animation_time);
                 animations_ch5.push(animator);
             }
         }
     }
 
+    else if(model->isHornMove()){
+        // La ficha que ha pegado el bocinazo genera una explosión.
+        Vector2f animate_pos = (Vector2f)box2position.at(origin)[0] + Vector2f(horn_boom.getLocalBounds().width/2, horn_boom.getLocalBounds().height/2);
+        horn_boom.setPosition(animate_pos);
+        horn_boom.setOrigin(horn_boom.getLocalBounds().width/2, horn_boom.getLocalBounds().height/2);
+        shared_ptr<ExplosionAnimator> animator = make_shared<ExplosionAnimator>(horn_boom, 1.f, 6.f, animation_time);
+        animations_ch5.push(animator);
+    }
     else{
         // Buscamos colisiones.
         vector<pair<color, int>> occupation = this->model->boxState(dest);

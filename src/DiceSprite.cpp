@@ -148,3 +148,26 @@ void DiceSprite::onHoverAction(Window &container) {
         this->setTextureRect(IntRect(num2textrec.at(number).at(0), num2textrec.at(number).at(1), num2textrec.at(number).at(2), num2textrec.at(number).at(3)));
     }
 }
+
+void DiceSprite::setShaderColors(Shader & s){
+    color colorA = c;
+    color colorB = partner_color(c);
+
+    Color actual_colorA, actual_colorB;
+
+    if(this->isSelected()){
+        actual_colorA = color2SelectedColor.at(colorA);
+        actual_colorB = color2SelectedColor.at(colorB);
+    }
+    else if(!this->isEnabled()){
+        actual_colorA = color2DisabledColor.at(colorA);
+        actual_colorB = color2DisabledColor.at(colorB);
+    }
+    else{
+        actual_colorA = color2Color.at(colorA);
+        actual_colorB = color2Color.at(colorB);
+    }
+
+    s.setUniform("colorA", sf::Glsl::Vec3(actual_colorA.r / 255.0, actual_colorA.g / 255.0, actual_colorA.b / 255.0));
+    s.setUniform("colorB", sf::Glsl::Vec3(actual_colorB.r / 255.0, actual_colorB.g / 255.0, actual_colorB.b / 255.0));
+}

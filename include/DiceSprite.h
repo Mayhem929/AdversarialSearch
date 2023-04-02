@@ -39,6 +39,8 @@ class DiceSprite: public ClickableSprite{
         void onSelectionAction(Window & container);
         void onHoverAction(Window & container);
         void onLockAction(Window & container);
+
+        void setShaderColors(Shader & s);
 };
 
 #endif

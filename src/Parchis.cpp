@@ -779,6 +779,8 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                             }
                         }
 
+                        this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, piece_box));
+
                         for (int i = 0; i < deleted_pieces.size(); i++){
                             Piece current_piece = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second);
                             Box origin = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second).get_box();
@@ -786,12 +788,14 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                             this->last_moves.push_back(tuple<color, int, Box, Box>(deleted_pieces[i].first, deleted_pieces[i].second, origin, Box(0, home, deleted_pieces[i].first)));
                         }
                     }
+                    break;
 
                     case banana:
                     {
                         board.addTrap(banana_trap, current_piece.get_box());
                         this->update_board = true;
                     }
+                    break;
                 }
 
             }
