@@ -158,8 +158,10 @@ int main(int argc, char const *argv[]){
     bool random = false;
     bool privateroom = false;
 
+    bool playground = false;
+
     // Configuración inicial del juego
-    BoardConfig config = BoardConfig::TEST_BOO;
+    BoardConfig config = BoardConfig::GROUPED;;
 
     /* Parse the command line arguments in the following way:
      * --p1 <type=GUI|AI|Remote|Ninja> (id=0) (name=J1)
@@ -260,10 +262,14 @@ int main(int argc, char const *argv[]){
             name_j2 = argv[i];
             i++;
         }
+        // Capturo si es modo playground.
+        else if(strcmp(argv[i], "--playground") == 0){
+            playground = true;
+        }
         // Si los argumentos no son correctos....
         else{
             cout << "Error parsing command line arguments" << endl;
-            cout << "Usage: " << argv[0] << " --p1 <type=GUI|AI|Client|Server|Ninja> (id=0) (name=J1) --p2 <type=GUI|AI|Client|Server|Ninja> (id=0) (name=J2) --ip <ip>  [Optional] --port <port>  [Optional] --board <config=GROUPED> --no-gui  [Optional]" << endl;
+            cout << "Usage: " << argv[0] << " --p1 <type=GUI|AI|Client|Server|Ninja> (id=0) (name=J1) --p2 <type=GUI|AI|Client|Server|Ninja> (id=0) (name=J2) --ip <ip>  [Optional] --port <port>  [Optional] --board <config=GROUPED> --no-gui  [Optional] --playground [Optional]" << endl;
             return -1;
         }
     }
@@ -290,6 +296,7 @@ int main(int argc, char const *argv[]){
         ninja_server = params.ninja_server;
         random = params.random;
         privateroom = params.private_room;
+        playground = params.playground;
     }
 
     // Make type_j1 and type_j2 uppercase.
@@ -457,6 +464,11 @@ int main(int argc, char const *argv[]){
         }
     }
     else{
+        if(playground){ // Modo playground fuerza a que todos sean GUI.
+            type_j1 = "GUI";
+            type_j2 = "GUI";
+            gui = true;
+        }
         if(type_j1 == "GUI"){ // Inicializo jugador 1 GUI
             p1 = make_shared<GUIPlayer>(name_j1, id_j1);
         }
@@ -542,6 +554,12 @@ int main(int argc, char const *argv[]){
 
     // Una vez creados los jugadores, se crea el objeto parchís con la configuración incial establecida.
     Parchis parchis(config, p1, p2);
+
+    // Activar el modo playground si se ha especificado
+    if (playground)
+    {
+        parchis.setPlaygroundMode();
+    }
 
     // Si jugamos con interfaz...
     if(gui){

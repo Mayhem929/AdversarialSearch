@@ -1012,6 +1012,14 @@ void ParchisGUI::updateSprites(){
         this->notPlayableLock(true);
     }
 
+    if(model->isPlaygroundMode()){
+        this->auto_heuristic_button.setEnabled(false, *this);
+        this->auto_heuristic_button.setLocked(true, *this);
+        this->auto_heuristic_button.setSelected(false, *this);
+        this->move_heuristic_button.setEnabled(false, *this);
+        this->move_heuristic_button.setLocked(true, *this);
+    }
+
     bool def_lock = animation_lock || not_playable_lock;
 
     vector<color> dice_colors = {yellow, blue};
@@ -1193,7 +1201,7 @@ void ParchisGUI::updateSpritesLock(){
         this->move_heuristic_button.setEnabled(false, *this);
         this->move_heuristic_button.setLocked(true, *this);
     }
-    else
+    else if(!model->isPlaygroundMode())
     {
 
         this->move_heuristic_button.setEnabled(true, *this);

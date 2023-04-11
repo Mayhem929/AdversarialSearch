@@ -88,6 +88,9 @@ class Parchis{
         volatile bool update_board;
         volatile bool update_dice;
 
+        // Indica si se está jugando una partida creativa.
+        bool playground_mode;
+
         /**
          * @brief Método que gestiona el cambio de turno modificando las variables
          * current_player y current_color.
@@ -727,7 +730,17 @@ class Parchis{
          */
         vector<color> getPlayerColors(int player) const;
 
+        /**
+         * @brief Activa el modo creativo.
+         *
+         */
+        void setPlaygroundMode();
 
+        /**
+         * @brief Indica si la partida es en modo creativo o no.
+         *
+         */
+        inline bool isPlaygroundMode() const { return this->playground_mode; }
 };
 
 

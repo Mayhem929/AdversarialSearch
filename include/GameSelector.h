@@ -24,6 +24,8 @@ struct GameParameters{
 
     bool random;
     bool private_room;
+
+    bool playground;
 };
 
 class TextBox{
@@ -334,6 +336,26 @@ private:
             //void onLockAction(Window &container);
     };
 
+    class PlaygroundButton : public StandardGSButton
+    {
+        protected:
+            void updateButton();
+
+        public:
+            inline PlaygroundButton() : StandardGSButton() {}
+            inline PlaygroundButton(const Texture &t) : StandardGSButton(t)
+            {
+                start_pos = 1210;
+                updateButton();
+            };
+
+            void onClickAction(Window &container);
+            // void onEnableAction(Window &container);
+            inline void onSelectionAction(Window &container) {}
+            // void onHoverAction(Window &container);
+            // void onLockAction(Window &container);
+    };
+
     class TextBoxIncDecButton : public ClickableSprite{
         private:
             TextBox * textbox;
@@ -383,6 +405,7 @@ private:
     UseGUIButton use_gui_button;
     PlayerIDButton player_id_button;
     StartGameButton start_game_button;
+    PlaygroundButton playground_button;
 
     TextBox * focused_textbox;
 

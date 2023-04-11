@@ -239,7 +239,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                 this->last_dice = dice_number;
                 this->last_moves.clear();
-                this->dice.removeNumber(player, dice_number);
+                if(!playground_mode) this->dice.removeNumber(player, dice_number);
                 this->nextTurn();
 
                 turn++;
@@ -476,7 +476,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     }
                 }
 
-                this->dice.removeNumber(player, dice_number);
+                if(!playground_mode) this->dice.removeNumber(player, dice_number);
 
 
                 if(eating_move){
@@ -488,7 +488,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     dice.forceNumber(player, 10);
                 }
             }else{
-                this->dice.removeNumber(player, dice_number);
+                if(!playground_mode) this->dice.removeNumber(player, dice_number);
                 this->update_dice = true;
 
                 this->red_shell_move = false;
@@ -544,9 +544,12 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                         board.setPieceTurnsLeft(player, piece, 6);
 
                         //Robamos el último dado especial conseguido por el adversario (siempre que haya)
-                        if(!dice.getSpecialDice(opponent_color(player)).empty()){
+                        if(!dice.getSpecialDice(opponent_color(player)).empty() and !playground_mode){
                             dice.addSpecialDice(player, dice.getSpecialDice(opponent_color(player)).back());
                             dice.removeNumber(opponent_color(player), dice.getSpecialDice(opponent_color(player)).back());
+                        }
+                        else if(playground_mode){
+                            cout << "IMPORTANTE: SI ESTUVIERAS JUGANDO EN MODO NORMAL HABRÍAS ROBADO EL ÚLTIMO DADO ESPECIAL DEL ADVERSARIO" << endl;
                         }
                     break;
                     case bullet:
@@ -626,13 +629,16 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                         for (int i = 0; i < deleted_pieces.size(); i++){
                             Piece current_piece = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second);
-                            if (dice.isAvailable(deleted_pieces[i].first, horn)){
+                            if (dice.isAvailable(deleted_pieces[i].first, horn) and !playground_mode){
                                 dice.removeNumber(deleted_pieces[i].first, horn);
                             }
                             else if(current_piece.get_type() != star_piece and current_piece.get_type() != boo_piece){
                                 Box origin = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second).get_box();
                                 board.movePiece(deleted_pieces[i].first, deleted_pieces[i].second, Box(0, home, deleted_pieces[i].first));
                                 this->last_moves.push_back(tuple<color, int, Box, Box>(deleted_pieces[i].first, deleted_pieces[i].second, origin, Box(0, home, deleted_pieces[i].first)));
+                            }
+                            if(playground_mode){
+                                cout << "IMPORTANTE: SI ESTUVIERAS JUGANDO EN MODO NORMAL TENIENDO LA BOCINA LA PERDERÍAS Y TE HABRÍAS PROTEGIDO DEL CAPARAZÓN" << endl;
                             }
                         }
                     }
@@ -664,13 +670,16 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                         for (int i = 0; i < deleted_pieces.size(); i++){
                             Piece current_piece = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second);
-                            if (dice.isAvailable(deleted_pieces[i].first, horn)){
+                            if (dice.isAvailable(deleted_pieces[i].first, horn) and !playground_mode){
                                 dice.removeNumber(deleted_pieces[i].first, horn);
                             }
                             else if(current_piece.get_type() != star_piece and current_piece.get_type() != mega_piece){
                                 Box origin = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second).get_box();
                                 board.movePiece(deleted_pieces[i].first, deleted_pieces[i].second, Box(0, home, deleted_pieces[i].first));
                                 this->last_moves.push_back(tuple<color, int, Box, Box>(deleted_pieces[i].first, deleted_pieces[i].second, origin, Box(0, home, deleted_pieces[i].first)));
+                            }
+                            if(playground_mode){
+                                cout << "IMPORTANTE: SI ESTUVIERAS JUGANDO EN MODO NORMAL TENIENDO LA BOCINA LA PERDERÍAS Y TE HABRÍAS PROTEGIDO DEL CAPARAZÓN" << endl;
                             }
                         }
                     }
@@ -752,8 +761,10 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                         }
 
                         //Eliminamos el último dado especial conseguido por el adversario (siempre que haya)
-                        if(!dice.getSpecialDice(opponent_color(player)).empty()){
+                        if(!dice.getSpecialDice(opponent_color(player)).empty() and !playground_mode){
                             dice.removeNumber(opponent_color(player), dice.getSpecialDice(opponent_color(player)).back());
+                        }else if(playground_mode){
+                            cout << "IMPORTANTE: SI ESTUVIERAS JUGANDO EN MODO NORMAL EL ÚLTIMO DADO ESPECIAL DEL ADVERSARIO SE ELIMINARÍA AL USAR EL RAYO" << endl;
                         }
                     }
                     break;
@@ -1729,4 +1740,23 @@ const vector<pair <color, int>> Parchis::allPiecesBetween(const Box & b1, const 
         }
     }
     return pieces;
+}
+
+void Parchis::setPlaygroundMode(){
+    this->playground_mode = true;
+    // Cambiar el tablero.
+    this->board = Board(PLAYGROUND);
+    // Add the special dices to the players.
+    this->dice.addSpecialDice(yellow, banana);
+    this->dice.addSpecialDice(blue, mushroom);
+    this->dice.addSpecialDice(yellow, red_shell);
+    this->dice.addSpecialDice(blue, horn);
+    this->dice.addSpecialDice(yellow, bullet);
+    this->dice.addSpecialDice(blue, blue_shell);
+    this->dice.addSpecialDice(yellow, boo);
+    this->dice.addSpecialDice(blue, shock);
+    this->dice.addSpecialDice(yellow, star);
+    this->dice.addSpecialDice(blue, mega_mushroom);
+
+    
 }

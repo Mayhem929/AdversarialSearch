@@ -199,6 +199,7 @@ private:
     // Turn variable (used to sync with the game).
     int gui_turn;
 
+
     /**
      * @brief Función que ejecuta el código interno del ciclo de juego del parchís.
      *

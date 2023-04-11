@@ -809,6 +809,7 @@ GameSelector::GameSelector() : RenderWindow(VideoMode(1220, 750, VideoMode::getD
     this->use_gui_button = UseGUIButton(tButtons);
     this->player_id_button = PlayerIDButton(tButtons);
     this->start_game_button = StartGameButton(tButtons);
+    this->playground_button = PlaygroundButton(tButtons);
 
     this->two_player_button.setPosition(50, 50);
 
@@ -832,6 +833,8 @@ GameSelector::GameSelector() : RenderWindow(VideoMode(1220, 750, VideoMode::getD
 
     this->start_game_button.setPosition(450, 650);
 
+    this->playground_button.setPosition(50, 650);
+
     this->gs_buttons.push_back(&two_player_button);
     this->gs_buttons.push_back(&vs_heuristic_button);
     this->gs_buttons.push_back(&ninja1_button);
@@ -847,6 +850,7 @@ GameSelector::GameSelector() : RenderWindow(VideoMode(1220, 750, VideoMode::getD
     this->gs_buttons.push_back(&use_gui_button);
     this->gs_buttons.push_back(&player_id_button);
     this->gs_buttons.push_back(&start_game_button);
+    this->gs_buttons.push_back(&playground_button);
 
     this->exclusive_selection_buttons.push_back(&two_player_button);
     this->exclusive_selection_buttons.push_back(&vs_heuristic_button);
@@ -972,6 +976,8 @@ GameSelector::GameSelector() : RenderWindow(VideoMode(1220, 750, VideoMode::getD
     view.setViewport(FloatRect(0.f, 0.f, 1.f, 1.f));
 
     this->two_player_button.setSelected(true, *this);
+
+    this->game_parameters.playground = false;
 
     this->setFramerateLimit(30);
 }
@@ -1274,11 +1280,44 @@ void GameSelector::StartGameButton::onClickAction(Window & container){
     }
 }
 
+void GameSelector::PlaygroundButton::onClickAction(Window & container){
+    if(clicked && enabled && !locked){
+        GameSelector *gs = static_cast<GameSelector*>(&container);
+        gs->game_parameters.id_j1 = stoi(gs->ai1_id.getText());
+        gs->game_parameters.id_j2 = stoi(gs->ai2_id.getText());
+
+        gs->game_parameters.ip = gs->ip_box.getText();
+        string port = gs->port_box.getText();
+        if(port.size() > 0){
+            gs->game_parameters.port = stoi(gs->port_box.getText());
+        }
+        else{
+            gs->game_parameters.port = -1;
+        }
+
+        gs->game_parameters.config = GROUPED;
+        gs->game_parameters.name_j1 = gs->p1_name.getText();
+        gs->game_parameters.name_j2 = gs->p2_name.getText();
+        gs->game_parameters.ninja_server = false;
+        gs->game_parameters.playground = true;
+        container.close();
+    }
+}
+
 void GameSelector::StartGameButton::updateButton(){
     if(hovered){
         this->setTextureRect(IntRect(1 * (game_selector_bt_width + game_selector_bt_state_offset), start_pos, game_selector_bt_width + 5, game_selector_bt_height + 5));
     }
     else{
         this->setTextureRect(IntRect(0 * (game_selector_bt_width + game_selector_bt_state_offset), start_pos, game_selector_bt_width + 5, game_selector_bt_height + 5));
+    }
+}
+
+void GameSelector::PlaygroundButton::updateButton(){
+    if(hovered){
+        this->setTextureRect(IntRect(3 * (game_selector_bt_width + game_selector_bt_state_offset), start_pos, game_selector_bt_width + 5, game_selector_bt_height + 5));
+    }
+    else{
+        this->setTextureRect(IntRect(2 * (game_selector_bt_width + game_selector_bt_state_offset), start_pos, game_selector_bt_width + 5, game_selector_bt_height + 5));
     }
 }

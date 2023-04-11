@@ -15,10 +15,11 @@ using namespace std;
  */
 enum BoardConfig{
     ALL_AT_HOME, // Todas las fichas comienzan en su casa.
-    GROUPED,
+    GROUPED,     // Grouped legacy con los objetos.
     GROUPED_LEGACY,     // Una ficha comienza en la casa, las otras tres ocupan los tres primeros seguros de su color.
     ALTERNED,    // Una ficha de cada color comienza en la casa, el resto se van colocando en los seguros alternando los colores.
     ALMOST_GOAL, // Todas las fichas comienzan en el pasillo de la meta (sin utilidad real, solo para facilitar depuración).
+    PLAYGROUND,  // Tablero para el modo creativo.
     DEBUG,       // Para depurar determinadas situaciones (ir mofdificando según necesidad)v
     TEST_BOO,   // Depurar boo
     TEST_BOOM,  // BOOM

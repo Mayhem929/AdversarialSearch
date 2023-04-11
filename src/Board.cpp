@@ -209,6 +209,15 @@ void Board::setFromConfig(const BoardConfig & config){
                 {shock, {28, box_type::normal, color::none}}};
             break;
 
+        case PLAYGROUND:
+            this->pieces = map<color, vector<Piece>>{
+                {color::red, {Piece(color::red, {24, box_type::normal, color::none}), Piece(color::red, {24, box_type::normal, color::none}), Piece(color::red, {25, box_type::normal, color::none}), Piece(color::red, {25, box_type::normal, color::none}),
+                }},
+                {color::green, {Piece(color::green, {21, box_type::normal, color::none}), Piece(color::green, {21, box_type::normal, color::none}), Piece(color::green, {22, box_type::normal, color::none}), Piece(color::green, {23, box_type::normal, color::none})}},
+                {color::blue, {Piece(color::blue, {18, box_type::normal, color::none}), Piece(color::blue, {19, box_type::normal, color::none}), Piece(color::blue, {20, box_type::normal, color::none}), Piece(color::blue, {20, box_type::normal, color::none})}},
+                {color::yellow, {Piece(color::yellow, {13, box_type::normal, color::none}), Piece(color::yellow, {14, box_type::normal, color::none}), Piece(color::yellow, {15, box_type::normal, color::none}), Piece(color::yellow, {16, box_type::normal, color::none})}}};
+
+            break;
             /*
             case ALTERNED:
                 this->pieces = map<color, vector<Box>>{
