@@ -1,4 +1,4 @@
-# Práctica 3 de *Inteligencia Artificial*, curso 2021/2022
+# Práctica 3 de *Inteligencia Artificial*, curso 2022/2023
 
 Si has realizado la práctica1, y tienes la clave SSH configurada, puedes ir directamente al [paso 2](#2.-crear-tu-copia-personal-del-repositorio-de-la-asignatura).
 
