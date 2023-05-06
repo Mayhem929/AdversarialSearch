@@ -27,7 +27,7 @@ inline string str(color c){
 }
 
 /**
- * @brief identificación de un color con su compañero
+ * @brief Identificación de un color con su compañero
  *
  * @param c
  * @return string
@@ -43,7 +43,7 @@ inline color partner_color(color c){
 }
 
 /**
- * @brief identificación de los dados contrincantes
+ * @brief Identificación de los colores del oponente
  *
  * @param c
  * @return string
@@ -85,6 +85,10 @@ struct Box
         this->num = num; this->type = type; this->col = col;
     }
 
+    /**
+     * @brief Constructor por defecto de un objeto Box
+     *
+     */
     inline Box(){};
 };
 
@@ -117,7 +121,7 @@ inline bool operator ==(const Box & a, const Box & b){
     return a.num == b.num && a.type == b.type && a.col == b.col;
 }
 
-
+//Enumerado de los diferentes tipos de objetos speciales que aparecen en el tablero.
 enum item_type {star = 101,
                 boo = 102,
                 bullet = 103,
@@ -129,9 +133,15 @@ enum item_type {star = 101,
                 horn = 109,
                 banana = 110};
 
+/**
+ * @brief Struct para definir los objetos especiales que aparecen en el tablero.
+ * 
+ */
 struct SpecialItem
 {
+    //Tipo de objeto especial
     item_type type;
+    //Casilla en la que se encuentra el objeto especial
     Box box;
 };
 
