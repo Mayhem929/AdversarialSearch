@@ -84,7 +84,7 @@ class Dice{
          * @param player
          * @param new_dice, por defecto {1,2,3,4,5,6}
          */
-        void resetDice (color player , const vector<int> & new_dice = {1,2,3,4,5,6});
+        void resetDice (color player , const vector<int> & new_dice = {1,2,4,5,6});
 
         /**
          * @brief Función que comprueba si el número "n" está en el dado del jugador "player".

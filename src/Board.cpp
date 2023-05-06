@@ -86,10 +86,10 @@ void Board::setFromConfig(const BoardConfig & config){
             break;
         case GROUPED:
             this->pieces = map<color, vector<Piece>>{
-                {color::green, {Piece(color::green, {0, box_type::home, color::green}), Piece(color::green, {55, box_type::normal, color::none}), Piece(color::green, {64, box_type::normal, color::none}), Piece(color::green, {68, box_type::normal, color::none})}},
-                {color::red, {Piece(color::red, {0, box_type::home, color::red}), Piece(color::red, {38, box_type::normal, color::none}), Piece(color::red, {47, box_type::normal, color::none}), Piece(color::red, {51, box_type::normal, color::none})}},
-                {color::blue, {Piece(color::blue, {0, box_type::home, color::blue}), Piece(color::blue, {21, box_type::normal, color::none}),  Piece(color::blue, {30, box_type::normal, color::none}),  Piece(color::blue, {34, box_type::normal, color::none})}},
-                {color::yellow, {Piece(color::yellow, {0, box_type::home, color::yellow}), Piece(color::yellow, {4, box_type::normal, color::none}), Piece(color::yellow, {13, box_type::normal, color::none}), Piece(color::yellow, {17, box_type::normal, color::none})}}};
+                {color::green, {Piece(color::green, {55, box_type::normal, color::none}), Piece(color::green, {64, box_type::normal, color::none}), Piece(color::green, {68, box_type::normal, color::none})}},
+                {color::red, {Piece(color::red, {38, box_type::normal, color::none}), Piece(color::red, {47, box_type::normal, color::none}), Piece(color::red, {51, box_type::normal, color::none})}},
+                {color::blue, {Piece(color::blue, {21, box_type::normal, color::none}),  Piece(color::blue, {30, box_type::normal, color::none}),  Piece(color::blue, {34, box_type::normal, color::none})}},
+                {color::yellow, {Piece(color::yellow, {4, box_type::normal, color::none}), Piece(color::yellow, {13, box_type::normal, color::none}), Piece(color::yellow, {17, box_type::normal, color::none})}}};
 
             this->special_items = vector<SpecialItem>{
                 {star, {5, box_type::normal, color::none}},
@@ -226,7 +226,6 @@ void Board::setFromConfig(const BoardConfig & config){
                     {color::blue, {{0, box_type::home, color::blue}, {21, box_type::normal, color::none}, {47, box_type::normal, color::none}, {68, box_type::normal, color::none}}},
                     {color::yellow, {{0, box_type::home, color::yellow}, {4, box_type::normal, color::none}, {30, box_type::normal, color::none}, {51, box_type::normal, color::none}}}};
                 break;
-
             case ALMOST_GOAL:
                 this->pieces = map<color, vector<Box>>{
                     {color::green, {{51, box_type::normal, color::none}, {1, box_type::final_queue, color::green}, {2, box_type::final_queue, color::green}, {3, box_type::final_queue, color::green}}},
@@ -243,4 +242,3 @@ void Board::setFromConfig(const BoardConfig & config){
                 break;*/
     }
 }
-

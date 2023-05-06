@@ -8,8 +8,8 @@ Dice::Dice(){
     //Asigna por defecto los 6 valores del dado a cada jugador.
     this->dice =  map <color, vector <vector<int> >> {
         // color::red,    {{1,2,3,4,5,6}}},
-        {color::blue,   {{1,2,3,4,5,6}}},
-        {color::yellow, {{1,2,3,4,5,6}}}
+        {color::blue,   {{1,2,4,5,6}}},
+        {color::yellow, {{1,2,4,5,6}}}
         // color::green,  {{1,2,3,4,5,6}}}
     };
 
@@ -47,6 +47,10 @@ const vector<int> & Dice::getDice (color player) const{
 const vector<int> &Dice::getSpecialDice(color player) const
 {
     // Se devuelva la segunda capa siempre.
+    if (player != yellow and player != blue)
+    {
+        player = partner_color(player);
+    }
     return dice.at(player).at(1);
 }
 
@@ -72,7 +76,6 @@ void Dice::removeNumber (color player, int n){
             resetDice(player);
         else
             dice[player].pop_back();
-
     }
     */
    // Si la tercera capa existe se elimina el elemento de ahí.

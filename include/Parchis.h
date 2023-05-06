@@ -18,12 +18,51 @@ using namespace std;
 
 class Player;
 
+class ParchisBros{
+    private:
+        shared_ptr<Parchis> parent;
+    public:
+        class Iterator{
+            private:
+                shared_ptr<Parchis> actual;
+                color last_c_piece;
+                int last_id_piece;
+                int last_dice;
+                int dice_value;
+
+                ParchisBros * container;
+
+            public:
+                Iterator(ParchisBros & container, shared_ptr<Parchis> &p, color last_c_piece = none, int last_id_piece = -1, int last_dice = -1);
+                Iterator & operator++();
+                //Iterator operator++(int);
+                bool operator==(const Iterator & it) const;
+                bool operator!=(const Iterator & it) const;
+                Parchis & operator*() const;
+
+                inline int getMovedDiceValue() const {return dice_value;}
+                inline color getMovedColor() const {return last_c_piece;}
+                inline int getMovedPieceId() const {return last_id_piece;}
+
+
+        };
+
+        ParchisBros(const Parchis & p);
+
+        Iterator begin();
+        Iterator end();
+
+
+};
+
 class Parchis{
     private:
         //Tablero
         Board board;
         //Dados
         Dice dice;
+
+        static const int MAX_SPECIAL_DICES = 2;
 
         //Variables para almacenar los últimos movimientos
         //Últimos movimientos identificados por el color.
@@ -391,6 +430,24 @@ class Parchis{
         }
 
         /**
+         * @brief Obtener los dados especiales disponibles para el jugador de color player.
+         *
+         */
+        inline const vector<int> getAvailableSpecialDices (color player) const{
+            return dice.getSpecialDice(player);
+        }
+
+        /**
+         * Obtener todos los dados disponibles, incluyendo normales y especiales.
+         */
+        inline const vector<int> getAllAvailableDices (color player) const{
+            vector<int> all_dices = dice.getDice(player);
+            vector<int> special_dices = dice.getSpecialDice(player);
+            all_dices.insert(all_dices.end(), special_dices.begin(), special_dices.end());
+            return all_dices;
+        }
+
+        /**
          * @brief Mover la pieza número "piece" del jugador "player" "dice_number" posiciones.
          *
          * @param player
@@ -445,6 +502,16 @@ class Parchis{
          * @return const Box
          */
         const Box computeMove(const Piece & piece, int dice_number, bool * goal_bounce = NULL) const;
+
+        /**
+         * @brief Función auxiliar que devuelve la casilla destino tras aplicar el movimiento.
+         *
+         * @param c
+         * @param box
+        */
+        inline const Box computeMove(const color & c, const Box & box, int dice_number, bool * goal_bounce = NULL) const{
+            return computeMove(Piece(c, box), dice_number, goal_bounce);
+        }
 
         /**
          * @brief Función auxiliar que devuelve la siguiente casilla para una ficha concreta.
@@ -741,6 +808,8 @@ class Parchis{
          *
          */
         inline bool isPlaygroundMode() const { return this->playground_mode; }
+
+        ParchisBros getChildren() const;
 };
 
 

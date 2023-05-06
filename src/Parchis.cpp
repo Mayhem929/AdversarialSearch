@@ -100,6 +100,10 @@ void Parchis::initGame(){
 
     this->update_board = true;
     this->update_dice = true;
+
+
+    //PUTO JL
+    this->playground_mode = false;
 }
 
 Parchis::Parchis()
@@ -187,7 +191,7 @@ const vector<tuple<color, int, Box, Box>> & Parchis::getLastMoves() const{
 }
 
 vector<color> Parchis::getPlayerColors(int player) const{
-    if (player == 1){
+    if (player == 0){
         return {yellow, red};
     }
     else{
@@ -206,6 +210,7 @@ const vector<tuple<color,int>> Parchis::getAvailablePieces(color player, int dic
     vector<Piece> player_pieces = board.getPieces(player);
     vector<Piece> partner_color_pieces = board.getPieces(partner_color(player));
     vector<tuple<color,int>> available_pieces;
+
 
     //Para cada ficha del jugador
     for(int i = 0; i < player_pieces.size(); i++){
@@ -370,21 +375,27 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                         if (final_box == board.getSpecialItems()[i].box)
                         {
                             // Se borra del tablero y se añade a los dados especiales del jugador.
-                            dice.addSpecialDice(player, board.getSpecialItems()[i].type);
-                            board.deleteSpecialItem(i);
+                            if (dice.getSpecialDice(player).size() < MAX_SPECIAL_DICES)
+                            {
+                                dice.addSpecialDice(player, board.getSpecialItems()[i].type);
+                                board.deleteSpecialItem(i);
 
-                            this->update_board = true;
-                            this->update_dice = true;
+                                this->update_board = true;
+                                this->update_dice = true;
+                            }
                         }
 
                         if(nextBox(player, final_box) == board.getSpecialItems()[i].box)
                         {
                             // Se borra del tablero y se añade a los dados especiales del jugador.
-                            dice.addSpecialDice(player, board.getSpecialItems()[i].type);
-                            board.deleteSpecialItem(i);
+                            if (dice.getSpecialDice(player).size() < MAX_SPECIAL_DICES)
+                            {
+                                dice.addSpecialDice(player, board.getSpecialItems()[i].type);
+                                board.deleteSpecialItem(i);
 
-                            this->update_board = true;
-                            this->update_dice = true;
+                                this->update_board = true;
+                                this->update_dice = true;
+                            }
                         }
                     }
 
@@ -468,11 +479,14 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 for (int i = 0; i < board.getSpecialItems().size(); i++){
                     if (final_box == board.getSpecialItems()[i].box){
                         // Se borra del tablero y se añade a los dados especiales del jugador.
-                        dice.addSpecialDice(player, board.getSpecialItems()[i].type);
-                        board.deleteSpecialItem(i);
+                        if (dice.getSpecialDice(player).size() < MAX_SPECIAL_DICES)
+                        {
+                            dice.addSpecialDice(player, board.getSpecialItems()[i].type);
+                            board.deleteSpecialItem(i);
 
-                        this->update_board = true;
-                        this->update_dice = true;
+                            this->update_board = true;
+                            this->update_dice = true;
+                        }
                     }
                 }
 
@@ -518,21 +532,24 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                             while (this->boxState(final_box).size() > 0)
                             {
                                 dice_number++;
-                                final_box = computeMove(current_piece, dice_number);
+                                //final_box = computeMove(current_piece, dice_number);
+                                final_box = computeMove(current_piece.get_color(), current_piece.get_box(), dice_number);
                             }
                         }
-                        cout << dice_number << endl;
                         board.movePiece(player, piece, final_box);
                         this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, final_box));
 
                         for (int i = 0; i < board.getSpecialItems().size(); i++){
                             if (final_box == board.getSpecialItems()[i].box){
                                 // Se borra del tablero y se añade a los dados especiales del jugador.
-                                dice.addSpecialDice(player, board.getSpecialItems()[i].type);
-                                board.deleteSpecialItem(i);
+                                if (dice.getSpecialDice(player).size() < MAX_SPECIAL_DICES)
+                                {
+                                    dice.addSpecialDice(player, board.getSpecialItems()[i].type);
+                                    board.deleteSpecialItem(i);
 
-                                this->update_board = true;
-                                this->update_dice = true;
+                                    this->update_board = true;
+                                    this->update_dice = true;
+                                }
                             }
                         }
 
@@ -545,7 +562,10 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                         //Robamos el último dado especial conseguido por el adversario (siempre que haya)
                         if(!dice.getSpecialDice(opponent_color(player)).empty() and !playground_mode){
-                            dice.addSpecialDice(player, dice.getSpecialDice(opponent_color(player)).back());
+                            if (dice.getSpecialDice(player).size() < MAX_SPECIAL_DICES)
+                            {
+                                dice.addSpecialDice(player, dice.getSpecialDice(opponent_color(player)).back());
+                            }
                             dice.removeNumber(opponent_color(player), dice.getSpecialDice(opponent_color(player)).back());
                         }
                         else if(playground_mode){
@@ -573,7 +593,8 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                             while (this->boxState(final_box).size() > 0)
                             {
                                 dice_number++;
-                                final_box = computeMove(current_piece, dice_number);
+                                //final_box = computeMove(current_piece, dice_number);
+                                final_box = computeMove(current_piece.get_color(), current_piece.get_box(), dice_number);
                             }
                         }
 
@@ -594,11 +615,14 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                         for (int i = 0; i < board.getSpecialItems().size(); i++){
                             if (final_box == board.getSpecialItems()[i].box){
                                 // Se borra del tablero y se añade a los dados especiales del jugador.
-                                dice.addSpecialDice(player, board.getSpecialItems()[i].type);
-                                board.deleteSpecialItem(i);
+                                if (dice.getSpecialDice(player).size() < MAX_SPECIAL_DICES)
+                                {
+                                    dice.addSpecialDice(player, board.getSpecialItems()[i].type);
+                                    board.deleteSpecialItem(i);
 
-                                this->update_board = true;
-                                this->update_dice = true;
+                                    this->update_board = true;
+                                    this->update_dice = true;
+                                }
                             }
                         }
                     }
@@ -720,21 +744,27 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                             if (current_piece.get_box() == board.getSpecialItems()[i].box)
                             {
                                 // Se borra del tablero y se añade a los dados especiales del jugador.
-                                dice.addSpecialDice(player, board.getSpecialItems()[i].type);
-                                board.deleteSpecialItem(i);
+                                if (dice.getSpecialDice(player).size() < MAX_SPECIAL_DICES)
+                                {
+                                    dice.addSpecialDice(player, board.getSpecialItems()[i].type);
+                                    board.deleteSpecialItem(i);
 
-                                this->update_board = true;
-                                this->update_dice = true;
+                                    this->update_board = true;
+                                    this->update_dice = true;
+                                }
                             }
 
                             if(nextBox(player, current_piece.get_box()) == board.getSpecialItems()[i].box)
                             {
                                 // Se borra del tablero y se añade a los dados especiales del jugador.
-                                dice.addSpecialDice(player, board.getSpecialItems()[i].type);
-                                board.deleteSpecialItem(i);
+                                if (dice.getSpecialDice(player).size() < MAX_SPECIAL_DICES)
+                                {
+                                    dice.addSpecialDice(player, board.getSpecialItems()[i].type);
+                                    board.deleteSpecialItem(i);
 
-                                this->update_board = true;
-                                this->update_dice = true;
+                                    this->update_board = true;
+                                    this->update_dice = true;
+                                }
                             }
                         }
 
@@ -1116,6 +1146,7 @@ void Parchis::gameLoop(){
         color winner_color = getColorWinner();
 
         cout << "Ha ganado el jugador " << winner << " (" << str(winner_color) << ")" << endl;
+        //cout << "Ha ganado el jugador " << winner << endl;
         if (illegalMove())
         {
             cout << "El jugador " << (winner == 1 ? 0 : 1) << " ha hecho un movimiento ilegal" << endl;
@@ -1213,6 +1244,36 @@ int Parchis::getWinner() const{
 
         break;
     }
+
+    //Recorro mis colores
+    /*vector<color> my_colors = this->getPlayerColors(0);
+    bool he_ganao = true;
+    for(int i = 0; i < my_colors.size() && he_ganao; i++){
+        color col = my_colors.at(i);
+        Box goal(0, box_type::goal, col);
+        if(boxState(goal).size() != board.getPieces(col).size()){
+            he_ganao = false;
+        }
+    }
+    if(he_ganao){
+        return 0;
+    }else{
+        // Recorro los colores de mi oponente
+        vector<color> other_colors = this->getPlayerColors(1);
+        bool he_perdio  = true;
+        for(int i = 0; i < other_colors.size() && he_perdio; i++){
+            color col = other_colors.at(i);
+            Box goal(0, box_type::goal, col);
+            if(boxState(goal).size() != board.getPieces(col).size()){
+                he_perdio = false;
+            }
+        }
+        if(he_perdio){
+            return 1;
+        }else{
+            return -1;
+        }
+    }*/
 }
 
 color Parchis::getColorWinner() const{
@@ -1464,58 +1525,120 @@ Parchis Parchis::generateNextMove(color & c_piece,  int & id_piece, int & dice) 
 
 }
 
-Parchis Parchis::generateNextMoveDescending(color & c_piece,  int & id_piece, int & dice) const{
-    return generateNextMove(c_piece, id_piece, dice);
-}
-
 /*
 Parchis Parchis::generateNextMoveDescending(color & c_piece,  int & id_piece, int & dice) const{
     c_piece = this->getCurrentColor();
     bool change_dice = false;
     vector<int> current_dices;
-    vector<int> current_pieces;
-
+    vector<tuple<color,int>> current_pieces;
     //Si dice tiene valor por defecto, cojo el primero.
     if (dice == -1){
         dice = this->getAvailableDices(c_piece).back();
     }
-
     do{
         //Compruebo si quedan movimientos legales con dice
         current_pieces = this->getAvailablePieces(c_piece, dice);
         if (current_pieces.size() > 0){
             //Si id_piece tiene valor por defecto, cojo el primero.
             if(id_piece == -1){
-                id_piece = current_pieces.at(0);
+                id_piece = get<1>(current_pieces.at(0));
+                c_piece = get<0>(current_pieces.at(0));
                 change_dice = false;
             }
             else{
                 //Siguiente pieza a id_piece
+                vector<int> pieces_color;
+                vector<int> pieces_partner;
                 for(int i = 0; i < current_pieces.size(); i++){
+                    if(get<0>(current_pieces.at(i)) == c_piece){
+                        pieces_color.push_back(get<1>(current_pieces.at(i)));
+                    }
+                    else{
+                        pieces_partner.push_back(get<1>(current_pieces.at(i)));
+                    }
+                }
+                if(this->canSkipTurn(this->getCurrentColor(), dice) && id_piece != SKIP_TURN){
+                    id_piece = SKIP_TURN;
+                    change_dice = false;
+                }else{
+                    //Recorrer pieces_color
+                    for(int i = 0; i < pieces_color.size(); i++){
+                        //Compruebo si hay más piezas disponibles
+                        if(pieces_color.at(i) == id_piece){
+                            //Si no los hay
+                            if (i == pieces_color.size() - 1){
+                                //Compruebo si puedo pasar de turno
+                                c_piece = partner_color(c_piece);
+                                if(this->canSkipTurn(this->getCurrentColor(), dice) && id_piece != SKIP_TURN){
+                                    id_piece = SKIP_TURN;
+                                    change_dice = false;
+                                }
+                                // Si no, cambio de dado
+                                else{
+                                    change_dice = true;
+                                }
+                            }
+                            // Si sí las hay, cojo la siguiente
+                            else{
+                                id_piece = pieces_color.at(i+1);
+                                change_dice = false;
+                            }
+                            break;
+                        }
+                    }
+                for(int i = 0; i < pieces_color.size(); i++){
                     //Compruebo si hay más piezas disponibles
-                    if(current_pieces.at(i) == id_piece){
-                        //Si no las hay
-                        if (i == current_pieces.size() - 1){
+                    if(pieces_color.at(i) == id_piece){
+                        //Si no los hay
+                        if (i == pieces_color.size() - 1){
                             //Compruebo si puedo pasar de turno
-                            if(this->canSkipTurn(c_piece, dice) && id_piece != SKIP_TURN){
+                            c_piece = partner_color(c_piece);
+                            if(this->canSkipTurn(this->getCurrentColor(), dice) && id_piece != SKIP_TURN){
                                 id_piece = SKIP_TURN;
                                 change_dice = false;
                             }
+                            // Si no, cambio de dado
+                            else{
+                                change_dice = true;
+                            }
+                        }
+                        // Si sí las hay, cojo la siguiente
+                        else{
+                            id_piece = pieces_color.at(i+1);
+                            change_dice = false;
+                        }
+                        break;
+                    }
+                }
+                for(int i = 0; i < current_pieces.size(); i++){
+                    //Compruebo si hay más piezas disponibles
+                    if(get<1>(current_pieces.at(i)) == id_piece && (get<0>(current_pieces.at(i)) == c_piece){
+                        //Si no las hay
+                        if (i == current_pieces.size() - 1){
+                            //Compruebo si puedo pasar de turno
+                            //Si estaba recorriendo el color principal, paso al partner
+                            if(get<0>(current_pieces.at(i)) == color::yellow || get<0>(current_pieces.at(i)) == color::blue){
+                                c_piece = partner_color(c_piece);
+                                id_piece = -1;
                             // Si no, cambio dado
+                            }
+                            else if(this->canSkipTurn(c_piece, dice) && id_piece != SKIP_TURN){
+                                id_piece = SKIP_TURN;
+                                change_dice = false;
+                            }
                             else{
                                 change_dice = true;
                             }
                         }
                         //Si sí las hay, cojo la siguiente
                         else{
-                            id_piece = current_pieces.at(i+1);
+                            id_piece = get<1>(current_pieces.at(i+1));
                             change_dice = false;
                         }
                         break;
                     }
                 }
             }
-
         // Si no, compruebo si puedo pasar turno con ese dado.
         }else if(this->canSkipTurn(c_piece, dice) && id_piece != SKIP_TURN){
             id_piece = SKIP_TURN;
@@ -1526,7 +1649,6 @@ Parchis Parchis::generateNextMoveDescending(color & c_piece,  int & id_piece, in
             //Siguiente dado
             change_dice = true;
         }
-
         //Si tengo que cambiar de dado
         if(change_dice){
             //Compruebo dados disponibles
@@ -1547,11 +1669,105 @@ Parchis Parchis::generateNextMoveDescending(color & c_piece,  int & id_piece, in
             }
         }
     }while(change_dice);
-
     Parchis next_move(*this);
     next_move.movePiece(c_piece, id_piece, dice);
     return next_move;
 }*/
+
+Parchis Parchis::generateNextMoveDescending(color & c_piece,  int & id_piece, int & dice) const{
+    color main_color = this->getCurrentColor();
+    bool change_dice = false;
+    vector<int> current_dices = this->getAllAvailableDices(main_color);
+    vector<tuple<color,int>> current_pieces;
+    int curr_dice_value = -1;
+
+    bool check_skip = false;
+
+    //if (this->turn >= 70){
+        //cout << "c_piece " << c_piece << " id_piece " << id_piece << " dice " << dice << endl;
+    //}
+
+    //Si dice tiene valor por defecto, cojo el último.
+    if (dice == -1){
+        //dice = current_dices.back();
+        dice = current_dices.size() - 1;
+    }
+    curr_dice_value = current_dices.at(dice);
+
+    do{
+        current_pieces = this->getAvailablePieces(main_color, curr_dice_value);
+        change_dice = false;
+        check_skip = false;
+        // Busco el par (c_piece, id_piece) que moví la última vez.
+        // Si current_pieces está vacío, miro si puedo pasar de turno.
+        // Si id_piece es -1, me quedo el primero.
+        // Si no, me quedo el siguiente.
+        if(!current_pieces.empty()){
+            if(id_piece == -1){
+                c_piece = get<0>(current_pieces.front());
+                id_piece = get<1>(current_pieces.front());
+            }else{
+                for(int i = 0; i < current_pieces.size(); i++){
+                    if(get<0>(current_pieces.at(i)) == c_piece && get<1>(current_pieces.at(i)) == id_piece){
+                        if(i == current_pieces.size() - 1){
+                            check_skip = true;
+                        }else{
+                            c_piece = get<0>(current_pieces.at(i+1));
+                            id_piece = get<1>(current_pieces.at(i+1));
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        else{
+            check_skip = true;
+        }
+
+        // si tengo que comprobar si puedo pasar de turno, lo hago.
+        // Si puedo, id_piece = SKIP_TURN
+        // Si no puedo, cambio el dado.
+        if(check_skip){
+            if(this->canSkipTurn(main_color, curr_dice_value) && id_piece != SKIP_TURN){
+                id_piece = SKIP_TURN;
+                change_dice = false;
+                c_piece = main_color;
+            }else{
+                change_dice = true;
+            }
+        }
+
+        // Si tengo que cambiar de dado, lo hago.
+        if(change_dice){
+            //current_dices = this->getAvailableDices(main_color);
+            //Los recorro en orden DESCENDENTE
+            if(dice == 0){
+                return *this;
+            }else{
+                dice--;
+                curr_dice_value = current_dices.at(dice);
+                id_piece = -1;
+            }
+
+            /*
+            for(int i = current_dices.size() - 1; i >= 0; i--){
+                if(current_dices.at(i) == dice){
+                    if(i == 0){
+                        return *this;
+                    }else{
+                        dice = current_dices.at(i-1);
+                        id_piece = -1;
+                        break;
+                    }
+                }
+            }*/
+        }
+    }while(change_dice);
+
+    Parchis next_move(*this);
+    next_move.movePiece(c_piece, id_piece, curr_dice_value);
+    return next_move;
+}
 
 bool Parchis::isSafeBox(const Box & box) const{
     return (box.type == normal && find(safe_boxes.begin(), safe_boxes.end(), box.num) != safe_boxes.end());
@@ -1758,5 +1974,61 @@ void Parchis::setPlaygroundMode(){
     this->dice.addSpecialDice(yellow, star);
     this->dice.addSpecialDice(blue, mega_mushroom);
 
-    
+
+}
+
+ParchisBros Parchis::getChildren() const{
+    return ParchisBros(*this);
+}
+
+ParchisBros::ParchisBros(const Parchis &p){
+    this->parent = make_shared<Parchis>(p);
+}
+
+ParchisBros::Iterator ParchisBros::begin(){
+    color last_c_piece = none;
+    int last_id_piece = -1;
+    int last_dice = -1;
+    shared_ptr<Parchis> nuevo_hijo = make_shared<Parchis>(parent->generateNextMoveDescending(last_c_piece, last_id_piece, last_dice));
+    return ParchisBros::Iterator(*this, nuevo_hijo, last_c_piece, last_id_piece, last_dice);
+}
+
+ParchisBros::Iterator::Iterator(ParchisBros & out, shared_ptr<Parchis> &p, color last_c_piece, int last_id_piece, int last_dice)
+: container(&out){
+    this->actual = p;
+    this->last_c_piece = last_c_piece;
+    this->last_id_piece = last_id_piece;
+    this->last_dice = last_dice;
+    if (last_dice != -1)
+        this->dice_value = container->parent->getAllAvailableDices(container->parent->getCurrentColor()).at(last_dice);
+}
+
+/*
+ParchisBros::Iterator ParchisBros::Iterator::operator++(int){
+    actual = make_shared<Parchis>(parent->generateNextMoveDescending(last_c_piece, last_id_piece, last_dice));
+    return ParchisBros::Iterator(nuevo_hijo, last_c_piece, last_id_piece, last_dice);
+}*/
+
+ParchisBros::Iterator & ParchisBros::Iterator::operator++(){
+    actual = make_shared<Parchis>(container->parent->generateNextMoveDescending(last_c_piece, last_id_piece, last_dice));
+    if (last_dice != -1)
+        this->dice_value = container->parent->getAllAvailableDices(container->parent->getCurrentColor()).at(last_dice);
+    return *this;
+}
+
+
+bool ParchisBros::Iterator::operator==(const ParchisBros::Iterator & it) const{
+    return (*(this->actual) == *(it.actual));
+}
+
+bool ParchisBros::Iterator::operator!=(const ParchisBros::Iterator & it) const{
+    return !(*(this->actual) == *(it.actual));
+}
+
+Parchis & ParchisBros::Iterator::operator*() const{
+    return *actual;
+}
+
+ParchisBros::Iterator ParchisBros::end(){
+    return ParchisBros::Iterator(*this, parent, none, -1, -1);
 }
