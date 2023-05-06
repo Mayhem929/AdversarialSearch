@@ -12,12 +12,8 @@ class Dice{
     private:
         /**
          * @brief Dados para cada jugador. Los dados se agrupan por capas.
-         * La primera capa contiene los dados clásicos del 1-6.
-         * Se pueden añadir nuevas capas para forzar valores especiales,
-         * como mover 10 o 20.
-         *
-         * 22/23
-         * - Capa 1: Dados clásicos del 1-6.
+         * 
+         * - Capa 1: Dados clásicos del 1-6 (quitando el 3).
          * - Capa 2: Dados especiales adquiridos por el jugador.
          * - Capa 3: Dados forzados (mover 10 o 20)
          *
@@ -79,10 +75,10 @@ class Dice{
         void removeNumber (color player, int n);
 
         /**
-         * @brief Resetear el dado del jugador "player" por el dado "new_dice". Default <1,2,3,4,5,6>.
+         * @brief Resetear el dado del jugador "player" por el dado "new_dice". Default <1,2,4,5,6>.
          *
          * @param player
-         * @param new_dice, por defecto {1,2,3,4,5,6}
+         * @param new_dice, por defecto {1,2,4,5,6}
          */
         void resetDice (color player , const vector<int> & new_dice = {1,2,4,5,6});
 
@@ -97,7 +93,7 @@ class Dice{
         bool isAvailable(color player, int n) const;
 
         /**
-         * @brief Función que añade un valor al dado del jugador "player".
+         * @brief Función que añade un valor "n" al dado del jugador "player".
          *
          */
         void addNumber(color player, int n);

@@ -5,12 +5,10 @@
 
 
 Dice::Dice(){
-    //Asigna por defecto los 6 valores del dado a cada jugador.
+    //Asigna por defecto los 5 valores del dado a cada jugador.
     this->dice =  map <color, vector <vector<int> >> {
-        // color::red,    {{1,2,3,4,5,6}}},
         {color::blue,   {{1,2,4,5,6}}},
         {color::yellow, {{1,2,4,5,6}}}
-        // color::green,  {{1,2,3,4,5,6}}}
     };
 
     //Añade una capa vacía inicialmente con los dados especiales.
@@ -29,11 +27,6 @@ Dice::Dice (const map <color, vector<vector <int> >> & d){
 };
 
 const vector<int> & Dice::getDice (color player) const{
-    /*
-    cout << "player";
-    cout << player << endl;
-    return dice.at(player).at(dice.at(player).size()-1);
-    */
    // Si hay 3 capas se devuelve la última.
     if (dice.at(player).size() == 3){
         return dice.at(player).at(dice.at(player).size()-1);
@@ -46,11 +39,12 @@ const vector<int> & Dice::getDice (color player) const{
 
 const vector<int> &Dice::getSpecialDice(color player) const
 {
-    // Se devuelva la segunda capa siempre.
+    //Si no es el color principal, se coge el partner (principal).
     if (player != yellow and player != blue)
     {
         player = partner_color(player);
     }
+    // Se devuelva la segunda capa siempre.
     return dice.at(player).at(1);
 }
 
@@ -66,18 +60,6 @@ void Dice::removeNumber (color player, int n){
     if (player != yellow and player != blue){
         player = partner_color(player);
     }
-    /*
-    //Se elimina n del vector de valores asociado al dado de player.
-    dice[player][dice[player].size() - 1].erase(remove(dice[player][dice[player].size() - 1].begin(), dice[player][dice[player].size() - 1].end(), n), dice[player][dice[player].size() - 1].end());
-    //Si se han gastado todos los números, se regenera de nuevo el dado.
-    if (dice[player][dice[player].size() - 1].empty())
-    {
-        if(dice[player].size() == 1)
-            resetDice(player);
-        else
-            dice[player].pop_back();
-    }
-    */
    // Si la tercera capa existe se elimina el elemento de ahí.
     if (dice[player].size() == 3){
         dice[player][dice[player].size() - 1].erase(remove(dice[player][dice[player].size() - 1].begin(), dice[player][dice[player].size() - 1].end(), n), dice[player][dice[player].size() - 1].end());
@@ -92,7 +74,6 @@ void Dice::removeNumber (color player, int n){
     // En caso contrario, se elimina de la primera.
     else{
         if (n >= 100){
-            //dice[player][dice[player].size() - 1].erase(remove(dice[player][dice[player].size() - 1].begin(), dice[player][dice[player].size() - 1].end(), n), dice[player][dice[player].size() - 1].end());
             auto it = std::find(dice[player][dice[player].size() - 1].begin(), dice[player][dice[player].size() - 1].end(), n);
             if (it != dice[player][dice[player].size() - 1].end()) {
                 dice[player][dice[player].size() - 1].erase(it);
@@ -109,21 +90,10 @@ void Dice::removeNumber (color player, int n){
 }
 
 void Dice::resetDice (color player , const vector<int> & new_dice){
-    //dice[player][dice[player].size() - 1] = new_dice;
     dice[player][0] = new_dice;
 }
 
 bool Dice::isAvailable(color player, int n) const{
-    /*
-    vector<int> player_dice;
-    if (player == yellow || player == blue){
-        player_dice = dice.at(player).at(dice.at(player).size()-1);
-    }else{
-        player_dice = dice.at(partner_color(player)).at(dice.at(partner_color(player)).size()-1);
-    }
-    return (find(player_dice.begin(), player_dice.end(), n) != player_dice.end());
-    */
-
     if (player != yellow && player != blue)
     {
         player = partner_color(player);
@@ -142,7 +112,7 @@ bool Dice::isAvailable(color player, int n) const{
             return (find(dice.at(player).at(0).begin(), dice.at(player).at(0).end(), n) != dice.at(player).at(0).end());
         }
     }
-    // Espero que esto funcione, ha sido full copilot xd.
+    //Gracias copilot ;)
 }
 
 void Dice::addNumber(color player, int n){
@@ -150,7 +120,6 @@ void Dice::addNumber(color player, int n){
     {
         player = partner_color(player);
     }
-    //dice[player][dice[player].size() - 1].push_back(n);
     dice[player][0].push_back(n);
 }
 
