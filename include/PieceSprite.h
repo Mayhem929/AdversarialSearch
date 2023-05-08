@@ -11,10 +11,10 @@ using namespace std;
 
 class PieceSprite: public ClickableSprite{
     private:
-        int id;  // Deprecated (no se usa) pero no se puede borrar porque se usa en el constructor. ¿Hacer un constructor por defecto? ¿Hacer un constructor con parámetros? ¿Hacer un constructor con parámetros y un constructor por defecto? ¿Hacer un constructor con parámetros y un constructor por defecto y un constructor de copia? ¿Hacer un constructor con parámetros y un constructor por defecto y un constructor de copia y un constructor de movimiento?
-        color c; // Deprecated (no se usa) pero no se puede borrar porque se usa en el constructor. ¿Hacer un constructor por defecto? ¿Hacer un constructor con parámetros? ¿Hacer un constructor con parámetros y un constructor por defecto? ¿Hacer un constructor con parámetros y un constructor por defecto y un constructor de copia? ¿Hacer un constructor con parámetros y un constructor por defecto y un constructor de copia y un constructor de movimiento?
-        // TODO: Ahora es Piece también. ¿Hacer un puntero? ¿Hacer una copia? ¿Hacer una referencia? ¿Hacer una referencia constante? ¿Hacer una referencia constante y un puntero? ¿Hacer una referencia constante y una copia?
-        const Piece * piece; // Va a tener que ser puntero para que se actualice conforme al estado de la ficha creo. ¿Hacer una referencia? ¿Hacer una referencia constante? ¿Hacer una referencia constante y un puntero? ¿Hacer una referencia constante y una copia? ¿Hacer una referencia constante y una copia y un puntero? ¿Hacer una referencia constante y una copia y un puntero y una referencia?
+        int id;  
+        color c; 
+        //Referencia al objeto Piece que representa
+        const Piece * piece; 
 
         static const map <color, vector<int>> col2textrec;
 
