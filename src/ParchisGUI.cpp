@@ -1472,7 +1472,7 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
                 animate_pos = (Vector2f)box2position.at(origin)[0] + Vector2f(animate_sprite->getLocalBounds().width/2, animate_sprite->getLocalBounds().height/2);
                 animate_sprite->setPosition(animate_pos);
                 animate_sprite->setOrigin(animate_sprite->getLocalBounds().width/2, animate_sprite->getLocalBounds().height/2);
-                shared_ptr<ExplosionAnimator> animator = make_shared<ExplosionAnimator>(*animate_sprite, 1.f, 7.f, animation_time);
+                shared_ptr<ExplosionAnimator> animator = make_shared<ExplosionAnimator>(*animate_sprite, 1.f, 3.f, animation_time);
                 animations_ch5.push(animator);
             }
         }

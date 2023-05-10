@@ -45,3 +45,13 @@ config/my_public_ip.txt
 
 build/
 build/*
+
+# Just in case not using build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+.cmake/
+compile_commands.json
+ParchisGame
+Parchis
