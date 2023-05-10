@@ -528,7 +528,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                             final_box = Box(0, goal, player);
                         }
                         else{
-                            final_box = computeMove(current_piece, dice_number);
+                            final_box = computeMove(current_piece.get_color(), current_piece.get_box(), dice_number);
                             while (this->boxState(final_box).size() > 0)
                             {
                                 dice_number++;
@@ -589,7 +589,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                             final_box = Box(0, goal, player);
                         }
                         else{
-                            final_box = computeMove(current_piece, dice_number);
+                            final_box = computeMove(current_piece.get_color(), current_piece.get_box(), dice_number);
                             while (this->boxState(final_box).size() > 0)
                             {
                                 dice_number++;
