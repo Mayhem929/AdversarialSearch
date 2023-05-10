@@ -1,24 +1,24 @@
-#ifndef __RECT_BUTTON_H__
-#define __RECT_BUTTON_H__
+// #ifndef __RECT_BUTTON_H__
+// #define __RECT_BUTTON_H__
 
-#include "Button.h"
-#include "IncludesSFML.h"
+// #include "Button.h"
+// #include "IncludesSFML.h"
 
-using namespace std;
+// using namespace std;
 
-class RectangularButton: public Button{
-    private:
-        //static const Texture button_texture;
+// class RectangularButton: public Button{
+//     private:
+//         //static const Texture button_texture;
 
-    public:
-        inline RectangularButton(): Button(){}
+//     public:
+//         inline RectangularButton(): Button(){}
 
-        RectangularButton(const Texture & t);
+//         RectangularButton(const Texture & t);
 
-        void refreshButton();
+//         void refreshButton();
 
 
 
-};
+// };
 
-#endif
+// #endif
