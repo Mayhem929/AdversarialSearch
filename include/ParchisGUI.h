@@ -186,6 +186,21 @@ private:
     Music background_theme_hurryup;
     static const string background_theme_hurryup_file;
 
+    Music background_theme_win;
+    static const string background_theme_win_file;
+
+    Music background_theme_lose;
+    static const string background_theme_lose_file;
+
+    Music background_theme_star;
+    static const string background_theme_star_file;
+
+    Music background_theme_mega;
+    static const string background_theme_mega_file;
+
+    Music background_theme_shock;
+    static const string background_theme_shock_file;
+
     Music *current_background_theme;
 
     // Window icon
@@ -337,7 +352,19 @@ private:
      * @brief
      *
      */
+    void switchBackgroundMusic(Music & m);
+
+    /**
+     * @brief
+     *
+     */
     void checkHurryUp();
+
+    /**
+     * @brief
+     *
+     */
+    void checkSwitchMusic();
 
     /**
      * @brief Método privado que implementa el box2position evitando colisiones.
