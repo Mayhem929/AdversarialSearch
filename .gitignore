@@ -42,3 +42,6 @@ data/music*
 .vscode/
 config/allowed_ninjas.txt
 config/my_public_ip.txt
+
+build/
+build/*
