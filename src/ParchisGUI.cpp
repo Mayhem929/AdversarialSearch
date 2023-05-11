@@ -259,9 +259,9 @@ ParchisGUI::ParchisGUI(Parchis &model)
     this->tBackground.loadFromFile("data/textures/background.png");
     this->tPieces.loadFromFile("data/textures/fichas_parchis_extended.png");
     this->tPieces.setSmooth(true);
-    this->tSpecialItems.loadFromFile("data/textures/prueba_itemboxes.png");
+    this->tSpecialItems.loadFromFile("data/textures/itemboxes.png");
     this->tSpecialItems.setSmooth(true);
-    this->tBoardTraps.loadFromFile("data/textures/prueba_itemboxes.png"); //TODO: CAMBIAR EL PLATANO A ALGO DIFERENTE (Y EL NOMBRE DE LA TEXTURA)
+    this->tBoardTraps.loadFromFile("data/textures/itemboxes.png"); //TODO: CAMBIAR EL PLATANO A ALGO DIFERENTE (Y EL NOMBRE DE LA TEXTURA)
     this->tBoardTraps.setSmooth(true);
     this->tBoard.loadFromFile("data/textures/parchis_board_resized.png");
     this->tBoard.setSmooth(true);
