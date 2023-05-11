@@ -37,6 +37,9 @@ bin/*
 data/music.zip
 data/music_.zip
 data/music*
+data/music/new_music
+data/music/default
+data/music/music
 
 .idea/
 .vscode/
