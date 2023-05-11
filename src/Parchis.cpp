@@ -87,6 +87,8 @@ void Parchis::initGame(){
     this->star_move = false;
     this->bullet_move = false;
     this->horn_move = false;
+    this->shock_move = false;
+    this->boo_move = false;
 
     this->turn = 1;
 
@@ -279,6 +281,8 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 bullet_move = false;
                 horn_move = false;
                 bananed = false;
+                shock_move = false;
+                boo_move = false;
 
                 remember_6 = (dice_number==6 or (remember_6 and (dice_number == 10 or dice_number == 20)));
 
@@ -325,7 +329,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                 else if (current_piece.get_type() == mega_piece)
                 {
-
+                    //star_move = true; // Cambiar por mega en algún momento xd
                     // Si la siguiente casilla a la del mega champiñón es la meta, nos movemos ahí directamente.
                     if(nextBox(player, final_box).type == goal){
                         final_box = nextBox(player, final_box);
@@ -510,6 +514,8 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 this->star_move = false;
                 this->bullet_move = false;
                 this->horn_move = false;
+                this->shock_move = false;
+                this->boo_move = false;
 
                 remember_6 = false; // Si no, puedo sacar 6 y empezar a tirar dados especiales sin parar
 
@@ -556,6 +562,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     }
                     break;
                     case boo:
+                        this->boo_move = true;
                         //Convertimos la ficha a especial
                         board.setPieceType(player, piece, boo_piece);
                         board.setPieceTurnsLeft(player, piece, 6);
@@ -710,6 +717,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     break;
                     case mega_mushroom:
                     {
+                        //star_move = true; // Cambiar por mega en algún momento xd
                         board.setPieceType(player, piece, mega_piece);
                         board.setPieceTurnsLeft(player, piece, 4);
 
@@ -772,6 +780,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     break;
                     case shock:
                     {
+                        this->shock_move = true;
                         //Convertimos las fichas de otros colores a small_piece
                         for (int i = 0; i < game_colors.size(); i++){
                             color c = game_colors[i];

@@ -84,6 +84,12 @@ void GUIPlayer::perceive(Parchis &p){
         gui->queueTurnsArrow(actual->getCurrentColor());
         gui->updateSprites();
         //gui->selectAction(get<0>(last_action), get<2>(last_action), true);
+        if(actual->isShockMove()){
+            gui->playShockSound();
+        }
+        else if(actual->isBooMove()){
+            gui->playBooSound();
+        }
 
         for (int i = 0; i < last_moves.size(); i++)
         {
@@ -94,11 +100,13 @@ void GUIPlayer::perceive(Parchis &p){
 
             void (ParchisGUI::*callfront)(void) = NULL;
             void (ParchisGUI::*callback)(void) = NULL;
-            if(i == 0) callfront = &ParchisGUI::playMoveSound;
+            if(i == 0 and actual->isBulletMove()) callfront = &ParchisGUI::playBulletSound;
+            else if(i == 0 and actual->isHornMove()) callfront = &ParchisGUI::playHornSound;
+            else if(i == 0) callfront = &ParchisGUI::playMoveSound;
             if(i == 0 && actual->isEatingMove()){
                 callfront = &ParchisGUI::playMoveSound;
                 callback = &ParchisGUI::playEatenSound;
-            } 
+            }
             if(i == 0 && actual->goalBounce()){
                 callfront = &ParchisGUI::playMoveSound;
                 callback = &ParchisGUI::playBoingSound;
@@ -109,6 +117,12 @@ void GUIPlayer::perceive(Parchis &p){
             if(i == 1 && actual->isEatingMove() && actual->goalBounce()){
                 callfront = NULL;
                 callback = &ParchisGUI::playEatenSound;
+            }
+            if(actual->isRedShellMove() or actual->isBlueShellMove()){
+                callfront = &ParchisGUI::playExplosionSound;
+            }
+            if(actual->isStarMove() and !dest.type == home and i < last_moves.size()-1){
+                callback = &ParchisGUI::playStarhitSound;
             }
 
             if(callfront != NULL) (gui->*callfront)();

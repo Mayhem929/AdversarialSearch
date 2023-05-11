@@ -176,6 +176,18 @@ const string ParchisGUI::sound_eaten_file = "data/music/bad_news";
 
 const string ParchisGUI::sound_applause_file = "data/music/applause";
 
+const string ParchisGUI::sound_explosion_file = "data/music/explosion";
+
+const string ParchisGUI::sound_starhit_file = "data/music/starhit";
+
+const string ParchisGUI::sound_shock_file = "data/music/shock";
+
+const string ParchisGUI::sound_boo_file = "data/music/boo";
+
+const string ParchisGUI::sound_horn_file = "data/music/horn";
+
+const string ParchisGUI::sound_bullet_file = "data/music/bullet";
+
 const float ParchisGUI::ASPECT_RATIO = 2.0f;
 
 const int ParchisGUI::getInitialWindowWidth(){
@@ -1505,6 +1517,7 @@ void ParchisGUI::queueMove(color col, int id, Box origin, Box dest, void (Parchi
         horn_boom.setOrigin(horn_boom.getLocalBounds().width/2, horn_boom.getLocalBounds().height/2);
         shared_ptr<ExplosionAnimator> animator = make_shared<ExplosionAnimator>(horn_boom, 1.f, 6.f, animation_time);
         animations_ch5.push(animator);
+        playHornSound();
     }
     else{
         // Buscamos colisiones.
@@ -1700,8 +1713,13 @@ void ParchisGUI::switchBackgroundMusic(Music & m){
     if(current_background_theme == &m){
         return;
     }
+    if(current_background_theme == &background_theme and &m == &background_theme_shock or
+       current_background_theme == &background_theme_shock and &m == &background_theme){
+        m.setPlayingOffset(current_background_theme->getPlayingOffset());
+    }
     if(current_background_theme != nullptr)
         current_background_theme->stop();
+        
     current_background_theme = &m;
     if(music_on){
         current_background_theme->play();
@@ -1733,6 +1751,36 @@ void ParchisGUI::initializeSoundEffects(){
         sound_applause.setBuffer(sound_buffer_applause);
         sound_applause.setVolume(100.f);
         cout << "Loaded sound effect: " << sound_applause_file << endl;
+    }
+    if(sound_buffer_explosion.loadFromFile(sound_explosion_file + ".wav")){
+        sound_explosion.setBuffer(sound_buffer_explosion);
+        sound_explosion.setVolume(100.f);
+        cout << "Loaded sound effect: " << sound_explosion_file << endl;
+    }
+    if(sound_buffer_starhit.loadFromFile(sound_starhit_file + ".wav")){
+        sound_starhit.setBuffer(sound_buffer_starhit);
+        sound_starhit.setVolume(100.f);
+        cout << "Loaded sound effect: " << sound_starhit_file << endl;
+    }
+    if(sound_buffer_shock.loadFromFile(sound_shock_file + ".wav")){
+        sound_shock.setBuffer(sound_buffer_shock);
+        sound_shock.setVolume(100.f);
+        cout << "Loaded sound effect: " << sound_shock_file << endl;
+    }
+    if(sound_buffer_boo.loadFromFile(sound_boo_file + ".wav")){
+        sound_boo.setBuffer(sound_buffer_boo);
+        sound_boo.setVolume(100.f);
+        cout << "Loaded sound effect: " << sound_boo_file << endl;
+    }
+    if(sound_buffer_horn.loadFromFile(sound_horn_file + ".wav")){
+        sound_horn.setBuffer(sound_buffer_horn);
+        sound_horn.setVolume(100.f);
+        cout << "Loaded sound effect: " << sound_horn_file << endl;
+    }
+    if(sound_buffer_bullet.loadFromFile(sound_bullet_file + ".wav")){
+        sound_bullet.setBuffer(sound_buffer_bullet);
+        sound_bullet.setVolume(100.f);
+        cout << "Loaded sound effect: " << sound_bullet_file << endl;
     }
 }
 
@@ -1777,6 +1825,54 @@ void ParchisGUI::playApplauseSound(){
         //Sound sound_applause;
         //sound_applause.setBuffer(sound_buffer_applause);
         sound_applause.play();
+    }
+}
+
+void ParchisGUI::playExplosionSound(){
+    if(sound_on){
+        //Sound sound_explosion;
+        //sound_explosion.setBuffer(sound_buffer_explosion);
+        sound_explosion.play();
+    }
+}
+
+void ParchisGUI::playStarhitSound(){
+    if(sound_on){
+        //Sound sound_starhit;
+        //sound_starhit.setBuffer(sound_buffer_starhit);
+        sound_starhit.play();
+    }
+}
+
+void ParchisGUI::playShockSound(){
+    if(sound_on){
+        //Sound sound_shock;
+        //sound_shock.setBuffer(sound_buffer_shock);
+        sound_shock.play();
+    }
+}
+
+void ParchisGUI::playBooSound(){
+    if(sound_on){
+        //Sound sound_boo;
+        //sound_boo.setBuffer(sound_buffer_boo);
+        sound_boo.play();
+    }
+}
+
+void ParchisGUI::playHornSound(){
+    if(sound_on){
+        //Sound sound_horn;
+        //sound_horn.setBuffer(sound_buffer_horn);
+        sound_horn.play();
+    }
+}
+
+void ParchisGUI::playBulletSound(){
+    if(sound_on){
+        //Sound sound_bullet;
+        //sound_bullet.setBuffer(sound_buffer_bullet);
+        sound_bullet.play();
     }
 }
 
@@ -1847,7 +1943,6 @@ void ParchisGUI::checkSwitchMusic(){
         switchBackgroundMusic(background_theme_hurryup);
     }
     else{
-        cout << &background_theme << endl;
         switchBackgroundMusic(background_theme);
     }
 }

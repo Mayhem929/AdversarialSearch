@@ -156,18 +156,36 @@ private:
     SoundBuffer sound_buffer_forbidden;
     SoundBuffer sound_buffer_eaten;
     SoundBuffer sound_buffer_applause;
+    SoundBuffer sound_buffer_explosion;
+    SoundBuffer sound_buffer_starhit;
+    SoundBuffer sound_buffer_shock;
+    SoundBuffer sound_buffer_boo;
+    SoundBuffer sound_buffer_horn;
+    SoundBuffer sound_buffer_bullet;
 
     Sound sound_move;
     Sound sound_boing;
     Sound sound_forbidden;
     Sound sound_eaten;
     Sound sound_applause;
+    Sound sound_explosion;
+    Sound sound_starhit;
+    Sound sound_shock;
+    Sound sound_boo;
+    Sound sound_horn;
+    Sound sound_bullet;
 
     static const string sound_move_file;
     static const string sound_boing_file;
     static const string sound_forbidden_file;
     static const string sound_eaten_file;
     static const string sound_applause_file;
+    static const string sound_explosion_file;
+    static const string sound_starhit_file;
+    static const string sound_shock_file;
+    static const string sound_boo_file;
+    static const string sound_horn_file;
+    static const string sound_bullet_file;
 
     bool music_on;
     bool sound_on;
@@ -312,6 +330,12 @@ private:
     void playForbiddenSound();
     void playEatenSound();
     void playApplauseSound();
+    void playExplosionSound();
+    void playStarhitSound();
+    void playShockSound();
+    void playBooSound();
+    void playHornSound();
+    void playBulletSound();
 
     queue <void (ParchisGUI::*)(void)> animation_ch1_callbacks;
 
