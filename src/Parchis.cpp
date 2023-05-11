@@ -25,7 +25,6 @@ const map<color, int> Parchis::init_boxes = {
 /****************** MÉTODOS PRIVADOS ******************/
 
 void Parchis::nextTurn(){
-    //cout << "--------- CAMBIO DE TURNO ---------" << endl;
     // Quitamos un turn_left del current color y su partner.
     color partner = partner_color(this->current_color);
     for(int i = 0; i < this->board.getPieces(this->current_color).size(); i++){
@@ -41,8 +40,6 @@ void Parchis::nextTurn(){
         }
     }
 
-
-
     if (last_dice != 6 && !eating_move && !goal_move && !remember_6 || bananed){
         this->current_player = (current_player+1)%2;
         switch(this->current_color){
@@ -52,13 +49,6 @@ void Parchis::nextTurn(){
             case blue:
                 this->current_color = yellow;
                 break;
-            /*
-            case red:
-                this->current_color = green;
-                break;
-            case green:
-                this->current_color = yellow;
-                break;*/
         }
     }
 
@@ -101,8 +91,6 @@ void Parchis::initGame(){
     this->update_board = true;
     this->update_dice = true;
 
-
-    //PUTO JL
     this->playground_mode = false;
 }
 
@@ -408,9 +396,6 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                         final_box = nextBox(player, final_box);
                     }
                     board.movePiece(player, piece, final_box);
-
-
-
                 }
                 else
                 {
@@ -491,7 +476,6 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 }
 
                 if(!playground_mode) this->dice.removeNumber(player, dice_number);
-
 
                 if(eating_move){
                     // Añadir al dado de player el valor 20
@@ -600,17 +584,6 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                         board.movePiece(player, piece, final_box);
                         this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, final_box));
-                        /* Si llega a la meta del tirón ya no hay que comprobar rebotes.
-                        if(!goal_bounce)
-                            this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, final_box));
-                        else{
-                            this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, piece_box, Box(0, goal, player)));
-                            this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, Box(0, goal, player), final_box));
-                            bounces[player]++;
-                            if(bounces[player] > 30){
-                                overbounce_player = current_player;
-                            }
-                        }*/
 
                         for (int i = 0; i < board.getSpecialItems().size(); i++){
                             if (final_box == board.getSpecialItems()[i].box){
@@ -814,7 +787,6 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                                         if (dist_paforward <= 2 and dist_paforward >= 0 or dist_paantes <= 2 and dist_paantes >= 0){
                                             deleted_pieces.push_back(pair<color, int>(c, j));
                                         }
-
                                     }
                                 }
                             }
@@ -849,8 +821,6 @@ void Parchis::movePiece(color player, int piece, int dice_number){
         else{
             illegal_move_player = current_player;
         }
-
-
     }
 }
 
@@ -876,8 +846,6 @@ bool Parchis::isLegalMove(const Piece & piece, int dice_number) const{
     // No dejar trampas en meta o pasillo
     if((box.type == goal || box.type == final_queue || box.type == home) and dice_number == banana)
         return false;
-    //if(dice_number > 100)
-    //    return true;
     // Control de movimientos
     Box final_box = computeMove(piece, dice_number);
     // Controlar si barreras, si está en la casa el movimiento solo sería legal si dice_number == 5, ...
@@ -940,11 +908,9 @@ bool Parchis::isLegalMove(const Piece & piece, int dice_number) const{
             return false;
         }
 
-
         //Al hacerse grande no puede compartir casilla con una ficha del mismo color ni con una estrella.
         //Si hay solo una ficha en mi casilla acrtual soy yo, así que no me afecta.
         //Si hay dos fichas en mi casilla actual, solo puedo hacerme grande si la que no soy yo no es de mi color ni estrella.
-        //Problema: no puedo saber quién soy yo :)
         if (dice_number == mega_mushroom and boxState(final_box).size() > 1){
             // Si las dos fichas son de mi color, la ficha con la que comparto es de mi color y no puedo hacerme grande.
             if (boxState(final_box)[0].first == player and boxState(final_box)[1].first == player){
@@ -1116,8 +1082,6 @@ const Box Parchis::computeMove(const Piece & piece, int dice_number, bool * goal
     return final_box;
 }
 
-
-
 void Parchis::gameLoop(){
     // Incializar el juego para los jugadores por primera vez
     for (int i = 0; i < players.size(); i++)
@@ -1146,7 +1110,6 @@ void Parchis::gameLoop(){
         color winner_color = getColorWinner();
 
         cout << "Ha ganado el jugador " << winner << " (" << str(winner_color) << ")" << endl;
-        //cout << "Ha ganado el jugador " << winner << endl;
         if (illegalMove())
         {
             cout << "El jugador " << (winner == 1 ? 0 : 1) << " ha hecho un movimiento ilegal" << endl;
@@ -1163,7 +1126,6 @@ bool Parchis::gameStep(){
     cout << "----------------" << endl;
     cout << "Turno: " << turn << endl;
     cout << "Jugador actual: " << this->current_player+1 << " (" << this->players.at(current_player)->getName() << ")" << endl;
-    //cout << "Color actual: " << str(this->current_color) << endl;
     cout << "----------------" << endl;
 
     // El jugador actual hace su movimiento.
@@ -1244,36 +1206,6 @@ int Parchis::getWinner() const{
 
         break;
     }
-
-    //Recorro mis colores
-    /*vector<color> my_colors = this->getPlayerColors(0);
-    bool he_ganao = true;
-    for(int i = 0; i < my_colors.size() && he_ganao; i++){
-        color col = my_colors.at(i);
-        Box goal(0, box_type::goal, col);
-        if(boxState(goal).size() != board.getPieces(col).size()){
-            he_ganao = false;
-        }
-    }
-    if(he_ganao){
-        return 0;
-    }else{
-        // Recorro los colores de mi oponente
-        vector<color> other_colors = this->getPlayerColors(1);
-        bool he_perdio  = true;
-        for(int i = 0; i < other_colors.size() && he_perdio; i++){
-            color col = other_colors.at(i);
-            Box goal(0, box_type::goal, col);
-            if(boxState(goal).size() != board.getPieces(col).size()){
-                he_perdio = false;
-            }
-        }
-        if(he_perdio){
-            return 1;
-        }else{
-            return -1;
-        }
-    }*/
 }
 
 color Parchis::getColorWinner() const{
@@ -1295,6 +1227,150 @@ bool Parchis::illegalMove() const{
 
 bool Parchis::overBounce() const{
     return this->overbounce_player != -1;
+}
+
+Parchis Parchis::generateNextMoveDescending(color & c_piece,  int & id_piece, int & dice) const{
+    color main_color = this->getCurrentColor();
+    bool change_dice = false;
+    vector<int> current_dices = this->getAllAvailableDices(main_color);
+    vector<tuple<color,int>> current_pieces;
+    int curr_dice_value = -1;
+
+    bool check_skip = false;
+
+    //Si dice tiene valor por defecto, cojo el último.
+    if (dice == -1){
+        dice = current_dices.size() - 1;
+    }
+    curr_dice_value = current_dices.at(dice);
+
+    do{
+        current_pieces = this->getAvailablePieces(main_color, curr_dice_value);
+        change_dice = false;
+        check_skip = false;
+        // Busco el par (c_piece, id_piece) que moví la última vez.
+        // Si current_pieces está vacío, miro si puedo pasar de turno.
+        // Si id_piece es -1, me quedo el primero.
+        // Si no, me quedo el siguiente.
+        if(!current_pieces.empty()){
+            if(id_piece == -1){
+                c_piece = get<0>(current_pieces.front());
+                id_piece = get<1>(current_pieces.front());
+            }else{
+                for(int i = 0; i < current_pieces.size(); i++){
+                    if(get<0>(current_pieces.at(i)) == c_piece && get<1>(current_pieces.at(i)) == id_piece){
+                        if(i == current_pieces.size() - 1){
+                            check_skip = true;
+                        }else{
+                            c_piece = get<0>(current_pieces.at(i+1));
+                            id_piece = get<1>(current_pieces.at(i+1));
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        else{
+            check_skip = true;
+        }
+
+        // si tengo que comprobar si puedo pasar de turno, lo hago.
+        // Si puedo, id_piece = SKIP_TURN
+        // Si no puedo, cambio el dado.
+        if(check_skip){
+            if(this->canSkipTurn(main_color, curr_dice_value) && id_piece != SKIP_TURN){
+                id_piece = SKIP_TURN;
+                change_dice = false;
+                c_piece = main_color;
+            }else{
+                change_dice = true;
+            }
+        }
+
+        // Si tengo que cambiar de dado, lo hago.
+        if(change_dice){
+            //Los recorro en orden DESCENDENTE
+            if(dice == 0){
+                return *this;
+            }else{
+                dice--;
+                curr_dice_value = current_dices.at(dice);
+                id_piece = -1;
+            }
+        }
+    }while(change_dice);
+
+    Parchis next_move(*this);
+    next_move.movePiece(c_piece, id_piece, curr_dice_value);
+    return next_move;
+}
+
+void Parchis::setPlaygroundMode(){
+    this->playground_mode = true;
+    // Cambiar el tablero.
+    this->board = Board(PLAYGROUND);
+    // Add the special dices to the players.
+    this->dice.addSpecialDice(yellow, banana);
+    this->dice.addSpecialDice(blue, mushroom);
+    this->dice.addSpecialDice(yellow, red_shell);
+    this->dice.addSpecialDice(blue, horn);
+    this->dice.addSpecialDice(yellow, bullet);
+    this->dice.addSpecialDice(blue, blue_shell);
+    this->dice.addSpecialDice(yellow, boo);
+    this->dice.addSpecialDice(blue, shock);
+    this->dice.addSpecialDice(yellow, star);
+    this->dice.addSpecialDice(blue, mega_mushroom);
+}
+
+/***************************************** PARCHISBROS *****************************************/
+
+ParchisBros Parchis::getChildren() const{
+    return ParchisBros(*this);
+}
+
+ParchisBros::ParchisBros(const Parchis &p){
+    this->parent = make_shared<Parchis>(p);
+}
+
+ParchisBros::Iterator ParchisBros::begin(){
+    color last_c_piece = none;
+    int last_id_piece = -1;
+    int last_dice = -1;
+    shared_ptr<Parchis> nuevo_hijo = make_shared<Parchis>(parent->generateNextMoveDescending(last_c_piece, last_id_piece, last_dice));
+    return ParchisBros::Iterator(*this, nuevo_hijo, last_c_piece, last_id_piece, last_dice);
+}
+
+ParchisBros::Iterator::Iterator(ParchisBros & out, shared_ptr<Parchis> &p, color last_c_piece, int last_id_piece, int last_dice)
+: container(&out){
+    this->actual = p;
+    this->last_c_piece = last_c_piece;
+    this->last_id_piece = last_id_piece;
+    this->last_dice = last_dice;
+    if (last_dice != -1)
+        this->dice_value = container->parent->getAllAvailableDices(container->parent->getCurrentColor()).at(last_dice);
+}
+
+ParchisBros::Iterator & ParchisBros::Iterator::operator++(){
+    actual = make_shared<Parchis>(container->parent->generateNextMoveDescending(last_c_piece, last_id_piece, last_dice));
+    if (last_dice != -1)
+        this->dice_value = container->parent->getAllAvailableDices(container->parent->getCurrentColor()).at(last_dice);
+    return *this;
+}
+
+bool ParchisBros::Iterator::operator==(const ParchisBros::Iterator & it) const{
+    return (*(this->actual) == *(it.actual));
+}
+
+bool ParchisBros::Iterator::operator!=(const ParchisBros::Iterator & it) const{
+    return !(*(this->actual) == *(it.actual));
+}
+
+Parchis & ParchisBros::Iterator::operator*() const{
+    return *actual;
+}
+
+ParchisBros::Iterator ParchisBros::end(){
+    return ParchisBros::Iterator(*this, parent, none, -1, -1);
 }
 
 /**************************** MÉTODOS PARA LA HEURÍSTICA *********************/
@@ -1432,343 +1508,6 @@ int Parchis::distanceBoxtoBox(color player1, int id_p1, color player2, int id_p2
     return distanceBoxtoBox(player1, this->board.getPiece(player1, id_p1).get_box(), this->board.getPiece(player2, id_p2).get_box());
 }
 
-Parchis Parchis::generateNextMove(color & c_piece,  int & id_piece, int & dice) const{
-    c_piece = this->getCurrentColor();
-    bool change_dice = false;
-    vector<int> current_dices;
-    vector<tuple<color,int>> current_pieces;
-
-    //Si dice tiene valor por defecto, cojo el primero.
-    if (dice == -1){
-        dice = this->getAvailableDices(c_piece).at(0);
-    }
-
-    do{
-        //Compruebo si quedan movimientos legales con dice
-        current_pieces = this->getAvailablePieces(c_piece, dice);
-        //partner_current_pieces = this->getAvailablePieces(partner_color(c_piece), dice);
-
-        //Unimos las fichas disponibles con cada uno de los 2 colores
-        // current_pieces.insert(current_pieces.end(), partner_current_pieces.begin(), partner_current_pieces.end());
-
-        if (current_pieces.size() > 0){
-            //Si id_piece tiene valor por defecto, cojo el primero.
-            if(id_piece == -1){
-                id_piece = get<1>(current_pieces.at(0));
-                c_piece = get<0>(current_pieces.at(0));
-                change_dice = false;
-            }
-            else{
-                //Siguiente pieza a id_piece
-                for(int i = 0; i < current_pieces.size(); i++){
-                    //Compruebo si hay más piezas disponibles
-                    if(get<1>(current_pieces.at(i)) == id_piece){
-                        //Si no los hay
-                        if (i == current_pieces.size() - 1){
-                            //Compruebo si puedo pasar de turno
-                            c_piece = get<0>(current_pieces.at(i));
-                            if(this->canSkipTurn(this->getCurrentColor(), dice) && id_piece != SKIP_TURN){
-                                id_piece = SKIP_TURN;
-                                change_dice = false;
-                            }
-                            // Si no, cambio de dado
-                            else{
-                                change_dice = true;
-                            }
-                        }
-                        // Si sí las hay, cojo la siguiente
-                        else{
-                            id_piece = get<1>(current_pieces.at(i+1));
-                            c_piece = get<0>(current_pieces.at(i+1));
-                            change_dice = false;
-                        }
-                        break;
-                    }
-                }
-
-            }
-        // Si no, compruebo si puedo pasar turno con ese dado.
-        }else if(this->canSkipTurn(this->getCurrentColor(), dice) && id_piece != SKIP_TURN){
-            id_piece = SKIP_TURN;
-            change_dice = false;
-        }
-        // Si no, cambio de dado.
-        else{
-            //Siguiente dado
-            change_dice = true;
-        }
-
-        //Si tengo que cambiar de dado
-        if(change_dice){
-            //Compruebo los disponibles
-            current_dices = this->getAvailableDices(this->getCurrentColor());
-            //Los recorro en orden ASCENDENTE
-            for(int j = 0; j < current_dices.size(); j++){
-                if(current_dices.at(j) == dice){
-                    //Si no hay más, me salgo
-                    if(j == current_dices.size() -1){
-                        return *this;
-                    //Si sí hay, cojo el siguiente
-                    }else{
-                        dice = current_dices.at(j+1);
-                        id_piece = -1;
-                        break;
-                    }
-                }
-            }
-        }
-    }while(change_dice);
-
-    Parchis next_move(*this);
-    next_move.movePiece(c_piece, id_piece, dice);
-    return next_move;
-
-}
-
-/*
-Parchis Parchis::generateNextMoveDescending(color & c_piece,  int & id_piece, int & dice) const{
-    c_piece = this->getCurrentColor();
-    bool change_dice = false;
-    vector<int> current_dices;
-    vector<tuple<color,int>> current_pieces;
-    //Si dice tiene valor por defecto, cojo el primero.
-    if (dice == -1){
-        dice = this->getAvailableDices(c_piece).back();
-    }
-    do{
-        //Compruebo si quedan movimientos legales con dice
-        current_pieces = this->getAvailablePieces(c_piece, dice);
-        if (current_pieces.size() > 0){
-            //Si id_piece tiene valor por defecto, cojo el primero.
-            if(id_piece == -1){
-                id_piece = get<1>(current_pieces.at(0));
-                c_piece = get<0>(current_pieces.at(0));
-                change_dice = false;
-            }
-            else{
-                //Siguiente pieza a id_piece
-                vector<int> pieces_color;
-                vector<int> pieces_partner;
-                for(int i = 0; i < current_pieces.size(); i++){
-                    if(get<0>(current_pieces.at(i)) == c_piece){
-                        pieces_color.push_back(get<1>(current_pieces.at(i)));
-                    }
-                    else{
-                        pieces_partner.push_back(get<1>(current_pieces.at(i)));
-                    }
-                }
-                if(this->canSkipTurn(this->getCurrentColor(), dice) && id_piece != SKIP_TURN){
-                    id_piece = SKIP_TURN;
-                    change_dice = false;
-                }else{
-                    //Recorrer pieces_color
-                    for(int i = 0; i < pieces_color.size(); i++){
-                        //Compruebo si hay más piezas disponibles
-                        if(pieces_color.at(i) == id_piece){
-                            //Si no los hay
-                            if (i == pieces_color.size() - 1){
-                                //Compruebo si puedo pasar de turno
-                                c_piece = partner_color(c_piece);
-                                if(this->canSkipTurn(this->getCurrentColor(), dice) && id_piece != SKIP_TURN){
-                                    id_piece = SKIP_TURN;
-                                    change_dice = false;
-                                }
-                                // Si no, cambio de dado
-                                else{
-                                    change_dice = true;
-                                }
-                            }
-                            // Si sí las hay, cojo la siguiente
-                            else{
-                                id_piece = pieces_color.at(i+1);
-                                change_dice = false;
-                            }
-                            break;
-                        }
-                    }
-                for(int i = 0; i < pieces_color.size(); i++){
-                    //Compruebo si hay más piezas disponibles
-                    if(pieces_color.at(i) == id_piece){
-                        //Si no los hay
-                        if (i == pieces_color.size() - 1){
-                            //Compruebo si puedo pasar de turno
-                            c_piece = partner_color(c_piece);
-                            if(this->canSkipTurn(this->getCurrentColor(), dice) && id_piece != SKIP_TURN){
-                                id_piece = SKIP_TURN;
-                                change_dice = false;
-                            }
-                            // Si no, cambio de dado
-                            else{
-                                change_dice = true;
-                            }
-                        }
-                        // Si sí las hay, cojo la siguiente
-                        else{
-                            id_piece = pieces_color.at(i+1);
-                            change_dice = false;
-                        }
-                        break;
-                    }
-                }
-                for(int i = 0; i < current_pieces.size(); i++){
-                    //Compruebo si hay más piezas disponibles
-                    if(get<1>(current_pieces.at(i)) == id_piece && (get<0>(current_pieces.at(i)) == c_piece){
-                        //Si no las hay
-                        if (i == current_pieces.size() - 1){
-                            //Compruebo si puedo pasar de turno
-                            //Si estaba recorriendo el color principal, paso al partner
-                            if(get<0>(current_pieces.at(i)) == color::yellow || get<0>(current_pieces.at(i)) == color::blue){
-                                c_piece = partner_color(c_piece);
-                                id_piece = -1;
-                            // Si no, cambio dado
-                            }
-                            else if(this->canSkipTurn(c_piece, dice) && id_piece != SKIP_TURN){
-                                id_piece = SKIP_TURN;
-                                change_dice = false;
-                            }
-                            else{
-                                change_dice = true;
-                            }
-                        }
-                        //Si sí las hay, cojo la siguiente
-                        else{
-                            id_piece = get<1>(current_pieces.at(i+1));
-                            change_dice = false;
-                        }
-                        break;
-                    }
-                }
-            }
-        // Si no, compruebo si puedo pasar turno con ese dado.
-        }else if(this->canSkipTurn(c_piece, dice) && id_piece != SKIP_TURN){
-            id_piece = SKIP_TURN;
-            change_dice = false;
-        }
-        // Si no, cambio de dado
-        else{
-            //Siguiente dado
-            change_dice = true;
-        }
-        //Si tengo que cambiar de dado
-        if(change_dice){
-            //Compruebo dados disponibles
-            current_dices = this->getAvailableDices(c_piece);
-            //Los recorro en orden DESCENDENTE
-            for(int j = current_dices.size() - 1; j >= 0; j--){
-                if(current_dices.at(j) == dice){
-                    //Si no hay más, me salgo
-                    if(j == 0){
-                        return *this;
-                    //Si sí hay, cojo el anterior
-                    }else{
-                        dice = current_dices.at(j-1);
-                        id_piece = -1;
-                        break;
-                    }
-                }
-            }
-        }
-    }while(change_dice);
-    Parchis next_move(*this);
-    next_move.movePiece(c_piece, id_piece, dice);
-    return next_move;
-}*/
-
-Parchis Parchis::generateNextMoveDescending(color & c_piece,  int & id_piece, int & dice) const{
-    color main_color = this->getCurrentColor();
-    bool change_dice = false;
-    vector<int> current_dices = this->getAllAvailableDices(main_color);
-    vector<tuple<color,int>> current_pieces;
-    int curr_dice_value = -1;
-
-    bool check_skip = false;
-
-    //if (this->turn >= 70){
-        //cout << "c_piece " << c_piece << " id_piece " << id_piece << " dice " << dice << endl;
-    //}
-
-    //Si dice tiene valor por defecto, cojo el último.
-    if (dice == -1){
-        //dice = current_dices.back();
-        dice = current_dices.size() - 1;
-    }
-    curr_dice_value = current_dices.at(dice);
-
-    do{
-        current_pieces = this->getAvailablePieces(main_color, curr_dice_value);
-        change_dice = false;
-        check_skip = false;
-        // Busco el par (c_piece, id_piece) que moví la última vez.
-        // Si current_pieces está vacío, miro si puedo pasar de turno.
-        // Si id_piece es -1, me quedo el primero.
-        // Si no, me quedo el siguiente.
-        if(!current_pieces.empty()){
-            if(id_piece == -1){
-                c_piece = get<0>(current_pieces.front());
-                id_piece = get<1>(current_pieces.front());
-            }else{
-                for(int i = 0; i < current_pieces.size(); i++){
-                    if(get<0>(current_pieces.at(i)) == c_piece && get<1>(current_pieces.at(i)) == id_piece){
-                        if(i == current_pieces.size() - 1){
-                            check_skip = true;
-                        }else{
-                            c_piece = get<0>(current_pieces.at(i+1));
-                            id_piece = get<1>(current_pieces.at(i+1));
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-        else{
-            check_skip = true;
-        }
-
-        // si tengo que comprobar si puedo pasar de turno, lo hago.
-        // Si puedo, id_piece = SKIP_TURN
-        // Si no puedo, cambio el dado.
-        if(check_skip){
-            if(this->canSkipTurn(main_color, curr_dice_value) && id_piece != SKIP_TURN){
-                id_piece = SKIP_TURN;
-                change_dice = false;
-                c_piece = main_color;
-            }else{
-                change_dice = true;
-            }
-        }
-
-        // Si tengo que cambiar de dado, lo hago.
-        if(change_dice){
-            //current_dices = this->getAvailableDices(main_color);
-            //Los recorro en orden DESCENDENTE
-            if(dice == 0){
-                return *this;
-            }else{
-                dice--;
-                curr_dice_value = current_dices.at(dice);
-                id_piece = -1;
-            }
-
-            /*
-            for(int i = current_dices.size() - 1; i >= 0; i--){
-                if(current_dices.at(i) == dice){
-                    if(i == 0){
-                        return *this;
-                    }else{
-                        dice = current_dices.at(i-1);
-                        id_piece = -1;
-                        break;
-                    }
-                }
-            }*/
-        }
-    }while(change_dice);
-
-    Parchis next_move(*this);
-    next_move.movePiece(c_piece, id_piece, curr_dice_value);
-    return next_move;
-}
-
 bool Parchis::isSafeBox(const Box & box) const{
     return (box.type == normal && find(safe_boxes.begin(), safe_boxes.end(), box.num) != safe_boxes.end());
 }
@@ -1787,7 +1526,6 @@ const color Parchis::isMegaWall(const Box & b) const{
         return none;
     }
 }
-
 
 const color Parchis::isWall(const Box & b) const{
     if(b.type == home || b.type == goal) return none;
@@ -1919,7 +1657,6 @@ const vector<BoardTrap> Parchis::anyTrap(const Box & b1, const Box & b2) const{
     return traps;
 }
 
-
 const vector<pair <color, int>> Parchis::allPiecesBetween(const Box & b1, const Box & b2) const{
     Box final_box;
     if (b2.type == final_queue || b2.type == goal){
@@ -1956,79 +1693,4 @@ const vector<pair <color, int>> Parchis::allPiecesBetween(const Box & b1, const 
         }
     }
     return pieces;
-}
-
-void Parchis::setPlaygroundMode(){
-    this->playground_mode = true;
-    // Cambiar el tablero.
-    this->board = Board(PLAYGROUND);
-    // Add the special dices to the players.
-    this->dice.addSpecialDice(yellow, banana);
-    this->dice.addSpecialDice(blue, mushroom);
-    this->dice.addSpecialDice(yellow, red_shell);
-    this->dice.addSpecialDice(blue, horn);
-    this->dice.addSpecialDice(yellow, bullet);
-    this->dice.addSpecialDice(blue, blue_shell);
-    this->dice.addSpecialDice(yellow, boo);
-    this->dice.addSpecialDice(blue, shock);
-    this->dice.addSpecialDice(yellow, star);
-    this->dice.addSpecialDice(blue, mega_mushroom);
-
-
-}
-
-ParchisBros Parchis::getChildren() const{
-    return ParchisBros(*this);
-}
-
-ParchisBros::ParchisBros(const Parchis &p){
-    this->parent = make_shared<Parchis>(p);
-}
-
-ParchisBros::Iterator ParchisBros::begin(){
-    color last_c_piece = none;
-    int last_id_piece = -1;
-    int last_dice = -1;
-    shared_ptr<Parchis> nuevo_hijo = make_shared<Parchis>(parent->generateNextMoveDescending(last_c_piece, last_id_piece, last_dice));
-    return ParchisBros::Iterator(*this, nuevo_hijo, last_c_piece, last_id_piece, last_dice);
-}
-
-ParchisBros::Iterator::Iterator(ParchisBros & out, shared_ptr<Parchis> &p, color last_c_piece, int last_id_piece, int last_dice)
-: container(&out){
-    this->actual = p;
-    this->last_c_piece = last_c_piece;
-    this->last_id_piece = last_id_piece;
-    this->last_dice = last_dice;
-    if (last_dice != -1)
-        this->dice_value = container->parent->getAllAvailableDices(container->parent->getCurrentColor()).at(last_dice);
-}
-
-/*
-ParchisBros::Iterator ParchisBros::Iterator::operator++(int){
-    actual = make_shared<Parchis>(parent->generateNextMoveDescending(last_c_piece, last_id_piece, last_dice));
-    return ParchisBros::Iterator(nuevo_hijo, last_c_piece, last_id_piece, last_dice);
-}*/
-
-ParchisBros::Iterator & ParchisBros::Iterator::operator++(){
-    actual = make_shared<Parchis>(container->parent->generateNextMoveDescending(last_c_piece, last_id_piece, last_dice));
-    if (last_dice != -1)
-        this->dice_value = container->parent->getAllAvailableDices(container->parent->getCurrentColor()).at(last_dice);
-    return *this;
-}
-
-
-bool ParchisBros::Iterator::operator==(const ParchisBros::Iterator & it) const{
-    return (*(this->actual) == *(it.actual));
-}
-
-bool ParchisBros::Iterator::operator!=(const ParchisBros::Iterator & it) const{
-    return !(*(this->actual) == *(it.actual));
-}
-
-Parchis & ParchisBros::Iterator::operator*() const{
-    return *actual;
-}
-
-ParchisBros::Iterator ParchisBros::end(){
-    return ParchisBros::Iterator(*this, parent, none, -1, -1);
 }
