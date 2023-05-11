@@ -19,37 +19,111 @@ using namespace std;
 class Player;
 
 class ParchisBros{
+    //Clase que almacena los hijos (bros) de un nodo de Parchis (parent).
     private:
+        //Nodo padre del cual se generan los hijos.
         shared_ptr<Parchis> parent;
     public:
+        //Clase iteradora para iterar sobre los hijos de parent.
         class Iterator{
             private:
+                //Puntero al nodo actual.
                 shared_ptr<Parchis> actual;
+                //Último movimiento realizado (color).
                 color last_c_piece;
+                //Último movimiento realizado (id de la ficha).
                 int last_id_piece;
+                //Último dado utilizado (índice).
                 int last_dice;
+                //Último valor del dado utilizado.
                 int dice_value;
 
+                //Puntero al contenedor.
                 ParchisBros * container;
 
             public:
+                /**
+                 * @brief Constructor de un nuevo objeto de Iterator.
+                 *
+                 * @param container
+                 * @param p
+                 * @param last_c_piece
+                 * @param last_id_piece
+                 * @param last_dice
+                 */
                 Iterator(ParchisBros & container, shared_ptr<Parchis> &p, color last_c_piece = none, int last_id_piece = -1, int last_dice = -1);
+
+                /**
+                 * @brief Método que devuelve el siguiente hijo del nodo actual.
+                 *
+                 * @return Iterator
+                 */
                 Iterator & operator++();
-                //Iterator operator++(int);
+
+                /**
+                 * @brief Sobrecarga del operador== para comparar dos iteradores.
+                 *
+                 * @return true
+                 * @return false
+                 */
                 bool operator==(const Iterator & it) const;
+
+                /**
+                 * @brief Sobrecarga del operador!= para comparar dos iteradores.
+                 *
+                 * @return true
+                 * @return false
+                 */
                 bool operator!=(const Iterator & it) const;
+
+                /**
+                 * @brief Sobrecarga del operador* para devolver el puntero al nodo actual.
+                 *
+                 * @return Parchis&
+                 */
                 Parchis & operator*() const;
 
+                /**
+                 * @brief Método que devuelve el valor del último dado utilizado.
+                 *
+                 * @return dice_value
+                 */
                 inline int getMovedDiceValue() const {return dice_value;}
+
+                /**
+                 * @brief Método que devuelve el color de la última ficha movida.
+                 *
+                 * @return last_c_piece
+                 */
                 inline color getMovedColor() const {return last_c_piece;}
+
+                /**
+                 * @brief Método que devuelve el id de la última ficha movida.
+                 *
+                 * @return last_id_piece
+                 */
                 inline int getMovedPieceId() const {return last_id_piece;}
-
-
         };
 
+        /**
+         * @brief Constructor de un nuevo objeto de ParchisBros.
+         *
+         * @param p
+         */
         ParchisBros(const Parchis & p);
 
+        /**
+         * @brief Método que devuelve un iterador al primer hijo del nodo.
+         *
+         * @return Iterator
+         */
         Iterator begin();
+
+        /**
+         * @brief Método que devuelve un iterador al último hijo del nodo.
+         *
+         * @return Iterator
+         */
         Iterator end();
 
 
@@ -400,6 +474,13 @@ class Parchis{
          */
         const vector<tuple <color, int, Box, Box>> & getLastMoves() const;
 
+        /**
+         * @brief Get the Children object
+         *
+         * @return ParchisBros
+         */
+        ParchisBros getChildren() const;
+
 
         /****************************************************************/
 
@@ -627,22 +708,73 @@ class Parchis{
             return bounces.at(player);
         }
 
+        /**
+         * @brief Función que genera el siguiente movimiento siguiendo un orden
+         * descendente de los dados.
+         *
+         * Estos métodos funcionan de la siguiente forma. Dado un estado del juego, a partir de los parámetros
+         * de color, id de ficha y dado que se le pasen por referencia, asociados a un determinado movimiento
+         * en el tablero, determinará el siguiente hijo que se expandirá en el árbol de búsqueda.
+         * Los parámetros se actualizarán de forma que se correspondan con el movimiento necesario para generar
+         * el nuevo hijo desarrollado. Inicialmente, para generar el primer hijo de una ramificación, se deben
+         * pasar los parámetros inicializados a -1.
+         *
+         * @param c_piece
+         * @param id_piece
+         * @param dice
+         * @return Parchis
+         */
+        Parchis generateNextMoveDescending(color & c_piece,  int & id_piece, int & dice) const;
 
+
+        /**
+         * @brief Función que devuelve la variable update_board
+         *
+         * @return true
+         * @return false
+         */
         inline const bool updateBoard(){
             return this->update_board;
         }
 
+        /**
+         * @brief Función que devuelve la variable update_dice
+         *
+         * @return true
+         * @return false
+         */
         inline const bool updateDice(){
             return this->update_dice;
         }
 
+        /**
+         * @brief Función que devuelve la variable update_dice
+         *
+         */
         inline void sendUpdatedBoardSignal(){
             this->update_board = false;
         }
 
+        /**
+         * @brief Función que actualiza a false el valor de update_dice
+         *
+         */
         inline void sendUpdatedDiceSignal(){
             this->update_dice = false;
         }
+
+        /**
+         * @brief Activa el modo creativo.
+         *
+         */
+        void setPlaygroundMode();
+
+        /**
+         * @brief Indica si la partida es en modo creativo o no.
+         *
+         */
+        inline bool isPlaygroundMode() const { return this->playground_mode; }
+
         /**************************** MÉTODOS PARA LA HEURÍSTICA *********************/
 
         /**
@@ -712,41 +844,6 @@ class Parchis{
          */
         int distanceBoxtoBox(color player1, int id_p1, color player2, int id_p2) const;
 
-        /**
-         * @brief Función que genera el siguiente movimiento siguiendo un orden
-         * ascendente de los dados.
-         *
-         * Estos métodos funcionan de la siguiente forma. Dado un estado del juego, a partir de los parámetros
-         * de color, id de ficha y dado que se le pasen por referencia, asociados a un determinado movimiento
-         * en el tablero, determinará el siguiente hijo que se expandirá en el árbol de búsqueda.
-         * Los parámetros se actualizarán de forma que se correspondan con el movimiento necesario para generar
-         * el nuevo hijo desarrollado. Inicialmente, para generar el primer hijo de una ramificación, se deben
-         * pasar los parámetros inicializados a -1.
-         *
-         * @param c_piece
-         * @param id_piece
-         * @param dice
-         * @return Parchis
-         */
-        Parchis generateNextMove(color & c_piece,  int & id_piece, int & dice) const;
-
-        /**
-         * @brief Función que genera el siguiente movimiento siguiendo un orden
-         * descendente de los dados.
-         *
-         * Estos métodos funcionan de la siguiente forma. Dado un estado del juego, a partir de los parámetros
-         * de color, id de ficha y dado que se le pasen por referencia, asociados a un determinado movimiento
-         * en el tablero, determinará el siguiente hijo que se expandirá en el árbol de búsqueda.
-         * Los parámetros se actualizarán de forma que se correspondan con el movimiento necesario para generar
-         * el nuevo hijo desarrollado. Inicialmente, para generar el primer hijo de una ramificación, se deben
-         * pasar los parámetros inicializados a -1.
-         *
-         * @param c_piece
-         * @param id_piece
-         * @param dice
-         * @return Parchis
-         */
-        Parchis generateNextMoveDescending(color & c_piece,  int & id_piece, int & dice) const;
 
         /**
          * @brief Función que devuelve si una determinada casilla es segura o no.
@@ -777,8 +874,13 @@ class Parchis{
          */
         const color isWall(const Box & b) const;
 
-
-
+        /**
+         * @brief Función que devuelve el color de la mega barrera (en caso de haberla) en la casilla "b".
+         * Es decir, si hay una barrera formada por una mega ficha devuelve el color de dicha ficha.
+         *
+         * @param b
+         * @return const color
+         */
         const color isMegaWall(const Box & b) const;
 
         /**
@@ -798,13 +900,39 @@ class Parchis{
          */
         const vector<color> anyWall(const Box & b1, const Box & b2) const;
 
-
+        /**
+         * @brief Función que devuelve un vector de trampas entre b1 y b2, en caso de haberlas.
+         * En caso contrario, devuelve un vector vacío.
+         *
+         * @param b1
+         * @param b2
+         * @return const vector<BoardTrap>
+         */
         const vector<BoardTrap> anyTrap(const Box & b1, const Box & b2) const;
 
-
+        /**
+         * @brief Función que devuelve el vector de colores de las mega barreras (en caso de haberlas) del
+         * camino entre b1 y b2.
+         *
+         * Esto es, se va recorriendo todas las casillas que habría que recorrer para ir de b1 y b2,
+         * y siempre que se encuentran una mega ficha en una casilla se añade ese color al vector que se devuelve.
+         *
+         *
+         * @param b1
+         * @param b2
+         * @return const vector<color>
+         */
         const vector<color> anyMegaWall(const Box & b1, const Box & b2) const;
 
-
+        /**
+         * @brief Función que devuelve todas las fichas que hay entre la casilla b1 y la b2.
+         * Va recorriendo todas las casillas por las que habría que pasar para ir de b1 a b2 y
+         * añadiendo al vector pares con la ocupación de las casillas de la forma {color, num_ficha}.
+         *
+         * @param b1
+         * @param b2
+         * @return const vector<pair <color, int>>
+         */
         const vector<pair <color, int>> allPiecesBetween(const Box & b1, const Box & b2) const;
 
         /**
@@ -814,20 +942,6 @@ class Parchis{
          * @return vector<color>
          */
         vector<color> getPlayerColors(int player) const;
-
-        /**
-         * @brief Activa el modo creativo.
-         *
-         */
-        void setPlaygroundMode();
-
-        /**
-         * @brief Indica si la partida es en modo creativo o no.
-         *
-         */
-        inline bool isPlaygroundMode() const { return this->playground_mode; }
-
-        ParchisBros getChildren() const;
 };
 
 
