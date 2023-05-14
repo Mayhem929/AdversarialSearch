@@ -169,6 +169,8 @@ class Parchis{
         bool remember_6;
         bool bananed;
 
+        pair <color, int> eaten_piece;
+
         bool red_shell_move;
         bool blue_shell_move;
         bool star_move;
@@ -176,6 +178,15 @@ class Parchis{
         bool horn_move;
         bool shock_move;
         bool boo_move;
+
+        vector <pair <color, int>> pieces_destroyed_by_star;
+        vector <pair <color, int>> pieces_crushed_by_megamushroom;
+        vector <pair <color, int>> pieces_destroyed_by_red_shell;
+        vector <pair <color, int>> pieces_destroyed_by_blue_shell;
+        vector <pair <color, int>> pieces_destroyed_by_horn;
+
+        item_type last_acquired;
+
 
         //Definición de casillas especiales
         static const int final_red_box = 34;
@@ -518,32 +529,151 @@ class Parchis{
         const vector<tuple<color,int>> getAvailablePieces (color player, int dice_number) const;
 
         /**
-         * @brief Obtener los números del dado disponibles para el jugador de color player.
+         * @brief Función que devuelve todas las fichas del jugador número player que pueden
+         * hacer un movimiento según el valor del dado dice_number.
+         *
+         * Por ejemplo, si dice_number = 3, las fichas que se encuentran en home
+         * no aparecerán como disponibles.
+         *
+         * También se gestionan las barreras y otros casos particulares.
          *
          * @param player
          * @param dice_number
          * @return const vector<int>&
          */
-        inline const vector<int> getAvailableDices (color player) const{
+        inline const vector<tuple<color, int>> getAvailablePieces(int player, int dice_number) const{
+            return getAvailablePieces(this->getPlayerColors(player)[0], dice_number);
+        }
+
+        /**
+         * @brief Obtener los números del dado disponibles para el jugador de color player.
+         * IMPORTANTE: Esta función devuelve solo los dados que se pueden usar en el turno actual,
+         * independientemente de que el jugador tenga en su mano más dados.
+         * (Por ejemplo, si le toca contarse 10 o 20 solo se devolverán dichos dados).
+         *
+         * @param player
+         * @param dice_number
+         * @return const vector<int>&
+         */
+        inline const vector<int> getAvailableNormalDices (color player) const{
             return dice.getDice(player);
         }
 
         /**
+         * @brief Obtener los números del dado disponibles para el jugador número player.
+         * IMPORTANTE: Esta función devuelve solo los dados que se pueden usar en el turno actual,
+         * independientemente de que el jugador tenga en su mano más dados.
+         * (Por ejemplo, si le toca contarse 10 o 20 solo se devolverán dichos dados).
+         *
+         * @param player
+         * @param dice_number
+         * @return const vector<int>&
+         */
+        inline const vector<int> getAvailableNormalDices(int player) const
+        {
+            return dice.getDice(this->getPlayerColors(player)[0]);
+        }
+
+        /**
          * @brief Obtener los dados especiales disponibles para el jugador de color player.
+         * IMPORTANTE: Esta función devuelve solo los dados que se pueden usar en el turno actual,
+         * independientemente de que el jugador tenga en su mano más dados.
+         * (Por ejemplo, si le toca contarse 10 o 20 no se devolverá ningún dado).
          *
          */
         inline const vector<int> getAvailableSpecialDices (color player) const{
-            return dice.getSpecialDice(player);
+            return (dice.getAllDiceLayers(player).size() < 3)?dice.getSpecialDice(player):vector<int>();
+        }
+
+        /**
+         * @brief Obtener los dados especiales disponibles para el jugador número player.
+         * IMPORTANTE: Esta función devuelve solo los dados que se pueden usar en el turno actual,
+         * independientemente de que el jugador tenga en su mano más dados.
+         * (Por ejemplo, si le toca contarse 10 o 20 no se devolverá ningún dado).
+         *
+         */
+        inline const vector<int> getAvailableSpecialDices(int player) const{
+            return getAvailableSpecialDices(this->getPlayerColors(player)[0]);
         }
 
         /**
          * Obtener todos los dados disponibles, incluyendo normales y especiales.
+         * IMPORTANTE: Esta función devuelve solo los dados que se pueden usar en el turno actual,
+         * independientemente de que el jugador tenga en su mano más dados.
+         * (Por ejemplo, si le toca contarse 10 o 20 solo se devolverán dichos dados).
          */
         inline const vector<int> getAllAvailableDices (color player) const{
             vector<int> all_dices = dice.getDice(player);
-            vector<int> special_dices = dice.getSpecialDice(player);
+            vector<int> special_dices = getAvailableSpecialDices(player);
             all_dices.insert(all_dices.end(), special_dices.begin(), special_dices.end());
             return all_dices;
+        }
+
+        /**
+         * @brief Obtener todos los dados disponibles, incluyendo normales y especiales.
+         * IMPORTANTE: Esta función devuelve solo los dados que se pueden usar en el turno actual,
+         * independientemente de que el jugador tenga en su mano más dados.
+         * (Por ejemplo, si le toca contarse 10 o 20 solo se devolverán dichos dados).
+         */
+        inline const vector<int> getAllAvailableDices(int player) const{
+            return getAllAvailableDices(this->getPlayerColors(player)[0]);
+        }
+
+        /**
+         * @brief Obtener todos los dados normales para el jugador de color player.
+         * IMPORTANTE: esto incluye todos los dados normales del 1 al 6 que tenga el jugador en su mano en ese momento,
+         * aunque en el turno en cuestión no pueda usarlos (por ejemplo, si tiene que contarse obligatoriamente 10 o 20).
+         */
+        inline const vector<int> getNormalDices(color player) const{
+            return dice.getAllDiceLayers(player)[0];
+        }
+
+        /**
+         * @brief Obtener todos los dados normales para el jugador número player.
+         * IMPORTANTE: esto incluye todos los dados normales del 1 al 6 que tenga el jugador en su mano en ese momento,
+         * aunque en el turno en cuestión no pueda usarlos (por ejemplo, si tiene que contarse obligatoriamente 10 o 20).
+         */
+        inline const vector<int> getNormalDices(int player) const{
+            return dice.getAllDiceLayers(this->getPlayerColors(player)[0])[0];
+        }
+
+        /**
+         * @brief Obtener todos los dados especiales para el jugador de color player.
+         * IMPORTANTE: esto incluye todos los dados especiales que tenga el jugador en su mano en ese momento,
+         * aunque en el turno en cuestión no pueda usarlos (por ejemplo, si tiene que contarse obligatoriamente 10 o 20).
+         */
+        inline const vector<int> getSpecialDices(color player) const{
+            return dice.getAllDiceLayers(player)[1];
+        }
+
+        /**
+         * @brief Obtener todos los dados especiales para el jugador número player.
+         * IMPORTANTE: esto incluye todos los dados especiales que tenga el jugador en su mano en ese momento,
+         * aunque en el turno en cuestión no pueda usarlos (por ejemplo, si tiene que contarse obligatoriamente 10 o 20).
+         */
+        inline const vector<int> getSpecialDices(int player) const{
+            return dice.getAllDiceLayers(this->getPlayerColors(player)[0])[1];
+        }
+
+        /**
+         * @brief Obtener todos los dados para el jugador de color player.
+         * IMPORTANTE: esto incluye todos los dados que tenga el jugador en su mano en ese momento,
+         * aunque en el turno en cuestión no pueda usarlos (por ejemplo, si tiene que contarse obligatoriamente 10 o 20).
+         */
+        inline const vector<int> getAllDices(color player) const{
+            vector<int> all_dices = dice.getAllDiceLayers(player)[0];
+            vector<int> special_dices = dice.getAllDiceLayers(player)[1];
+            all_dices.insert(all_dices.end(), special_dices.begin(), special_dices.end());
+            return all_dices;
+        }
+
+        /**
+         * @brief Obtener todos los dados para el jugador número player.
+         * IMPORTANTE: esto incluye todos los dados que tenga el jugador en su mano en ese momento,
+         * aunque en el turno en cuestión no pueda usarlos (por ejemplo, si tiene que contarse obligatoriamente 10 o 20).
+         */
+        inline const vector<int> getAllDices(int player) const{
+            return getAllDices(this->getPlayerColors(player)[0]);
         }
 
         /**
@@ -785,6 +915,15 @@ class Parchis{
         int piecesAtGoal(color player) const;
 
         /**
+        * @brief Devuelve el número de fichas de un color que estan en casa.
+        *
+        * Thanks Mario :)
+        * 
+        * @return int
+        */
+        int piecesAtHome(color player) const;
+
+        /**
          * @brief Función que devuelve la distancia a la meta del color "player" desde
          * la casilla "box".
          *
@@ -942,6 +1081,86 @@ class Parchis{
          * @return vector<color>
          */
         vector<color> getPlayerColors(int player) const;
+
+        // -- CONSULTAS DE FICHAS ESPECIALES -- //
+
+        /**
+         * @brief Función que devuelve si se adquirió un objeto en el último turno.
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool itemAcquired() const;
+
+        /**
+         * @brief Función que devuelve el objeto adquirido en el último turno.
+         * Devuelve -1 en caso de que no se haya adquºirido ningún objeto.
+         * 
+         * @return item_type 
+         */
+        item_type getItemAcquired() const;
+
+        /**
+         * @brief Función que indica si el número de dado especificado está asociado a dado especial o no.
+         * 
+         * @param dice 
+         * @return true 
+         * @return false 
+         */
+        bool isSpecialDice(int dice) const;
+
+        /** 
+         * Función que indica si el número de dado especificado está asociado a dado normal o no.
+         *
+         * @param dice
+         * @return true
+         * @return false
+         */
+        bool isNormalDice(int dice) const;
+
+        /**
+         * @brief Función que devuelve las fichas que hayan sido destruidas por una estrella en el último turno.
+         * Se devuelve un color con los {color, id} de las fichas destruidas.
+         */
+        const vector<pair<color, int>> piecesDestroyedByStar() const;
+
+        /**
+         * @brief Función que devuelve las fichas que hayan sido destruidas por un megachampiñón en el último turno.
+         * Se devuelve un color con los {color, id} de las fichas destruidas.
+         */
+        const vector<pair<color, int>> piecesCrushedByMegamushroom() const;
+
+        /**
+         * @brief Función que devuelve las fichas que hayan sido destruidas por un caparazón rojo en el último turno.
+         * Se devuelve un color con los {color, id} de las fichas destruidas.
+         */
+        const vector<pair<color, int>> piecesDestroyedByRedShell() const;
+
+        /**
+         * @brief Función que devuelve las fichas que hayan sido destruidas por un caparazón azul en el último turno.
+         * Se devuelve un color con los {color, id} de las fichas destruidas.
+         */
+        const vector<pair<color, int>> piecesDestroyedByBlueShell() const;
+
+        /**
+         * @brief Función que devuelve las fichas que hayan sido destruidas por una bocina en el último turno.
+         * Se devuelve un color con los {color, id} de las fichas destruidas.
+         */
+        const vector<pair<color, int>> piecesDestroyedByHorn() const;
+
+        /**
+         * @brief Función que devuelve las fichas que hayan sido destruidas por cualquier movimiento especial en el último turno.
+         * Se devuelve un color con los {color, id} de las fichas destruidas.
+         * IMPORTANTE: Las fichas comidas normales no se cuentan aquí, para eso se usa eatenPiece().
+         */
+        const vector<pair<color, int>> piecesDestroyedLastMove() const;
+
+        /**
+         * @brief Devuelve la ficha comida por un movimiento normal en el último turno.
+         * 
+         * @return const pair<color, int> 
+         */
+        const pair<color, int> eatenPiece() const;
 };
 
 

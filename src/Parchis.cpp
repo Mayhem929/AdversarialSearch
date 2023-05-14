@@ -92,6 +92,7 @@ void Parchis::initGame(){
 
     this->update_board = true;
     this->update_dice = true;
+    this->last_acquired = not_an_item;
 
     this->playground_mode = false;
 }
@@ -253,6 +254,14 @@ void Parchis::movePiece(color player, int piece, int dice_number){
         this->last_dice = dice_number;
         this->last_moves.clear();
 
+        this->last_acquired = not_an_item;
+
+        this->pieces_destroyed_by_star.clear();
+        this->pieces_crushed_by_megamushroom.clear();
+        this->pieces_destroyed_by_red_shell.clear();
+        this->pieces_destroyed_by_blue_shell.clear();
+        this->pieces_destroyed_by_horn.clear();
+
         if(isLegalMove(board.getPiece(player, piece), dice_number)){
             if(dice_number < 100){
                 goal_bounce = false;
@@ -311,6 +320,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     }
 
                     this->last_moves.push_back(tuple<color, int, Box, Box>(player, piece, origin, final_box));
+                    this->pieces_destroyed_by_star = destroyed_pieces;
 
                     board.movePiece(player, piece, final_box);
                 }
@@ -344,6 +354,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                                 Box origen_comida = board.getPiece(box_states[i].first, box_states[i].second).get_box();
                                 board.movePiece(box_states[i].first, box_states[i].second, Box(0, home, box_states[i].first));
                                 this->last_moves.push_back(tuple<color, int, Box, Box>(box_states[i].first, box_states[i].second, origen_comida, Box(0, home, box_states[i].first)));
+                                pieces_crushed_by_megamushroom.push_back({box_states[i].first, box_states[i].second});
                             }
 
                         }
@@ -357,6 +368,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                                 Box origen_comida = board.getPiece(next_box_states[i].first, next_box_states[i].second).get_box();
                                 board.movePiece(next_box_states[i].first, next_box_states[i].second, Box(0, home, next_box_states[i].first));
                                 this->last_moves.push_back(tuple<color, int, Box, Box>(next_box_states[i].first, next_box_states[i].second, origen_comida, Box(0, home, next_box_states[i].first)));
+                                pieces_crushed_by_megamushroom.push_back({next_box_states[i].first, next_box_states[i].second});
                             }
                         }
                     }
@@ -374,6 +386,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                                 this->update_board = true;
                                 this->update_dice = true;
+                                this->last_acquired = board.getSpecialItems()[i].type;
                             }
                         }
 
@@ -387,6 +400,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                                 this->update_board = true;
                                 this->update_dice = true;
+                                this->last_acquired = board.getSpecialItems()[i].type;
                             }
                         }
                     }
@@ -418,6 +432,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                                 destroyed_by_star = true;
                                 star_move = true;
                                 final_box = Box(0, home, player);
+                                pieces_destroyed_by_star.push_back({player, piece});
                             }
                         }
                     }
@@ -432,7 +447,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                                     eater_piece.get_type() != bananed_piece){
                                 //Movemos la ficha
                                 eating_move = true;
-
+                                eaten_piece = box_states.at(0);
                             }
                         }
 
@@ -475,6 +490,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                             this->update_board = true;
                             this->update_dice = true;
+                            this->last_acquired = board.getSpecialItems()[i].type;
                         }
                     }
                 }
@@ -539,6 +555,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                                     this->update_board = true;
                                     this->update_dice = true;
+                                    this->last_acquired = board.getSpecialItems()[i].type;
                                 }
                             }
                         }
@@ -602,6 +619,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                                     this->update_board = true;
                                     this->update_dice = true;
+                                    this->last_acquired = board.getSpecialItems()[i].type;
                                 }
                             }
                         }
@@ -640,6 +658,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                                 Box origin = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second).get_box();
                                 board.movePiece(deleted_pieces[i].first, deleted_pieces[i].second, Box(0, home, deleted_pieces[i].first));
                                 this->last_moves.push_back(tuple<color, int, Box, Box>(deleted_pieces[i].first, deleted_pieces[i].second, origin, Box(0, home, deleted_pieces[i].first)));
+                                this->pieces_destroyed_by_blue_shell.push_back({deleted_pieces[i].first, deleted_pieces[i].second});
                             }
                             if(playground_mode){
                                 cout << "IMPORTANTE: SI ESTUVIERAS JUGANDO EN MODO NORMAL TENIENDO LA BOCINA LA PERDERÍAS Y TE HABRÍAS PROTEGIDO DEL CAPARAZÓN" << endl;
@@ -681,6 +700,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                                 Box origin = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second).get_box();
                                 board.movePiece(deleted_pieces[i].first, deleted_pieces[i].second, Box(0, home, deleted_pieces[i].first));
                                 this->last_moves.push_back(tuple<color, int, Box, Box>(deleted_pieces[i].first, deleted_pieces[i].second, origin, Box(0, home, deleted_pieces[i].first)));
+                                this->pieces_destroyed_by_red_shell.push_back({deleted_pieces[i].first, deleted_pieces[i].second});
                             }
                             if(playground_mode){
                                 cout << "IMPORTANTE: SI ESTUVIERAS JUGANDO EN MODO NORMAL TENIENDO LA BOCINA LA PERDERÍAS Y TE HABRÍAS PROTEGIDO DEL CAPARAZÓN" << endl;
@@ -732,6 +752,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                                     this->update_board = true;
                                     this->update_dice = true;
+                                    this->last_acquired = board.getSpecialItems()[i].type;
                                 }
                             }
 
@@ -745,6 +766,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                                     this->update_board = true;
                                     this->update_dice = true;
+                                    this->last_acquired = board.getSpecialItems()[i].type;
                                 }
                             }
                         }
@@ -789,10 +811,10 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                             color c = game_colors[i];
                             if (c != player){
                                 for (int j = 0; j < board.getPieces(c).size(); j++){
-                                    if(current_piece.get_type() != boo_piece and current_piece.get_type() != mega_piece and current_piece.get_type() != star_piece){
+                                    Piece horny_piece = board.getPiece(c, j);
+                                    if(horny_piece.get_type() != boo_piece and horny_piece.get_type() != mega_piece and horny_piece.get_type() != star_piece and horny_piece.get_box().type != goal){
                                         int dist_paforward = distanceBoxtoBox(player, piece, c, j);
                                         int dist_paantes = distanceBoxtoBox(c, j, player, piece);
-                                        Piece current_piece = board.getPiece(c, j);
                                         if (dist_paforward <= 2 and dist_paforward >= 0 or dist_paantes <= 2 and dist_paantes >= 0){
                                             deleted_pieces.push_back(pair<color, int>(c, j));
                                         }
@@ -808,6 +830,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                             Box origin = board.getPiece(deleted_pieces[i].first, deleted_pieces[i].second).get_box();
                             board.movePiece(deleted_pieces[i].first, deleted_pieces[i].second, Box(0, home, deleted_pieces[i].first));
                             this->last_moves.push_back(tuple<color, int, Box, Box>(deleted_pieces[i].first, deleted_pieces[i].second, origin, Box(0, home, deleted_pieces[i].first)));
+                            this->pieces_destroyed_by_horn.push_back({deleted_pieces[i].first, deleted_pieces[i].second});
                         }
                     }
                     break;
@@ -1119,6 +1142,7 @@ void Parchis::gameLoop(){
         color winner_color = getColorWinner();
 
         cout << "Ha ganado el jugador " << winner << " (" << str(winner_color) << ")" << endl;
+        //cout << "Ha ganado el jugador " << winner << endl;
         if (illegalMove())
         {
             cout << "El jugador " << (winner == 1 ? 0 : 1) << " ha hecho un movimiento ilegal" << endl;
@@ -1215,6 +1239,39 @@ int Parchis::getWinner() const{
 
         break;
     }
+
+    //Recorro mis colores
+    /*vector<color> my_colors = this->getPlayerColors(0);
+    bool he_ganao = true;
+    for(int i = 0; i < my_colors.size() && he_ganao; i++){
+        color col = my_colors.at(i);
+        Box goal(0, box_type::goal, col);
+
+        if(boxState(goal).size() != board.getPieces(col).size()){
+            he_ganao = false;
+        }
+    }
+
+    if(he_ganao){
+        return 0;
+    }else{
+        // Recorro los colores de mi oponente
+        vector<color> other_colors = this->getPlayerColors(1);
+        bool he_perdio  = true;
+        for(int i = 0; i < other_colors.size() && he_perdio; i++){
+            color col = other_colors.at(i);
+            Box goal(0, box_type::goal, col);
+
+            if(boxState(goal).size() != board.getPieces(col).size()){
+                he_perdio = false;
+            }
+        }
+        if(he_perdio){
+            return 1;
+        }else{
+            return -1;
+        }
+    }*/
 }
 
 color Parchis::getColorWinner() const{
@@ -1389,6 +1446,11 @@ int Parchis::piecesAtGoal(color col) const{
     return boxState(goal).size();
 }
 
+int Parchis::piecesAtHome(color col) const{
+    Box home(0, box_type::home, col);
+    return boxState(home).size();
+}
+
 int Parchis::distanceToGoal(color player, const Box & box) const{
     //Calculo número de casillas hasta llegar a la meta
     switch(box.type){
@@ -1459,11 +1521,11 @@ int Parchis::distanceBoxtoBox(color player, const Box & box1, const Box & box2) 
     int distance = 0;
 
     // Si mi pasillo está por medio es inalcanzable.
-    if(ref_box1.num < final_boxes.at(player) && final_boxes.at(player) < ref_box2.num){
+    if(ref_box1.num <= final_boxes.at(player) && final_boxes.at(player) < ref_box2.num){
         return -1;
     }
     // Si mi pasillo está por delante, y la casilla destino después del 68, inalcanzable.
-    if(ref_box1.num > ref_box2.num && ref_box1.num < final_boxes.at(player)){
+    if(ref_box1.num > ref_box2.num && ref_box1.num <= final_boxes.at(player)){
         return -1;
     }
     // Si mi pasillo está antes de la casilla destino, y parto de algo mayor, inalcanzable.
@@ -1472,7 +1534,7 @@ int Parchis::distanceBoxtoBox(color player, const Box & box1, const Box & box2) 
     }
     // En caso contrario, es alcanzable.
     // Si el destino está por encima, devuelvo la diferencia.
-    if(ref_box2.num > ref_box1.num){
+    if(ref_box2.num >= ref_box1.num){
         distance = ref_box2.num - ref_box1.num;
     }
     // Si el destino está por debajo, devuelvo la distancia al 68 más lo que me queda hasta el destino.
@@ -1703,3 +1765,73 @@ const vector<pair <color, int>> Parchis::allPiecesBetween(const Box & b1, const 
     }
     return pieces;
 }
+
+const pair<color, int> Parchis::eatenPiece() const{
+    if(eating_move){
+        return eaten_piece;
+    }else{
+        return {none, 0};
+    }
+}
+
+const vector<pair<color, int>> Parchis::piecesDestroyedByStar() const{
+    return pieces_destroyed_by_star;
+}
+
+const vector<pair<color, int>> Parchis::piecesCrushedByMegamushroom() const{
+    return pieces_crushed_by_megamushroom;
+}
+
+const vector<pair<color, int>> Parchis::piecesDestroyedByRedShell() const{
+    return pieces_destroyed_by_red_shell;
+}
+
+const vector<pair<color, int>> Parchis::piecesDestroyedByBlueShell() const{
+    return pieces_destroyed_by_blue_shell;
+}
+
+const vector<pair<color, int>> Parchis::piecesDestroyedByHorn() const
+{
+    return pieces_destroyed_by_horn;
+}
+
+const vector<pair<color, int>> Parchis::piecesDestroyedLastMove() const{
+    // Append all vectors
+    /*
+    vector<pair<color, int>> all_pieces_destroyed;
+    all_pieces_destroyed.insert(all_pieces_destroyed.end(), pieces_destroyed_by_star.begin(), pieces_destroyed_by_star.end());
+    all_pieces_destroyed.insert(all_pieces_destroyed.end(), pieces_crushed_by_megamushroom.begin(), pieces_crushed_by_megamushroom.end());
+    all_pieces_destroyed.insert(all_pieces_destroyed.end(), pieces_destroyed_by_red_shell.begin(), pieces_destroyed_by_red_shell.end());
+    all_pieces_destroyed.insert(all_pieces_destroyed.end(), pieces_destroyed_by_blue_shell.begin(), pieces_destroyed_by_blue_shell.end());
+    all_pieces_destroyed.insert(all_pieces_destroyed.end(), pieces_destroyed_by_horn.begin(), pieces_destroyed_by_horn.end());
+    return all_pieces_destroyed;*/
+    if(pieces_destroyed_by_star.size() > 0)
+        return pieces_destroyed_by_star;
+    else if(pieces_crushed_by_megamushroom.size() > 0)
+        return pieces_crushed_by_megamushroom;
+    else if(pieces_destroyed_by_red_shell.size() > 0)
+        return pieces_destroyed_by_red_shell;
+    else if(pieces_destroyed_by_blue_shell.size() > 0)
+        return pieces_destroyed_by_blue_shell;
+    else if(pieces_destroyed_by_horn.size() > 0)
+        return pieces_destroyed_by_horn;
+    else
+        return {};
+}
+
+bool Parchis::itemAcquired() const{
+    return this->last_acquired != not_an_item;
+}
+
+item_type Parchis::getItemAcquired() const{
+    return this->last_acquired;
+}
+
+bool Parchis::isSpecialDice(int dice) const{
+    return dice > 100;
+}
+
+bool Parchis::isNormalDice(int dice) const{
+    return dice >= 1 and dice <= 6;
+}
+

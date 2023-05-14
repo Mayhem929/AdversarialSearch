@@ -131,7 +131,8 @@ enum item_type {star = 101,
                 mega_mushroom = 107,
                 shock = 108,
                 horn = 109,
-                banana = 110};
+                banana = 110,
+                not_an_item = -1};
 
 /**
  * @brief Struct para definir los objetos especiales que aparecen en el tablero.

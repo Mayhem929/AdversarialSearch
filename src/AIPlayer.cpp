@@ -33,31 +33,34 @@ void AIPlayer::think(color & c_piece, int & id_piece, int & dice) const{
     // - identificador de la ficha que se va a mover
     // - valor del dado con el que se va a mover la ficha.
 
-    // El color de ficha que se va a mover
-    c_piece = actual->getCurrentColor();
+    // El id de mi jugador actual.
+    int player = actual->getCurrentPlayerId();
 
     // Vector que almacenará los dados que se pueden usar para el movimiento
     vector<int> current_dices;
     // Vector que almacenará los ids de las fichas que se pueden mover para el dado elegido.
-    vector<tuple<color,int>> current_pieces;
+    vector<tuple<color, int>> current_pieces;
 
     // Se obtiene el vector de dados que se pueden usar para el movimiento
-    current_dices = actual->getAvailableDices(c_piece);
+    current_dices = actual->getAvailableNormalDices(player);
     // Elijo un dado de forma aleatoria.
     dice = current_dices[rand() % current_dices.size()];
 
     // Se obtiene el vector de fichas que se pueden mover para el dado elegido
-    current_pieces = actual->getAvailablePieces(c_piece, dice);
+    current_pieces = actual->getAvailablePieces(player, dice);
 
     // Si tengo fichas para el dado elegido muevo una al azar.
-    if(current_pieces.size() > 0){
+    if (current_pieces.size() > 0)
+    {
         int random_id = rand() % current_pieces.size();
-        id_piece = get<1>(current_pieces[random_id]);
-        c_piece = get<0>(current_pieces[random_id]);
+        id_piece = get<1>(current_pieces[random_id]); // get<i>(tuple<...>) me devuelve el i-ésimo
+        c_piece = get<0>(current_pieces[random_id]);  // elemento de la tupla
     }
-    else{
+    else
+    {
         // Si no tengo fichas para el dado elegido, pasa turno (la macro SKIP_TURN me permite no mover).
         id_piece = SKIP_TURN;
+        c_piece = actual->getCurrentColor(); // Le tengo que indicar mi color actual al pasar turno.
     }
 
     /*
