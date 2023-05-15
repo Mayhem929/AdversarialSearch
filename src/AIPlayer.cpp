@@ -3,7 +3,7 @@
 
 const double masinf = 9999999999.0, menosinf = -9999999999.0;
 const double gana = masinf - 1, pierde = menosinf + 1;
-const int num_pieces = 4;
+const int num_pieces = 3;
 const int PROFUNDIDAD_MINIMAX = 4;  // Umbral maximo de profundidad para el metodo MiniMax
 const int PROFUNDIDAD_ALFABETA = 6; // Umbral maximo de profundidad para la poda Alfa_Beta
 
@@ -99,7 +99,7 @@ double AIPlayer::ValoracionTest(const Parchis &estado, int jugador)
 
 
     int ganador = estado.getWinner();
-    int oponente = (jugador) % 2 + 1;
+    int oponente = (jugador+1) % 2;
 
     // Si hay un ganador, devuelvo más/menos infinito, según si he ganado yo o el oponente.
     if (ganador == jugador)
