@@ -173,7 +173,7 @@ const Board & Parchis::getBoard() const{
     return this->board;
 }
 
-int Parchis::getLastDice(){
+int Parchis::getLastDice() const{
     return this->last_dice;
 }
 

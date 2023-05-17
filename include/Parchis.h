@@ -344,7 +344,7 @@ class Parchis{
          *
          * @return int
          */
-        int getLastDice();
+        int getLastDice() const;
 
         /**
          * @brief Función que devuelve el valor del atributo eating_move
