@@ -3,7 +3,13 @@
 BUILD_DOC=OFF # ON or OFF
 
 # Install SFML, if not Ubuntu, comment next line & check https://www.sfml-dev.org/tutorials/2.5/start-linux.php
-sudo apt-get -y install libsfml-dev
+if [ -f /etc/fedora-release ]  || [ -f /etc/redhat-release ]; then
+    sudo dnf -y install SFML-devel
+else if [ -f /etc/arch-release ]; then
+    sudo pacman -S sfml
+else
+    sudo apt-get -y install libsfml-dev
+fi
 # For doxygen generation
 if [ "$BUILD_DOC" = "ON" ]; then
     sudo apt-get -y install doxygen graphviz
