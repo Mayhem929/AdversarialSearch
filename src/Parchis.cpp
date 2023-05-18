@@ -1715,7 +1715,7 @@ const vector<BoardTrap> Parchis::anyTrap(const Box & b1, const Box & b2) const{
     vector<BoardTrap> traps;
     bool reached_final_box = false;
     if (b1.type == normal && final_box.num != b1.num){
-        for (int i = b1.num+1; !reached_final_box; i = i%68 + 1){ //Vamos recorriendo casillas intermedias
+        for (int i = b1.num%68+1; !reached_final_box; i = i%68 + 1){ //Vamos recorriendo casillas intermedias
             reached_final_box = (final_box.num == i);
             //Si hay un muro, lo añadimos al vector de muros.
             for (int j = 0; j < this->board.getTraps().size(); j++){
