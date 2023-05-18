@@ -1239,10 +1239,11 @@ void MasterServer::handleNinjaConnection(shared_ptr<ParchisServer> server, Packe
         server->sendErrorMessage(ERR_UPDATE, "Hay una actualización disponible del juego y del modo online. Es necesario actualizar el repositorio.");
         return;
     }
-    if(ip_addr != server->getRemoteAddress().toString() && ip_addr != "127.0.0.1"){
-        server->sendErrorMessage(ERR_UNAUTHORIZED, "La IP de contacto no se corresponde con la real.");
-    }
-    else if(allowed_ninja_ips.find(ip_addr) != allowed_ninja_ips.end()){
+    //if(ip_addr != server->getRemoteAddress().toString() && ip_addr != "127.0.0.1"){
+    //    server->sendErrorMessage(ERR_UNAUTHORIZED, "La IP de contacto no se corresponde con la real.");
+    //}
+    //else 
+    if(allowed_ninja_ips.find(ip_addr) != allowed_ninja_ips.end()){
         server->sendAcceptNinjaMessage();
         cout << COUT_GREEN_BOLD << "New ninja added from " << server->getRemoteAddress() << ":" << server->getRemotePort() << COUT_NOCOLOR << endl;
         NinjaConnection ninja_connection;
