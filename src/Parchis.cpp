@@ -527,19 +527,19 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     break;
                     case mushroom:
                     {
-                        dice_number = 8;
+                        int move_number = 8;
                         Box final_box;
                         // Si la ficha está a menos de 40 casillas de su meta, del tirón.
-                        if(distanceToGoal(player, piece) <= dice_number){
+                        if(distanceToGoal(player, piece) <= move_number){
                             final_box = Box(0, goal, player);
                         }
                         else{
-                            final_box = computeMove(current_piece.get_color(), current_piece.get_box(), dice_number);
+                            final_box = computeMove(current_piece.get_color(), current_piece.get_box(), move_number);
                             while (this->boxState(final_box).size() > 0)
                             {
-                                dice_number++;
+                                move_number++;
                                 //final_box = computeMove(current_piece, dice_number);
-                                final_box = computeMove(current_piece.get_color(), current_piece.get_box(), dice_number);
+                                final_box = computeMove(current_piece.get_color(), current_piece.get_box(), move_number);
                             }
                         }
                         board.movePiece(player, piece, final_box);
@@ -584,7 +584,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     {
                         this->bullet_move = true;
                         board.setPieceType(player, piece, normal_piece);
-                        dice_number = 40;
+                        int move_number = 40;
                         // Si la ficha está en su home se saca a su casilla inicial primero.
                         if(current_piece.get_box().type == home){
                             board.movePiece(player, piece, Box(init_boxes.at(player), normal, none));
@@ -593,16 +593,16 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                         }
                         Box final_box;
                         // Si la ficha está a menos de 40 casillas de su meta, del tirón.
-                        if(distanceToGoal(player, piece) <= dice_number){
+                        if(distanceToGoal(player, piece) <= move_number){
                             final_box = Box(0, goal, player);
                         }
                         else{
-                            final_box = computeMove(current_piece.get_color(), current_piece.get_box(), dice_number);
+                            final_box = computeMove(current_piece.get_color(), current_piece.get_box(), move_number);
                             while (this->boxState(final_box).size() > 0)
                             {
-                                dice_number++;
+                                move_number++;
                                 //final_box = computeMove(current_piece, dice_number);
-                                final_box = computeMove(current_piece.get_color(), current_piece.get_box(), dice_number);
+                                final_box = computeMove(current_piece.get_color(), current_piece.get_box(), move_number);
                             }
                         }
 
