@@ -1141,15 +1141,16 @@ void Parchis::gameLoop(){
         int winner = getWinner();
         color winner_color = getColorWinner();
 
-        cout << "Ha ganado el jugador " << winner << " (" << str(winner_color) << ")" << endl;
+        cout << "Ha ganado el jugador " << 1 + winner << " (" << str(winner_color) << ")" << endl;
+        cout << "¡¡¡ENHORABUENA, " << getPlayers().at(winner)->getName() << "!!!" << endl;
         //cout << "Ha ganado el jugador " << winner << endl;
         if (illegalMove())
         {
-            cout << "El jugador " << (winner == 1 ? 0 : 1) << " ha hecho un movimiento ilegal" << endl;
+            cout << "El jugador " << 1 + (winner == 1 ? 0 : 1) << " ha hecho un movimiento ilegal" << endl;
         }
         if(overBounce())
         {
-            cout << "El jugador " << (winner == 1 ? 0 : 1) << " ha excedido el límite de rebotes." << endl;
+            cout << "El jugador " << 1 + (winner == 1 ? 0 : 1) << " ha excedido el límite de rebotes." << endl;
         }
         cout << "++++++++++++++++++++++++" << endl;
     }
