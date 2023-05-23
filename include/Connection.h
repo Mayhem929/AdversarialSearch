@@ -14,7 +14,7 @@ using namespace std;
 
 // Para control de versiones y obligar a actualizar a versiones incompatibles con el online.
 # define NINJA_VERSION 2
-# define ONLINE_VERSION 3
+# define ONLINE_VERSION 4
 
 enum MessageKind{
     NOP = 0,
@@ -121,7 +121,7 @@ class ParchisRemote{
         static void packet2HelloMaster(Packet & packet, string & ip, int & port, int & online_version, int & ninja_version);
 
         static void packet2gameParameters(Packet & packet, int & player, string & name, BoardConfig & init_board, int & ai_id);
-        
+
         static int packet2queuePos(Packet & packet);
 
         static void packet2reservedIp(Packet & packet, string & ip, int & port);
@@ -152,7 +152,7 @@ class ParchisClient: public ParchisRemote{
         ParchisClient();
         /**
          * @brief Inicia una conexión con el servidor remoto indicado.
-         * 
+         *
          * @param ip_addr Dirección IP o nombre del servidor.
          * @param port Puerto de conexión.
          */
@@ -231,7 +231,7 @@ class NinjaServer{
         list<shared_ptr<Thread>> dead_threads;
 
         map<string, private_room_game> private_room_games;
-        
+
         Thread reviser;
 
         Thread master_thread;
@@ -281,7 +281,7 @@ class NinjaServer{
         void queuePrivateRoomGame(shared_ptr<ParchisServer> server, Packet &packet, shared_ptr<Thread> thread);
 
         void connectToMaster();
-        
+
 
     public:
 
@@ -294,12 +294,12 @@ class NinjaServer{
         void setMaster(const string & ip_addr, const int & port);
 
         void printStatus();
-     
+
 };
 
 /**
  * @brief Servidor maestro que se encarga de gestionar y repartir las conexiones a los servidores ninja.
- * 
+ *
  */
 class MasterServer{
     private:
