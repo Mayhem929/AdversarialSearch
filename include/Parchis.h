@@ -178,6 +178,7 @@ class Parchis{
         bool horn_move;
         bool shock_move;
         bool boo_move;
+        bool mega_mushroom_move;
 
         vector <pair <color, int>> pieces_destroyed_by_star;
         vector <pair <color, int>> pieces_crushed_by_megamushroom;
@@ -428,10 +429,18 @@ class Parchis{
 
         /**
          * @brief Función que devuelve el valor del atributo shock_move
-         * 
+         *
          */
         inline const bool isShockMove() const{
             return shock_move;
+        }
+
+        /**
+         * @brief Función que devuelve el valor del atributo mega_mushroom_move
+         *
+         */
+        inline const bool isMegaMushroomMove() const{
+            return mega_mushroom_move;
         }
 
         /**
@@ -918,7 +927,7 @@ class Parchis{
         * @brief Devuelve el número de fichas de un color que estan en casa.
         *
         * Thanks Mario :)
-        * 
+        *
         * @return int
         */
         int piecesAtHome(color player) const;
@@ -1086,30 +1095,30 @@ class Parchis{
 
         /**
          * @brief Función que devuelve si se adquirió un objeto en el último turno.
-         * 
-         * @return true 
-         * @return false 
+         *
+         * @return true
+         * @return false
          */
         bool itemAcquired() const;
 
         /**
          * @brief Función que devuelve el objeto adquirido en el último turno.
          * Devuelve -1 en caso de que no se haya adquºirido ningún objeto.
-         * 
-         * @return item_type 
+         *
+         * @return item_type
          */
         item_type getItemAcquired() const;
 
         /**
          * @brief Función que indica si el número de dado especificado está asociado a dado especial o no.
-         * 
-         * @param dice 
-         * @return true 
-         * @return false 
+         *
+         * @param dice
+         * @return true
+         * @return false
          */
         bool isSpecialDice(int dice) const;
 
-        /** 
+        /**
          * Función que indica si el número de dado especificado está asociado a dado normal o no.
          *
          * @param dice
@@ -1157,8 +1166,8 @@ class Parchis{
 
         /**
          * @brief Devuelve la ficha comida por un movimiento normal en el último turno.
-         * 
-         * @return const pair<color, int> 
+         *
+         * @return const pair<color, int>
          */
         const pair<color, int> eatenPiece() const;
 };
