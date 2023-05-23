@@ -79,6 +79,7 @@ void Parchis::initGame(){
     this->horn_move = false;
     this->shock_move = false;
     this->boo_move = false;
+    this->mega_mushroom_move = false;
 
     this->turn = 1;
 
@@ -280,6 +281,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 bananed = false;
                 shock_move = false;
                 boo_move = false;
+                mega_mushroom_move = false;
 
                 remember_6 = (dice_number==6 or (remember_6 and (dice_number == 10 or dice_number == 20)));
 
@@ -327,7 +329,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
 
                 else if (current_piece.get_type() == mega_piece)
                 {
-                    //star_move = true; // Cambiar por mega en algún momento xd
+                    mega_mushroom_move = true;
                     // Si la siguiente casilla a la del mega champiñón es la meta, nos movemos ahí directamente.
                     if(nextBox(player, final_box).type == goal){
                         final_box = nextBox(player, final_box);
@@ -516,6 +518,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 this->horn_move = false;
                 this->shock_move = false;
                 this->boo_move = false;
+                this->mega_mushroom_move = false;
 
                 remember_6 = false; // Si no, puedo sacar 6 y empezar a tirar dados especiales sin parar
 
@@ -710,7 +713,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     break;
                     case mega_mushroom:
                     {
-                        //star_move = true; // Cambiar por mega en algún momento xd
+                        this->mega_mushroom_move = true;
                         board.setPieceType(player, piece, mega_piece);
                         board.setPieceTurnsLeft(player, piece, 4);
 
