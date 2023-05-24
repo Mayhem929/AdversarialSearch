@@ -131,6 +131,9 @@ class ParchisBros{
 
 class Parchis{
     private:
+        //ParchisBros clase amiga
+        friend class ParchisBros;
+
         //Tablero
         Board board;
         //Dados
@@ -230,6 +233,24 @@ class Parchis{
          *
          */
         void initGame();
+
+        /**
+         * @brief Función que genera el siguiente movimiento siguiendo un orden
+         * descendente de los dados.
+         *
+         * Estos métodos funcionan de la siguiente forma. Dado un estado del juego, a partir de los parámetros
+         * de color, id de ficha y dado que se le pasen por referencia, asociados a un determinado movimiento
+         * en el tablero, determinará el siguiente hijo que se expandirá en el árbol de búsqueda.
+         * Los parámetros se actualizarán de forma que se correspondan con el movimiento necesario para generar
+         * el nuevo hijo desarrollado. Inicialmente, para generar el primer hijo de una ramificación, se deben
+         * pasar los parámetros inicializados a -1.
+         *
+         * @param c_piece
+         * @param id_piece
+         * @param dice
+         * @return Parchis
+         */
+        Parchis generateNextMoveDescending(color & c_piece,  int & id_piece, int & dice) const;
 
     public:
         /**
@@ -846,25 +867,6 @@ class Parchis{
         inline const int getBounces(color player) const{
             return bounces.at(player);
         }
-
-        /**
-         * @brief Función que genera el siguiente movimiento siguiendo un orden
-         * descendente de los dados.
-         *
-         * Estos métodos funcionan de la siguiente forma. Dado un estado del juego, a partir de los parámetros
-         * de color, id de ficha y dado que se le pasen por referencia, asociados a un determinado movimiento
-         * en el tablero, determinará el siguiente hijo que se expandirá en el árbol de búsqueda.
-         * Los parámetros se actualizarán de forma que se correspondan con el movimiento necesario para generar
-         * el nuevo hijo desarrollado. Inicialmente, para generar el primer hijo de una ramificación, se deben
-         * pasar los parámetros inicializados a -1.
-         *
-         * @param c_piece
-         * @param id_piece
-         * @param dice
-         * @return Parchis
-         */
-        Parchis generateNextMoveDescending(color & c_piece,  int & id_piece, int & dice) const;
-
 
         /**
          * @brief Función que devuelve la variable update_board
