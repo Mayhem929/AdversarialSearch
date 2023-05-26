@@ -80,6 +80,7 @@ void Parchis::initGame(){
     this->shock_move = false;
     this->boo_move = false;
     this->mega_mushroom_move = false;
+    this->mushroom_move = false;
 
     this->turn = 1;
 
@@ -282,6 +283,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 shock_move = false;
                 boo_move = false;
                 mega_mushroom_move = false;
+                mushroom_move = false;
 
                 remember_6 = (dice_number==6 or (remember_6 and (dice_number == 10 or dice_number == 20)));
 
@@ -519,6 +521,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                 this->shock_move = false;
                 this->boo_move = false;
                 this->mega_mushroom_move = false;
+                this->mushroom_move = false;
 
                 remember_6 = false; // Si no, puedo sacar 6 y empezar a tirar dados especiales sin parar
 
@@ -530,6 +533,7 @@ void Parchis::movePiece(color player, int piece, int dice_number){
                     break;
                     case mushroom:
                     {
+                        this->mushroom_move = true;
                         int move_number = 8;
                         Box final_box;
                         // Si la ficha está a menos de 40 casillas de su meta, del tirón.
