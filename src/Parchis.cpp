@@ -990,6 +990,9 @@ bool Parchis::isLegalMove(const Piece & piece, int dice_number) const{
         for(int i = 0; i < board.getPieces(player).size() && !hay_walls; i++){
             hay_walls = (isWall(board.getPiece(player, i).get_box()) == player);
         }
+        for(int i = 0; i < board.getPieces(partner_color(player)).size() && !hay_walls; i++){
+            hay_walls = (isWall(board.getPiece(partner_color(player), i).get_box()) == partner_color(player));
+        }
 
         if(hay_walls && isWall(box) != player){
             return false;
