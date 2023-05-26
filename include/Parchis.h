@@ -471,6 +471,7 @@ class Parchis{
          */
         inline const bool isMushroomMove() const{
             return mushroom_move;
+        }
 
         /**
          * @brief Función que devuelve el valor del atributo boo_move
