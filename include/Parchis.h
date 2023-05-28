@@ -182,6 +182,7 @@ class Parchis{
         bool shock_move;
         bool boo_move;
         bool mega_mushroom_move;
+        bool mushroom_move;
 
         vector <pair <color, int>> pieces_destroyed_by_star;
         vector <pair <color, int>> pieces_crushed_by_megamushroom;
@@ -462,6 +463,14 @@ class Parchis{
          */
         inline const bool isMegaMushroomMove() const{
             return mega_mushroom_move;
+        }
+
+        /**
+         * @brief Función que devuelve el valor del atributo mushroom_move
+         *
+         */
+        inline const bool isMushroomMove() const{
+            return mushroom_move;
         }
 
         /**
