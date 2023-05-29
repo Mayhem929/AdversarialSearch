@@ -5,7 +5,12 @@ const double masinf = 9999999999.0, menosinf = -9999999999.0;
 const double gana = masinf - 1, pierde = menosinf + 1;
 const int num_pieces = 3;
 const int PROFUNDIDAD_MINIMAX = 4;  // Umbral maximo de profundidad para el metodo MiniMax
-const int PROFUNDIDAD_ALFABETA = 4; // Umbral maximo de profundidad para la poda Alfa_Beta
+const int PROFUNDIDAD_ALFABETA = 6; // Umbral maximo de profundidad para la poda Alfa_Beta
+
+const int final_red_box = 34;
+const int final_blue_box = 17;
+const int final_green_box = 51;
+const int final_yellow_box = 68;
 
 bool AIPlayer::move(){
     cout << "Realizo un movimiento automatico" << endl;
@@ -164,7 +169,7 @@ double AIPlayer::Poda_AlfaBeta(const Parchis &actual, int jugador, int profundid
     // Si el juego ha terminado o hemos llegado al límite de profundidad, devolvemos la heurística.
     if (actual.gameOver() or profundidad == profundidad_max)
     {
-        return ValoracionTest(actual, jugador);
+        return heuristic(actual, jugador);
     }
     // Si no, seguimos explorando el árbol de búsqueda.
     else
@@ -280,8 +285,8 @@ void AIPlayer::think(color & c_piece, int & id_piece, int & dice) const{
     double valor; // Almacena el valor con el que se etiqueta el estado tras el proceso de busqueda.
     double alpha = menosinf, beta = masinf; // Cotas iniciales de la poda AlfaBeta
     // Llamada a la función para la poda (los parámetros son solo una sugerencia, se pueden modificar).
-    valor = Poda_AlfaBeta(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, ValoracionTest);
-    cout << "Valor MiniMax: " << valor << "  Accion: " << str(c_piece) << " " << id_piece << " " << dice << endl;
+    // valor = Poda_AlfaBeta(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, ValoracionTest);
+    // cout << "Valor MiniMax: " << valor << "  Accion: " << str(c_piece) << " " << id_piece << " " << dice << endl;
 
     // ----------------------------------------------------------------- //
 
@@ -396,15 +401,19 @@ double AIPlayer::MiValoracion1(const Parchis &estado, int jugador)
 
     int ganador = estado.getWinner();
     int oponente = (jugador+1) % 2;
+    
+
+    int puntuacion_jugador = 0;
+    int puntuacion_oponente = 0;
 
     // Si hay un ganador, devuelvo más/menos infinito, según si he ganado yo o el oponente.
     if (ganador == jugador)
     {
-        return gana;
+        puntuacion_jugador += 1000;
     }
     else if (ganador == oponente)
     {
-        return pierde;
+        puntuacion_oponente += 1000;
     }
     else
     {
@@ -413,54 +422,125 @@ double AIPlayer::MiValoracion1(const Parchis &estado, int jugador)
         vector<color> op_colors = estado.getPlayerColors(oponente);
 
         // Recorro todas las fichas de mi jugador
-        int puntuacion_jugador = 0;
         // Recorro colores de mi jugador.
+
+        int puntuaciones_jug[my_colors.size()] = {0};
+        int puntuaciones_op[op_colors.size()] = {0};
+
         for (int i = 0; i < my_colors.size(); i++)
         {
             color c = my_colors[i];
+            puntuaciones_jug[i] -= 10 * estado.piecesAtHome(c);
+
             // Recorro las fichas de ese color.
+            
             for (int j = 0; j < num_pieces; j++)
             {
                 // Valoro positivamente que la ficha esté en casilla segura o meta.
                 if (estado.isSafePiece(c, j))
                 {
-                    puntuacion_jugador++;
+                    puntuaciones_jug[i]++;
                 }
                 else if (estado.getBoard().getPiece(c, j).get_box().type == goal)
                 {
-                    puntuacion_jugador += 5;
+                    puntuaciones_jug[i] += 20;
                 }
-                puntuacion_jugador -= estado.distanceToGoal(c, j);
+                else if (estado.getBoard().getPiece(c, j).get_box().type == final_queue)
+                {
+                    puntuaciones_jug[i] += 10;
+                }   
+                
+                puntuaciones_jug[i] += (76 - estado.distanceToGoal(c, j));
+
+                // Box final_box;
+                // switch (c){
+                //     case blue:
+                //         final_box = Box(final_blue_box, normal, none);
+                //     break;
+                //     case red:
+                //         final_box = Box(final_red_box, normal, none);
+                //     break;
+                //     case green:
+                //         final_box = Box(final_green_box, normal, none);
+                //     break;
+                //     case yellow:
+                //         final_box = Box(final_yellow_box, normal, none);
+                //     break;
+                // }
+
+
+                // if(estado.anyWall(estado.getBoard().getPiece(c, j).get_box(), final_box).size() > 0) 
+                //     puntuaciones_jug[i] -= 30;
             }
         }
 
         // Recorro todas las fichas del oponente
-        int puntuacion_oponente = 0;
         // Recorro colores del oponente.
         for (int i = 0; i < op_colors.size(); i++)
         {
             color c = op_colors[i];
+            puntuaciones_op[i] -= 10 * estado.piecesAtHome(c);
             // Recorro las fichas de ese color.
             for (int j = 0; j < num_pieces; j++)
             {
                 if (estado.isSafePiece(c, j))
                 {
                     // Valoro negativamente que la ficha esté en casilla segura o meta.
-                    puntuacion_oponente++;
+                    puntuaciones_op[i]++;
                 }
                 else if (estado.getBoard().getPiece(c, j).get_box().type == goal)
                 {
-                    puntuacion_oponente += 5;
+                    puntuaciones_op[i] += 20;
                 }
-                puntuacion_oponente -= estado.distanceToGoal(c, j);
+                else if (estado.getBoard().getPiece(c, j).get_box().type == final_queue)
+                {
+                    puntuaciones_op[i] += 10;
+                }   
+                
+
+                puntuaciones_op[i] += (76 - estado.distanceToGoal(c, j));
+
+                // Box final_box;
+                // switch (c){
+                //     case blue:
+                //         final_box = Box(final_blue_box, normal, none);
+                //     break;
+                //     case red:
+                //         final_box = Box(final_red_box, normal, none);
+                //     break;
+                //     case green:
+                //         final_box = Box(final_green_box, normal, none);
+                //     break;
+                //     case yellow:
+                //         final_box = Box(final_yellow_box, normal, none);
+                //     break;
+                // }
+
+                // if(estado.anyWall(estado.getBoard().getPiece(c, j).get_box(), final_box).size() > 0) 
+                    // puntuaciones_op[i] -= 30;
             }
         }
 
         // Devuelvo la puntuación de mi jugador menos la puntuación del oponente.
+
+        if(puntuaciones_jug[0] > puntuaciones_jug[1]){
+            puntuacion_jugador += puntuaciones_jug[0] * 0.8;
+            puntuacion_jugador += puntuaciones_jug[1] * 0.2;
+        }
+        else {
+            puntuacion_jugador += puntuaciones_jug[0] * 0.2;
+            puntuacion_jugador += puntuaciones_jug[1] * 0.8;
+        }
+
+        for(int i = 0; i < op_colors.size(); i++)
+        {
+            // if(puntuaciones_op[i] > 0)
+                puntuacion_oponente += puntuaciones_op[i];// * puntuaciones_op[i];
+        }
+
         return puntuacion_jugador - puntuacion_oponente;
     }
 }
-
 
 double AIPlayer::MiValoracion2(const Parchis &estado, int jugador)
 {
