@@ -1,5 +1,6 @@
 # include "../include/AIPlayer.h"
 # include "../include/Parchis.h"
+#include "cmath"
 
 const double masinf = 9999999999.0, menosinf = -9999999999.0;
 const double gana = masinf - 1, pierde = menosinf + 1;
@@ -305,25 +306,6 @@ void AIPlayer::think(color & c_piece, int & id_piece, int & dice) const{
     cout << "Valor MiniMax: " << valor << "  Accion: " << str(c_piece) << " " << id_piece << " " << dice << endl;
 }
 
-int meta(color c)
-{
-    switch (c)
-    {
-    case yellow:
-        return 68;
-        break;
-    case blue:
-        return 17;
-        break; 
-    case red:
-        return 34;
-        break;
-    case green:
-        return 51;
-        break;
-    }
-}
-
 double AIPlayer::ValoracionTest(const Parchis &estado, int jugador)
 {
     // Heurística de prueba proporcionada para validar el funcionamiento del algoritmo de búsqueda.
@@ -409,11 +391,11 @@ double AIPlayer::MiValoracion1(const Parchis &estado, int jugador)
     // Si hay un ganador, devuelvo más/menos infinito, según si he ganado yo o el oponente.
     if (ganador == jugador)
     {
-        puntuacion_jugador += 1000;
+        puntuacion_jugador += 100000;
     }
     else if (ganador == oponente)
     {
-        puntuacion_oponente += 1000;
+        puntuacion_oponente += 100000;
     }
     else
     {
@@ -430,7 +412,7 @@ double AIPlayer::MiValoracion1(const Parchis &estado, int jugador)
         for (int i = 0; i < my_colors.size(); i++)
         {
             color c = my_colors[i];
-            puntuaciones_jug[i] -= 10 * estado.piecesAtHome(c);
+            puntuaciones_jug[i] -= 20 * estado.piecesAtHome(c);
 
             // Recorro las fichas de ese color.
             
@@ -439,38 +421,18 @@ double AIPlayer::MiValoracion1(const Parchis &estado, int jugador)
                 // Valoro positivamente que la ficha esté en casilla segura o meta.
                 if (estado.isSafePiece(c, j))
                 {
-                    puntuaciones_jug[i]++;
+                    puntuaciones_jug[i] += 2;
                 }
                 else if (estado.getBoard().getPiece(c, j).get_box().type == goal)
                 {
-                    puntuaciones_jug[i] += 20;
+                    puntuaciones_jug[i] += 50;
                 }
                 else if (estado.getBoard().getPiece(c, j).get_box().type == final_queue)
                 {
-                    puntuaciones_jug[i] += 10;
+                    puntuaciones_jug[i] += 5;
                 }   
                 
-                puntuaciones_jug[i] += (76 - estado.distanceToGoal(c, j));
-
-                // Box final_box;
-                // switch (c){
-                //     case blue:
-                //         final_box = Box(final_blue_box, normal, none);
-                //     break;
-                //     case red:
-                //         final_box = Box(final_red_box, normal, none);
-                //     break;
-                //     case green:
-                //         final_box = Box(final_green_box, normal, none);
-                //     break;
-                //     case yellow:
-                //         final_box = Box(final_yellow_box, normal, none);
-                //     break;
-                // }
-
-
-                // if(estado.anyWall(estado.getBoard().getPiece(c, j).get_box(), final_box).size() > 0) 
-                //     puntuaciones_jug[i] -= 30;
+                puntuaciones_jug[i] += (76 - estado.distanceToGoal(c, j)) * ((76 - estado.distanceToGoal(c, j)));
             }
         }
 
@@ -479,67 +441,53 @@ double AIPlayer::MiValoracion1(const Parchis &estado, int jugador)
         for (int i = 0; i < op_colors.size(); i++)
         {
             color c = op_colors[i];
-            puntuaciones_op[i] -= 10 * estado.piecesAtHome(c);
+            puntuaciones_op[i] -= 20 * estado.piecesAtHome(c);
             // Recorro las fichas de ese color.
             for (int j = 0; j < num_pieces; j++)
             {
                 if (estado.isSafePiece(c, j))
                 {
                     // Valoro negativamente que la ficha esté en casilla segura o meta.
-                    puntuaciones_op[i]++;
+                    puntuaciones_op[i] += 3;
                 }
                 else if (estado.getBoard().getPiece(c, j).get_box().type == goal)
                 {
-                    puntuaciones_op[i] += 20;
+                    puntuaciones_op[i] += 50;
                 }
                 else if (estado.getBoard().getPiece(c, j).get_box().type == final_queue)
                 {
-                    puntuaciones_op[i] += 10;
+                    puntuaciones_op[i] += 5;
                 }   
                 
 
-                puntuaciones_op[i] += (76 - estado.distanceToGoal(c, j));
+                puntuaciones_op[i] += (76 - estado.distanceToGoal(c, j)) * ((76 - estado.distanceToGoal(c, j)));
 
-                // Box final_box;
-                // switch (c){
-                //     case blue:
-                //         final_box = Box(final_blue_box, normal, none);
-                //     break;
-                //     case red:
-                //         final_box = Box(final_red_box, normal, none);
-                //     break;
-                //     case green:
-                //         final_box = Box(final_green_box, normal, none);
-                //     break;
-                //     case yellow:
-                //         final_box = Box(final_yellow_box, normal, none);
-                //     break;
-                // }
-
-                // if(estado.anyWall(estado.getBoard().getPiece(c, j).get_box(), final_box).size() > 0) 
-                    // puntuaciones_op[i] -= 30;
             }
         }
 
         // Devuelvo la puntuación de mi jugador menos la puntuación del oponente.
 
-        if(puntuaciones_jug[0] > puntuaciones_jug[1]){
+        if(puntuaciones_jug[0] > puntuaciones_jug[1] + 10){
             puntuacion_jugador += puntuaciones_jug[0] * 0.8;
             puntuacion_jugador += puntuaciones_jug[1] * 0.2;
         }
-        else {
+        else if (puntuaciones_jug[0] < puntuaciones_jug[1] - 10){
             puntuacion_jugador += puntuaciones_jug[0] * 0.2;
             puntuacion_jugador += puntuaciones_jug[1] * 0.8;
+        }
+        else{    
+            puntuacion_jugador += puntuaciones_jug[0] * 0.5;
+            puntuacion_jugador += puntuaciones_jug[1] * 0.5;
         }
 
         for(int i = 0; i < op_colors.size(); i++)
         {
             // if(puntuaciones_op[i] > 0)
-                puntuacion_oponente += puntuaciones_op[i];// * puntuaciones_op[i];
+                puntuacion_oponente += puntuaciones_op[i] * 0.5;// * puntuaciones_op[i];
         }
 
-        return puntuacion_jugador - puntuacion_oponente;
     }
+    return puntuacion_jugador - puntuacion_oponente;
 }
 
 double AIPlayer::MiValoracion2(const Parchis &estado, int jugador)
