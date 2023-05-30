@@ -29,17 +29,17 @@ void ParchisRemote::sendHello(const vector<string> & args){
     Socket::Status status = socket.send(packet);
     if (status != Socket::Done)
     {
-        cout << "Error sending HELLO message: " << status << endl;
+        // cout << "Error sending HELLO message: " << status << endl;
         socket.disconnect();
     }
-    else{
-        cout << "HELLO sent." << endl;
-        cout << "version: " << ONLINE_VERSION << endl;
-        cout << "args: ";
-        for(auto & arg : args)
-            cout << arg << " ";
-    }
-    cout << endl;
+    // else{
+        // cout << "HELLO sent." << endl;
+        // cout << "version: " << ONLINE_VERSION << endl;
+        // cout << "args: ";
+        // for(auto & arg : args)
+            // cout << arg << " ";
+    // }
+    // cout << endl;
 }
 
 void ParchisRemote::sendGameParameters(int player, string name, BoardConfig init_board, int ai_id){
