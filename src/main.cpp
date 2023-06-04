@@ -382,6 +382,9 @@ int main(int argc, char const *argv[]){
             else if(type_j1 == "AI"){
                 p2 = make_shared<AIPlayer>(name_j1, id_j1);
             }
+            else if(type_j1 == "LNINJA"){
+                p2 = make_shared<Ninja>(name_j1, id_j1);
+            }
         }
         // Si player == 1, el J2 es remoto
         else{
@@ -394,6 +397,9 @@ int main(int argc, char const *argv[]){
             }
             else if(type_j1 == "AI"){
                 p1 = make_shared<AIPlayer>(name_j1, id_j1);
+            }
+            else if(type_j1 == "LNINJA"){
+                p1 = make_shared<Ninja>(name_j1, id_j1);
             }
         }
     }
