@@ -183,6 +183,7 @@ class Parchis{
         bool boo_move;
         bool mega_mushroom_move;
         bool mushroom_move;
+        bool banana_move;
 
         vector <pair <color, int>> pieces_destroyed_by_star;
         vector <pair <color, int>> pieces_crushed_by_megamushroom;
@@ -479,6 +480,14 @@ class Parchis{
          */
         inline const bool isBooMove() const{
             return boo_move;
+        }
+
+        /**
+         * @brief Función que devuelve el valor del atributo banana_move
+         *
+         */
+        inline const bool isBananaMove() const{
+            return banana_move;
         }
 
         /**
@@ -792,6 +801,19 @@ class Parchis{
 
         inline const Box nextBox(const color & c, const Box & box) const{
             return computeMove(Piece(c, box) , 1);
+        }
+
+        /**
+         * @brief Función auxiliar que devuelve la casilla desde la que partiría la ficha al contarse el número que se indica como argumento.
+         * 
+         * @param piece 
+         * @param dice_number 
+         * @return const Box 
+         */
+        const Box computeReverseMove(const Piece & piece, int dice_number) const;
+
+        inline const Box computeReverseMove(const color & c, const Box & box, int dice_number) const{
+            return computeReverseMove(Piece(c, box), dice_number);
         }
 
 
