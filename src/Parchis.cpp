@@ -1257,6 +1257,37 @@ const Box Parchis::computeReverseMove(const Piece &piece, int dice_number) const
 }
 
 
+const Box Parchis::computeSpecialMove(const Piece & piece, int dice_number) const{
+    Box final_box;
+    color player = piece.get_color();
+    Box piece_box = piece.get_box();
+    special_type type = piece.get_type();
+
+    // Si el dado es normal, devolver el computeMove normal (por ejemplo)
+    if(isNormalDice(dice_number)){
+        return computeMove(piece, dice_number);
+    }
+    else{
+        if(dice_number == bullet or dice_number == mushroom){
+            int move_number = (dice_number == bullet)? 40:8;
+
+            final_box = computeMove(player, piece_box, move_number);
+            while (this->boxState(final_box).size() > 0)
+            {
+                move_number++;
+                // final_box = computeMove(current_piece, dice_number);
+                final_box = computeMove(player, piece_box, move_number);
+            }
+            return final_box;
+        }
+        else{
+            return piece_box;
+        }
+    }
+
+}
+
+
 void Parchis::gameLoop(){
     // Incializar el juego para los jugadores por primera vez
     for (int i = 0; i < players.size(); i++)
