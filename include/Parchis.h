@@ -540,6 +540,26 @@ class Parchis{
          */
         ParchisBros getChildren() const;
 
+        /**
+         * @brief Get the Initial Box object
+         * 
+         * @param c 
+         * @return const Box 
+         */
+        inline const Box getInitialBox(color c) const{
+            return Box(init_boxes.at(c), normal, none);
+        }
+
+        /**
+         * @brief Get the Final Box object
+         * 
+         * @param c
+         * @return const Box
+         */
+        inline const Box getFinalBox(color c) const{
+            return Box(final_boxes.at(c), normal, none);
+        }
+
 
         /****************************************************************/
 
@@ -816,6 +836,19 @@ class Parchis{
             return computeReverseMove(Piece(c, box), dice_number);
         }
 
+        /**
+         * @brief Función auxiliar que devuelve la casilla a la que se llegaría usando un dado especial que provoca movimiento (champiñón o bala).
+         *
+         * @param piece
+         * @param dice_number
+         * @return const Box
+         */
+        const Box computeSpecialMove(const Piece &piece, int dice_number) const;
+
+        inline const Box computeSpecialMove(const color &c, const Box &box, int dice_number) const
+        {
+            return computeSpecialMove(Piece(c, box), dice_number);
+        }
 
         /**
          * @brief Método que gestiona el bucle principal del juego, mientras este no haya terminado,
