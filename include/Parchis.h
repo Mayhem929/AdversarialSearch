@@ -183,6 +183,7 @@ class Parchis{
         bool boo_move;
         bool mega_mushroom_move;
         bool mushroom_move;
+        bool banana_move;
 
         vector <pair <color, int>> pieces_destroyed_by_star;
         vector <pair <color, int>> pieces_crushed_by_megamushroom;
@@ -482,6 +483,14 @@ class Parchis{
         }
 
         /**
+         * @brief Función que devuelve el valor del atributo banana_move
+         *
+         */
+        inline const bool isBananaMove() const{
+            return banana_move;
+        }
+
+        /**
          * @brief Función que devuelve el id del jugador actual.
          *
          * @return int
@@ -530,6 +539,26 @@ class Parchis{
          * @return ParchisBros
          */
         ParchisBros getChildren() const;
+
+        /**
+         * @brief Get the Initial Box object
+         * 
+         * @param c 
+         * @return const Box 
+         */
+        inline const Box getInitialBox(color c) const{
+            return Box(init_boxes.at(c), normal, none);
+        }
+
+        /**
+         * @brief Get the Final Box object
+         * 
+         * @param c
+         * @return const Box
+         */
+        inline const Box getFinalBox(color c) const{
+            return Box(final_boxes.at(c), normal, none);
+        }
 
 
         /****************************************************************/
@@ -794,6 +823,32 @@ class Parchis{
             return computeMove(Piece(c, box) , 1);
         }
 
+        /**
+         * @brief Función auxiliar que devuelve la casilla desde la que partiría la ficha al contarse el número que se indica como argumento.
+         * 
+         * @param piece 
+         * @param dice_number 
+         * @return const Box 
+         */
+        const Box computeReverseMove(const Piece & piece, int dice_number) const;
+
+        inline const Box computeReverseMove(const color & c, const Box & box, int dice_number) const{
+            return computeReverseMove(Piece(c, box), dice_number);
+        }
+
+        /**
+         * @brief Función auxiliar que devuelve la casilla a la que se llegaría usando un dado especial que provoca movimiento (champiñón o bala).
+         *
+         * @param piece
+         * @param dice_number
+         * @return const Box
+         */
+        const Box computeSpecialMove(const Piece &piece, int dice_number) const;
+
+        inline const Box computeSpecialMove(const color &c, const Box &box, int dice_number) const
+        {
+            return computeSpecialMove(Piece(c, box), dice_number);
+        }
 
         /**
          * @brief Método que gestiona el bucle principal del juego, mientras este no haya terminado,
