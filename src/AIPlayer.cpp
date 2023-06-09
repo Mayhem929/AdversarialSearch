@@ -522,7 +522,7 @@ double AIPlayer::MiValoracion2(const Parchis &estado, int jugador)
             color c = my_colors[i];
 
             puntuaciones_jug[i] = 0;
-            puntuaciones_jug[i] -= 40 * estado.piecesAtHome(c);
+            puntuaciones_jug[i] -= 20 * estado.piecesAtHome(c);
             if(estado.piecesAtHome(c) + estado.piecesAtGoal(c) == 3 and estado.piecesAtGoal(c) < 3)
                 puntuaciones_jug[i] -= 100;
 
@@ -537,42 +537,45 @@ double AIPlayer::MiValoracion2(const Parchis &estado, int jugador)
                 }
                 else if (estado.getBoard().getPiece(c, j).get_box().type == goal)
                 {
-                    puntuaciones_jug[i] += 150;
+                    puntuaciones_jug[i] += 100;
                 }
                 else if (estado.getBoard().getPiece(c, j).get_box().type == final_queue)
                 {
                     puntuaciones_jug[i] += 20;
                 }
-                
-                puntuaciones_jug[i] += (76 - estado.distanceToGoal(c, j));
+
+                // puntuaciones_jug[i] += (exp(-0.06 * (estado.distanceToGoal(c, j) - 76)));
+                puntuaciones_jug[i] += (83 - 1.5*exp(0.035*(50+estado.distanceToGoal(c, j))));
+                // puntuaciones_jug[i] += (76 - estado.distanceToGoal(c, j));
             }
         }
 
         auto especiales_jug = estado.getAvailableSpecialDices(my_colors[0]);
 
-        for(int j = 0; j < especiales_jug.size(); j++)
-        {
-            if(especiales_jug[j] == star)
-                puntuacion_jugador += 70;
-            else if(especiales_jug[j] == boo)
-                puntuacion_jugador += 30;
-            else if(especiales_jug[j] == bullet)
-                puntuacion_jugador += 45;
-            else if(especiales_jug[j] == red_shell)
-                puntuacion_jugador += 30;
-            else if(especiales_jug[j] == blue_shell)
-                puntuacion_jugador += 40;
-            else if(especiales_jug[j] == mushroom)
-                puntuacion_jugador += 8;
-            else if(especiales_jug[j] == mega_mushroom)
-                puntuacion_jugador += 30;
-            else if(especiales_jug[j] == shock)
-                puntuacion_jugador += 5;
-            else if(especiales_jug[j] == horn)
-                puntuacion_jugador += 30;
-            else if(especiales_jug[j] == banana)
-                puntuacion_jugador += 5;
-        }
+        for(int i = 0; i < my_colors.size(); ++i)
+            for(int j = 0; j < especiales_jug.size(); j++)
+            {
+                if(especiales_jug[j] == star)
+                    puntuaciones_jug[i] += 40;
+                else if(especiales_jug[j] == boo)
+                    puntuaciones_jug[i] += 25;
+                else if(especiales_jug[j] == bullet)
+                    puntuaciones_jug[i] += 55;
+                else if(especiales_jug[j] == red_shell)
+                    puntuaciones_jug[i] += 30;
+                else if(especiales_jug[j] == blue_shell)
+                    puntuaciones_jug[i] += 45;
+                else if(especiales_jug[j] == mushroom)
+                    puntuaciones_jug[i] += 8;
+                else if(especiales_jug[j] == mega_mushroom)
+                    puntuaciones_jug[i] += 25;
+                else if(especiales_jug[j] == shock)
+                    puntuaciones_jug[i] += 20;
+                else if(especiales_jug[j] == horn)
+                    puntuaciones_jug[i] += 30;
+                else if(especiales_jug[j] == banana)
+                    puntuaciones_jug[i] += 5;
+            }
 
         // Recorro todas las fichas del oponente
         // Recorro colores del oponente.
@@ -583,7 +586,7 @@ double AIPlayer::MiValoracion2(const Parchis &estado, int jugador)
             puntuaciones_op[i] = 0;
             puntuaciones_op[i] -= 40 * estado.piecesAtHome(c);
             if(estado.piecesAtHome(c) + estado.piecesAtGoal(c) == 3 and estado.piecesAtGoal(c) < 3)
-                puntuaciones_op[i] -= 100;
+                puntuaciones_op[i] -= 200;
 
             // Recorro las fichas de ese color.
             for (int j = 0; j < num_pieces; j++)
@@ -595,7 +598,7 @@ double AIPlayer::MiValoracion2(const Parchis &estado, int jugador)
                 }
                 else if (estado.getBoard().getPiece(c, j).get_box().type == goal)
                 {
-                    puntuaciones_op[i] += 150;
+                    puntuaciones_op[i] += 100;
                 }
                 else if (estado.getBoard().getPiece(c, j).get_box().type == final_queue)
                 {
@@ -606,44 +609,49 @@ double AIPlayer::MiValoracion2(const Parchis &estado, int jugador)
             }
         }
 
-        // auto especiales_op = estado.getAvailableSpecialDices(op_colors[0]);
-            
-        // for(int j = 0; j < especiales_op.size(); j++)
-        // {
-        //     if(especiales_op[j] == star)
-        //         puntuacion_oponente += 60;
-        //     else if(especiales_op[j] == boo)
-        //         puntuacion_oponente += 15;
-        //     else if(especiales_op[j] == bullet)
-        //         puntuacion_oponente += 50;
-        //     else if(especiales_op[j] == red_shell)
-        //         puntuacion_oponente += 40;
-        //     else if(especiales_op[j] == blue_shell)
-        //         puntuacion_oponente += 60;
-        //     else if(especiales_op[j] == mushroom)
-        //         puntuacion_oponente += 8;
-        //     else if(especiales_op[j] == mega_mushroom)
-        //         puntuacion_oponente += 60;
-        //     else if(especiales_op[j] == shock)
-        //         puntuacion_oponente += 15;
-        //     else if(especiales_op[j] == horn)
-        //         puntuacion_oponente += 50;
-        //     else if(especiales_op[j] == banana)
-        //         puntuacion_oponente += 10;
-        // }
+        auto especiales_op = estado.getAvailableSpecialDices(op_colors[0]);
+        
+        for(int i = 0; i < op_colors.size(); ++i)
+            for(int j = 0; j < especiales_op.size(); j++)
+            {
+                if(especiales_op[j] == star)
+                    puntuaciones_op[i] += 20;
+                else if(especiales_op[j] == boo)
+                    puntuaciones_op[i] += 15;
+                else if(especiales_op[j] == bullet)
+                    puntuaciones_op[i] += 65;
+                else if(especiales_op[j] == red_shell)
+                    puntuaciones_op[i] += 30;
+                else if(especiales_op[j] == blue_shell)
+                    puntuaciones_op[i] += 50;
+                else if(especiales_op[j] == mushroom)
+                    puntuaciones_op[i] += 8;
+                else if(especiales_op[j] == mega_mushroom)
+                    puntuaciones_op[i] += 20;
+                else if(especiales_op[j] == shock)
+                    puntuaciones_op[i] += 15;
+                else if(especiales_op[j] == horn)
+                    puntuaciones_op[i] += 30;
+                else if(especiales_op[j] == banana)
+                    puntuaciones_op[i] += 5;
+            }
 
         if(puntuaciones_jug[0] > puntuaciones_jug[1]){
-            puntuacion_jugador += puntuaciones_jug[0] * 1.8;
-            puntuacion_jugador += puntuaciones_jug[1] * 0.2;
+            puntuacion_jugador += puntuaciones_jug[0] * 0.67;
+            puntuacion_jugador += puntuaciones_jug[1] * 0.33;
         }
         else {
-            puntuacion_jugador += puntuaciones_jug[0] * 0.2;
-            puntuacion_jugador += puntuaciones_jug[1] * 1.8;
+            puntuacion_jugador += puntuaciones_jug[0] * 0.33;
+            puntuacion_jugador += puntuaciones_jug[1] * 0.67;
         }
 
-        for(int i = 0; i < op_colors.size(); i++)
-        {
-            puntuacion_oponente += puntuaciones_op[i]; 
+        if(puntuaciones_op[0] > puntuaciones_op[1]){
+            puntuacion_oponente += puntuaciones_op[0] * 0.6;
+            puntuacion_oponente += puntuaciones_op[1] * 0.4;
+        }
+        else {
+            puntuacion_oponente += puntuaciones_op[0] * 0.4;
+            puntuacion_oponente += puntuaciones_op[1] * 0.6;
         }
 
     }
