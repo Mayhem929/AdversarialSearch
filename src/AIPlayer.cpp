@@ -544,35 +544,39 @@ double AIPlayer::MiValoracion2(const Parchis &estado, int jugador)
                     puntuaciones_jug[i] += 20;
                 }
 
-                // puntuaciones_jug[i] += (exp(-0.06 * (estado.distanceToGoal(c, j) - 76)));
-                puntuaciones_jug[i] += (83 - 1.5*exp(0.035*(50+estado.distanceToGoal(c, j))));
+                puntuaciones_jug[i] += (83 - exp(0.035*(50+estado.distanceToGoal(c, j))));
                 // puntuaciones_jug[i] += (76 - estado.distanceToGoal(c, j));
             }
         }
 
         auto especiales_jug = estado.getAvailableSpecialDices(my_colors[0]);
+        auto especiales_op = estado.getAvailableSpecialDices(op_colors[0]);
 
         for(int i = 0; i < my_colors.size(); ++i)
             for(int j = 0; j < especiales_jug.size(); j++)
             {
                 if(especiales_jug[j] == star)
-                    puntuaciones_jug[i] += 40;
+                    puntuaciones_jug[i] += 50;
                 else if(especiales_jug[j] == boo)
                     puntuaciones_jug[i] += 25;
                 else if(especiales_jug[j] == bullet)
-                    puntuaciones_jug[i] += 55;
+                    puntuaciones_jug[i] += 75;
                 else if(especiales_jug[j] == red_shell)
                     puntuaciones_jug[i] += 30;
                 else if(especiales_jug[j] == blue_shell)
-                    puntuaciones_jug[i] += 45;
+                    puntuaciones_jug[i] += 70;
                 else if(especiales_jug[j] == mushroom)
                     puntuaciones_jug[i] += 8;
                 else if(especiales_jug[j] == mega_mushroom)
-                    puntuaciones_jug[i] += 25;
+                    puntuaciones_jug[i] += 15;
                 else if(especiales_jug[j] == shock)
                     puntuaciones_jug[i] += 20;
-                else if(especiales_jug[j] == horn)
+                else if(especiales_jug[j] == horn){
+                    for(auto k : especiales_op)
+                        if(k == blue_shell)
+                            puntuaciones_jug[i] += 40;
                     puntuaciones_jug[i] += 30;
+                }
                 else if(especiales_jug[j] == banana)
                     puntuaciones_jug[i] += 5;
             }
@@ -609,7 +613,7 @@ double AIPlayer::MiValoracion2(const Parchis &estado, int jugador)
             }
         }
 
-        auto especiales_op = estado.getAvailableSpecialDices(op_colors[0]);
+       
         
         for(int i = 0; i < op_colors.size(); ++i)
             for(int j = 0; j < especiales_op.size(); j++)
@@ -619,7 +623,7 @@ double AIPlayer::MiValoracion2(const Parchis &estado, int jugador)
                 else if(especiales_op[j] == boo)
                     puntuaciones_op[i] += 15;
                 else if(especiales_op[j] == bullet)
-                    puntuaciones_op[i] += 65;
+                    puntuaciones_op[i] += 35;
                 else if(especiales_op[j] == red_shell)
                     puntuaciones_op[i] += 30;
                 else if(especiales_op[j] == blue_shell)
@@ -637,21 +641,21 @@ double AIPlayer::MiValoracion2(const Parchis &estado, int jugador)
             }
 
         if(puntuaciones_jug[0] > puntuaciones_jug[1]){
-            puntuacion_jugador += puntuaciones_jug[0] * 0.67;
-            puntuacion_jugador += puntuaciones_jug[1] * 0.33;
+            puntuacion_jugador += puntuaciones_jug[0] * 0.82;
+            puntuacion_jugador += puntuaciones_jug[1] * 0.2;
         }
         else {
-            puntuacion_jugador += puntuaciones_jug[0] * 0.33;
-            puntuacion_jugador += puntuaciones_jug[1] * 0.67;
+            puntuacion_jugador += puntuaciones_jug[0] * 0.2;
+            puntuacion_jugador += puntuaciones_jug[1] * 0.82;
         }
 
         if(puntuaciones_op[0] > puntuaciones_op[1]){
-            puntuacion_oponente += puntuaciones_op[0] * 0.6;
-            puntuacion_oponente += puntuaciones_op[1] * 0.4;
+            puntuacion_oponente += puntuaciones_op[0] * 0.65;
+            puntuacion_oponente += puntuaciones_op[1] * 0.35;
         }
         else {
-            puntuacion_oponente += puntuaciones_op[0] * 0.4;
-            puntuacion_oponente += puntuaciones_op[1] * 0.6;
+            puntuacion_oponente += puntuaciones_op[0] * 0.35;
+            puntuacion_oponente += puntuaciones_op[1] * 0.65;
         }
 
     }
