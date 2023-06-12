@@ -296,6 +296,9 @@ void AIPlayer::think(color & c_piece, int & id_piece, int & dice) const{
         case 2:
             valor = Poda_AlfaBeta(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, MiValoracion2);
             break;
+        case 3:
+            valor = Poda_AlfaBeta(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, MiValoracion3);
+            break;
     }
     cout << "Valor Poda: " << valor << "  Accion: " << str(c_piece) << " " << id_piece << " " << dice << endl;
     cout << "Valoracion estado actual: " << MiValoracion2(*actual, jugador) << endl;
@@ -533,11 +536,11 @@ double AIPlayer::MiValoracion2(const Parchis &estado, int jugador)
                 // Valoro positivamente que la ficha esté en casilla segura o meta.
                 if (estado.isSafePiece(c, j))
                 {
-                    puntuaciones_jug[i] += 3;
+                    puntuaciones_jug[i] += 10;
                 }
                 else if (estado.getBoard().getPiece(c, j).get_box().type == goal)
                 {
-                    puntuaciones_jug[i] += 100;
+                    puntuaciones_jug[i] += 30;
                 }
                 else if (estado.getBoard().getPiece(c, j).get_box().type == final_queue)
                 {
@@ -570,12 +573,9 @@ double AIPlayer::MiValoracion2(const Parchis &estado, int jugador)
                 else if(especiales_jug[j] == mega_mushroom)
                     puntuaciones_jug[i] += 15;
                 else if(especiales_jug[j] == shock)
-                    puntuaciones_jug[i] += 20;
+                    puntuaciones_jug[i] += 40;
                 else if(especiales_jug[j] == horn){
-                    for(auto k : especiales_op)
-                        if(k == blue_shell)
-                            puntuaciones_jug[i] += 40;
-                    puntuaciones_jug[i] += 30;
+                    puntuaciones_jug[i] += 60;
                 }
                 else if(especiales_jug[j] == banana)
                     puntuaciones_jug[i] += 5;
@@ -662,4 +662,104 @@ double AIPlayer::MiValoracion2(const Parchis &estado, int jugador)
 
     // Devuelvo la puntuación de mi jugador menos la puntuación del oponente.
     return puntuacion_jugador - puntuacion_oponente;
+}
+
+
+
+
+
+
+double Valora(const Parchis &estado, int jugador){
+
+    double puntuacion = 0;
+    double p[2] = {0};
+
+    vector<color> my_colors = estado.getPlayerColors(jugador);
+
+    for (int i = 0; i < my_colors.size(); i++)
+    {
+        color c = my_colors[i];
+
+        // Recorro las fichas de ese color.
+        
+        for (int j = 0; j < num_pieces; j++)
+        {
+            // Valoro positivamente que la ficha esté en casilla segura o meta.
+            if (estado.isSafePiece(c, j))
+            {
+                p[i] += 10;
+            }
+            else if (estado.getBoard().getPiece(c, j).get_box().type == goal)
+            {
+                p[i] += 30;
+            }
+            else if (estado.getBoard().getPiece(c, j).get_box().type == home)
+            {
+                p[i] -= 50;
+            }
+            else if (estado.getBoard().getPiece(c, j).get_box().type == final_queue)
+            {
+                p[i] += 20;
+            }
+
+            p[i] += (76 - estado.distanceToGoal(c, j));
+        }
+    }
+
+
+    puntuacion = p[1]*1.4 + p[0]*0.6;
+
+    if(p[0] > p[1])
+        puntuacion = p[0]*1.4 + p[1]*0.6;
+    
+
+    auto especiales_jug = estado.getAvailableSpecialDices(my_colors[0]);
+
+    for(int j = 0; j < especiales_jug.size(); j++)
+    {
+        if(especiales_jug[j] == star)
+            puntuacion += 40;
+        else if(especiales_jug[j] == boo)
+            puntuacion += 10;
+        else if(especiales_jug[j] == bullet)
+            puntuacion += 45;
+        else if(especiales_jug[j] == red_shell)
+            puntuacion += 20;
+        else if(especiales_jug[j] == blue_shell)
+            puntuacion += 60;
+        else if(especiales_jug[j] == mushroom)
+            puntuacion += 10;
+        else if(especiales_jug[j] == mega_mushroom)
+            puntuacion += 15;
+        else if(especiales_jug[j] == shock)
+            puntuacion += 25;
+        else if(especiales_jug[j] == horn)
+            puntuacion += 50;
+        else if(especiales_jug[j] == banana)
+            puntuacion += 10;
+    }
+
+    return puntuacion; 
+}
+
+double AIPlayer::MiValoracion3(const Parchis &estado, int jugador)
+{
+    // Heurística de prueba proporcionada para validar el funcionamiento del algoritmo de búsqueda.
+
+
+    int ganador = estado.getWinner();
+    int oponente = (jugador+1) % 2;
+
+    // Si hay un ganador, devuelvo más/menos infinito, según si he ganado yo o el oponente.
+    if (ganador == jugador)
+    {
+        return gana;
+    }
+    else if (ganador == oponente)
+    {
+        return pierde;
+    }
+    
+    // Devuelvo la puntuación de mi jugador menos la puntuación del oponente.
+    return Valora(estado, jugador) - Valora(estado, oponente);
 }
