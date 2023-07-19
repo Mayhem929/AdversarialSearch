@@ -15,6 +15,10 @@ For the design of a solution, I have chosen to use the Alpha-Beta pruning since 
 Once all the students submitted their solutions, the teachers organised a tournament in which all AIs would play against each other and would gather points. In the end, my AI got first place among all the students and I got some cool badges :)
 
 ![LEADERBOARD_P3_-_TOP_1_GENERAL](https://github.com/Mayhem929/AdversarialSearch/assets/76180710/4a684645-8101-4810-8b14-cdc8fcfd3853)
+![LEADERBOARD_P3_-_TOP_1_GRUPO](https://github.com/Mayhem929/AdversarialSearch/assets/76180710/2b120f67-df8c-4c87-b44c-9dd45259972b)
+![LEADERBOARD_P3_-_TOP_1_SUBGRUPO](https://github.com/Mayhem929/AdversarialSearch/assets/76180710/275e8e58-e081-45f5-8e4e-a57c9a3f8151)
+
+[made by panetone](https://github.com/PanetoneTryhard)
 
 ---
 
