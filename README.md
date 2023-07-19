@@ -1,7 +1,7 @@
 # Adversarial Search (Games)
 ## My personal solution to the 3<sup>rd</sup> practice of *Artificial Intelligence*, 2022/2023
 
-![Screenshot from 2023-07-19 10-44-31](https://github.com/Mayhem929/AdversarialSearch/assets/76180710/90fc2ca7-8b1d-4341-a4bb-41453a2d0e60)
+![Screenshot from 2023-07-19 10-44-31](https://github.com/Mayhem929/AdversarialSearch/assets/76180710/76cb3270-fa78-485f-b0db-6965ba59984c)
 
 
 In this practice, we are asked to design and implement a deliberative agent capable of carrying out intelligent behavior within the modified rules of the game of **parchís**.
@@ -14,7 +14,7 @@ For the design of a solution, I have chosen to use the Alpha-Beta pruning since 
 
 Once all the students submitted their solutions, the teachers organised a tournament in which all AIs would play against each other and would gather points. In the end, my AI got first place among all the students and I got some cool badges :)
 
-![image](https://github.com/Mayhem929/AdversarialSearch/assets/76180710/c928459d-e139-44b1-8866-3d590f1b7b8d=350x350)    ![image](https://github.com/Mayhem929/AdversarialSearch/assets/76180710/be21bade-976f-440e-a455-9d23768c2716)    ![image](https://github.com/Mayhem929/AdversarialSearch/assets/76180710/d1af9c36-1419-4b24-9d8e-6cd59d2879c7)
+![LEADERBOARD_P3_-_TOP_1_GENERAL](https://github.com/Mayhem929/AdversarialSearch/assets/76180710/4a684645-8101-4810-8b14-cdc8fcfd3853)
 
 ---
 
